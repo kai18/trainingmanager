@@ -9,5 +9,5 @@ import com.poc.trainingmanager.model.User;
 
 @Repository
 public interface UserRepository extends CrudRepository<User, UUID> {
-
+lol
 }
