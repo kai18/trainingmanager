@@ -4,23 +4,22 @@ import org.springframework.cassandra.core.PrimaryKeyType;
 import org.springframework.data.cassandra.mapping.PrimaryKeyColumn;
 import org.springframework.data.cassandra.mapping.Table;
 
-import com.datastax.driver.core.utils.UUIDs;
-
-@Table("users")
+@Table(value = "user")
 public class User {
-	@PrimaryKeyColumn(type = PrimaryKeyType.PARTITIONED)
-	private UUIDs id;
+	@PrimaryKeyColumn(name = "id", type = PrimaryKeyType.PARTITIONED)
+	private Integer id;
+
 	private String firstName;
+
 	private String lastName;
+
 	private boolean isActive;
 
-	Address addres;
-
-	public UUIDs getId() {
+	public Integer getId() {
 		return id;
 	}
 
-	public void setId(UUIDs id) {
+	public void setId(Integer id) {
 		this.id = id;
 	}
 
@@ -46,6 +45,12 @@ public class User {
 
 	public void setActive(boolean isActive) {
 		this.isActive = isActive;
+	}
+
+	@Override
+	public String toString() {
+		return "User [id=" + id + ", firstName=" + firstName + ", lastName=" + lastName + ", isActive=" + isActive
+				+ "]";
 	}
 
 }
