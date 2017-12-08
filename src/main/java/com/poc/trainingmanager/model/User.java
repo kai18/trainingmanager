@@ -2,13 +2,14 @@ package com.poc.trainingmanager.model;
 
 import java.util.Date;
 import java.util.Set;
+import java.util.UUID;
 
 import org.springframework.cassandra.core.PrimaryKeyType;
 import org.springframework.data.cassandra.mapping.Column;
+import org.springframework.data.cassandra.mapping.Indexed;
 import org.springframework.data.cassandra.mapping.PrimaryKeyColumn;
 import org.springframework.data.cassandra.mapping.Table;
 
-import com.datastax.driver.core.utils.UUIDs;
 import com.datastax.driver.mapping.annotations.Frozen;
 import com.poc.trainingmanager.model.cassandraudt.Address;
 import com.poc.trainingmanager.model.cassandraudt.Department;
@@ -18,12 +19,14 @@ import com.poc.trainingmanager.model.cassandraudt.Role;
 public class User {
 
 	@PrimaryKeyColumn(name = "ID", type = PrimaryKeyType.PARTITIONED)
-	private UUIDs id;
+	private UUID id;
 
 	@Column(value = "FIRST_NAME")
+	@Indexed
 	private String firstName;
 
 	@Column(value = "LAST_NAME")
+	@Indexed
 	private String lastName;
 
 	@Column(value = "PASSWORD")
@@ -33,6 +36,7 @@ public class User {
 	private String gender;
 
 	@Column(value = "EMAIL_ID")
+	@Indexed
 	private String emailId;
 
 	@Column(value = "PHONE_NUMBER")
@@ -50,16 +54,18 @@ public class User {
 	private Address address;
 	
 	@Frozen
+	@Indexed
 	private Set<Role> roles;
 	
 	@Frozen
+	@Indexed
 	private Set<Department> departments;
 
-	public UUIDs getId() {
+	public UUID getId() {
 		return id;
 	}
 
-	public void setId(UUIDs id) {
+	public void setId(UUID id) {
 		this.id = id;
 	}
 
@@ -159,7 +165,7 @@ public class User {
 		this.departments = departments;
 	}
 
-	public User(UUIDs id, String firstName, String lastName, String password, String gender, String emailId,
+	public User(UUID id, String firstName, String lastName, String password, String gender, String emailId,
 			String phoneNumber, String isActive, Date createdDtm, Date updatedDtm, Address address, Set<Role> roles,
 			Set<Department> departments) {
 		super();
