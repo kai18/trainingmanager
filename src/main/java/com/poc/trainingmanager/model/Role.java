@@ -1,12 +1,13 @@
 package com.poc.trainingmanager.model;
 
 import java.util.Date;
-import java.util.UUID;
 
+import org.springframework.cassandra.core.PrimaryKeyType;
 import org.springframework.data.cassandra.mapping.Column;
-import org.springframework.data.cassandra.mapping.Table;
+import org.springframework.data.cassandra.mapping.PrimaryKeyColumn;
 
 import com.datastax.driver.core.utils.UUIDs;
+import com.datastax.driver.mapping.annotations.Table;
 
 /**
  * 
@@ -17,44 +18,54 @@ import com.datastax.driver.core.utils.UUIDs;
  * 
  * </p>
  */
-@Table(value = "role")
+@Table(name = "role")
 public class Role {
 
-	@Column("role_id")
-	private UUID roleId;
-	
+	@PrimaryKeyColumn(name = "role_id", type = PrimaryKeyType.PARTITIONED)
+	private UUIDs roleId;
 	@Column("role_name")
 	private String roleName;
-	
 	@Column("role_type")
 	private String roleType;
-	
 	@Column("role_description")
 	private String roleDescription;
-	
-	@Column("creation")
+	@Column("creation_previlege")
 	private int creationPrevilege;
-	
-	@Column("read")
+	@Column("read_previlege")
 	private int readPrevilege;
-	
-	@Column("deletion")
+	@Column("deletion_previlege")
 	private int deletionPrevilege;
-	
-	@Column("updation")
+	@Column("updation_previlege")
 	private int updationPrevilege;
-	
 	@Column("created_dtm")
 	private Date createdDtm;
-	
 	@Column("updated_dtm")
 	private Date updatedDtm;
 
-	public UUID getRoleId() {
+	public Role() {
+		super();
+	}
+
+	public Role(UUIDs roleId, String roleName, String roleType, String roleDescription, int creationPrevilege,
+			int readPrevilege, int deletionPrevilege, int updationPrevilege, Date createdDtm, Date updatedDtm) {
+		super();
+		this.roleId = roleId;
+		this.roleName = roleName;
+		this.roleType = roleType;
+		this.roleDescription = roleDescription;
+		this.creationPrevilege = creationPrevilege;
+		this.readPrevilege = readPrevilege;
+		this.deletionPrevilege = deletionPrevilege;
+		this.updationPrevilege = updationPrevilege;
+		this.createdDtm = createdDtm;
+		this.updatedDtm = updatedDtm;
+	}
+
+	public UUIDs getRoleId() {
 		return roleId;
 	}
 
-	public void setRoleId(UUID roleId) {
+	public void setRoleId(UUIDs roleId) {
 		this.roleId = roleId;
 	}
 
@@ -129,30 +140,5 @@ public class Role {
 	public void setUpdatedDtm(Date updatedDtm) {
 		this.updatedDtm = updatedDtm;
 	}
-
-	public Role(UUID roleId, String roleName, String roleType, String roleDescription, int creationPrevilege,
-			int readPrevilege, int deletionPrevilege, int updationPrevilege, Date createdDtm, Date updatedDtm) {
-		super();
-		this.roleId = roleId;
-		this.roleName = roleName;
-		this.roleType = roleType;
-		this.roleDescription = roleDescription;
-		this.creationPrevilege = creationPrevilege;
-		this.readPrevilege = readPrevilege;
-		this.deletionPrevilege = deletionPrevilege;
-		this.updationPrevilege = updationPrevilege;
-		this.createdDtm = createdDtm;
-		this.updatedDtm = updatedDtm;
-	}
-
-	@Override
-	public String toString() {
-		return "Role [roleId=" + roleId + ", roleName=" + roleName + ", roleType=" + roleType + ", roleDescription="
-				+ roleDescription + ", creationPrevilege=" + creationPrevilege + ", readPrevilege=" + readPrevilege
-				+ ", deletionPrevilege=" + deletionPrevilege + ", updationPrevilege=" + updationPrevilege
-				+ ", createdDtm=" + createdDtm + ", updatedDtm=" + updatedDtm + "]";
-	}
-
-	
 
 }
