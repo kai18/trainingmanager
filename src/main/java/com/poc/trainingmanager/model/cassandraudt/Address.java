@@ -1,4 +1,4 @@
-package com.poc.trainingmanager.model;
+package com.poc.trainingmanager.model.cassandraudt;
 
 import com.datastax.driver.mapping.annotations.Field;
 import com.datastax.driver.mapping.annotations.UDT;
@@ -21,7 +21,6 @@ public class Address {
 	String zipcode;
 
 	public Address() {
-		super();
 	}
 
 	public Address(String doorNumber, String streetName, String area, String city, String state, String country,
