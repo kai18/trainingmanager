@@ -1,23 +1,12 @@
-package com.poc.trainingmanager.model;
+package com.poc.trainingmanager.model.cassandraudt;
 
 import java.util.Date;
 import java.util.UUID;
 
 import org.springframework.data.cassandra.mapping.Column;
-import org.springframework.data.cassandra.mapping.Table;
+import org.springframework.data.cassandra.mapping.UserDefinedType;
 
-import com.datastax.driver.core.utils.UUIDs;
-
-/**
- * 
- * <p>
- * This is the POJO for the Role table. It stores the user's role that can be
- * system administrator or department administrator or a normal user with only
- * read privileges. This POJO also contains the user's privilege information.
- * 
- * </p>
- */
-@Table(value = "role")
+@UserDefinedType("role")
 public class Role {
 
 	@Column("role_id")
@@ -144,15 +133,5 @@ public class Role {
 		this.createdDtm = createdDtm;
 		this.updatedDtm = updatedDtm;
 	}
-
-	@Override
-	public String toString() {
-		return "Role [roleId=" + roleId + ", roleName=" + roleName + ", roleType=" + roleType + ", roleDescription="
-				+ roleDescription + ", creationPrevilege=" + creationPrevilege + ", readPrevilege=" + readPrevilege
-				+ ", deletionPrevilege=" + deletionPrevilege + ", updationPrevilege=" + updationPrevilege
-				+ ", createdDtm=" + createdDtm + ", updatedDtm=" + updatedDtm + "]";
-	}
-
 	
-
 }
