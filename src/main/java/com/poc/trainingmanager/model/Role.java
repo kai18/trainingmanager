@@ -13,6 +13,7 @@ import com.datastax.driver.core.utils.UUIDs;
  * 
  * </p>
  */
+
 public class Role {
 
 	private UUIDs roleId;
