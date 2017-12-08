@@ -4,10 +4,12 @@ import org.springframework.cassandra.core.PrimaryKeyType;
 import org.springframework.data.cassandra.mapping.PrimaryKeyColumn;
 import org.springframework.data.cassandra.mapping.Table;
 
+import com.datastax.driver.core.utils.UUIDs;
+
 @Table(value = "user")
 public class User {
 	@PrimaryKeyColumn(name = "id", type = PrimaryKeyType.PARTITIONED)
-	private Integer id;
+	private UUIDs id;
 
 	private String firstName;
 
@@ -15,11 +17,11 @@ public class User {
 
 	private boolean isActive;
 
-	public Integer getId() {
+	public UUIDs getId() {
 		return id;
 	}
 
-	public void setId(Integer id) {
+	public void setId(UUIDs id) {
 		this.id = id;
 	}
 
