@@ -2,7 +2,12 @@ package com.poc.trainingmanager.model;
 
 import java.util.Date;
 
+import org.springframework.cassandra.core.PrimaryKeyType;
+import org.springframework.data.cassandra.mapping.Column;
+import org.springframework.data.cassandra.mapping.PrimaryKeyColumn;
+
 import com.datastax.driver.core.utils.UUIDs;
+import com.datastax.driver.mapping.annotations.Table;
 
 /**
  * 
@@ -13,18 +18,28 @@ import com.datastax.driver.core.utils.UUIDs;
  * 
  * </p>
  */
-
+@Table(name = "role")
 public class Role {
 
+	@PrimaryKeyColumn(name = "role_id", type = PrimaryKeyType.PARTITIONED)
 	private UUIDs roleId;
+	@Column("role_name")
 	private String roleName;
+	@Column("role_type")
 	private String roleType;
+	@Column("role_description")
 	private String roleDescription;
+	@Column("creation_previlege")
 	private int creationPrevilege;
+	@Column("read_previlege")
 	private int readPrevilege;
+	@Column("deletion_previlege")
 	private int deletionPrevilege;
+	@Column("updation_previlege")
 	private int updationPrevilege;
+	@Column("created_dtm")
 	private Date createdDtm;
+	@Column("updated_dtm")
 	private Date updatedDtm;
 
 	public Role() {

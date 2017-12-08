@@ -1,7 +1,7 @@
 package com.poc.trainingmanager.model.cassandraudt;
 
-import com.datastax.driver.mapping.annotations.Field;
-import com.datastax.driver.mapping.annotations.UDT;
+import org.springframework.data.cassandra.mapping.Column;
+import org.springframework.data.cassandra.mapping.UserDefinedType;
 
 /**
  * @author Kaustubh.Kaustubh
@@ -11,28 +11,23 @@ import com.datastax.driver.mapping.annotations.UDT;
  *         Datastax driver's.
  *         </p>
  */
-@UDT(name = "address")
+@UserDefinedType("address")
 public class Address {
 
-	@Field(name = "door_number")
+	@Column("door_number")
 	String doorNumber;
 
-	@Field(name = "street_name")
+	@Column("street_name")
 	String streetName;
 
-	@Field(name = "area")
 	String area;
 
-	@Field(name = "city")
 	String city;
 
-	@Field(name = "state")
 	String state;
 
-	@Field(name = "country")
 	String country;
 
-	@Field(name = "zipcode")
 	String zipcode;
 
 	public Address() {
