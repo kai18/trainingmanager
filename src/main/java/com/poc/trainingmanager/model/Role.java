@@ -5,14 +5,13 @@ import java.util.Date;
 import com.datastax.driver.core.utils.UUIDs;
 
 /**
- * @author Kaustubh.Kaustubh
- *         <p>
- *         This is the POJO for the Role table. It is stores the user's role
- *         that can be system administrator or department administrator or a
- *         normal user with only read privileges. This POJO also contains the
- *         user's privilege information.
  * 
- *         </p>
+ * <p>
+ * This is the POJO for the Role table. It stores the user's role that can be
+ * system administrator or department administrator or a normal user with only
+ * read privileges. This POJO also contains the user's privilege information.
+ * 
+ * </p>
  */
 public class Role {
 

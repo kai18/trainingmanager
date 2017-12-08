@@ -3,6 +3,14 @@ package com.poc.trainingmanager.model.cassandraudt;
 import com.datastax.driver.mapping.annotations.Field;
 import com.datastax.driver.mapping.annotations.UDT;
 
+/**
+ * @author Kaustubh.Kaustubh
+ *         <p>
+ *         This is the POJO that stores the user's address. It also mapped with
+ *         the User Defined Type "address" in Cassandra. Annotations used are
+ *         Datastax driver's.
+ *         </p>
+ */
 @UDT(name = "address")
 public class Address {
 
