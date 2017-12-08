@@ -5,18 +5,25 @@ import com.datastax.driver.mapping.annotations.UDT;
 
 @UDT(name = "address")
 public class Address {
+
 	@Field(name = "door_number")
 	String doorNumber;
+
 	@Field(name = "street_name")
 	String streetName;
+
 	@Field(name = "area")
 	String area;
+
 	@Field(name = "city")
 	String city;
+
 	@Field(name = "state")
 	String state;
+
 	@Field(name = "country")
 	String country;
+
 	@Field(name = "zipcode")
 	String zipcode;
 
