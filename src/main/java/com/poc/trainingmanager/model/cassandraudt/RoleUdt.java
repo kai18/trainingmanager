@@ -7,7 +7,7 @@ import org.springframework.data.cassandra.mapping.Column;
 import org.springframework.data.cassandra.mapping.UserDefinedType;
 
 @UserDefinedType("role")
-public class Role {
+public class RoleUdt {
 
 	@Column("role_id")
 	private UUID roleId;
@@ -119,7 +119,7 @@ public class Role {
 		this.updatedDtm = updatedDtm;
 	}
 
-	public Role(UUID roleId, String roleName, String roleType, String roleDescription, int creationPrevilege,
+	public RoleUdt(UUID roleId, String roleName, String roleType, String roleDescription, int creationPrevilege,
 			int readPrevilege, int deletionPrevilege, int updationPrevilege, Date createdDtm, Date updatedDtm) {
 		super();
 		this.roleId = roleId;

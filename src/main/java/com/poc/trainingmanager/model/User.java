@@ -13,7 +13,7 @@ import org.springframework.data.cassandra.mapping.Table;
 import com.datastax.driver.mapping.annotations.Frozen;
 import com.poc.trainingmanager.model.cassandraudt.Address;
 import com.poc.trainingmanager.model.cassandraudt.Department;
-import com.poc.trainingmanager.model.cassandraudt.Role;
+import com.poc.trainingmanager.model.cassandraudt.RoleUdt;
 
 @Table(value = "user")
 public class User {
@@ -55,7 +55,7 @@ public class User {
 	
 	@Frozen
 	@Indexed
-	private Set<Role> roles;
+	private Set<RoleUdt> roles;
 	
 	@Frozen
 	@Indexed
@@ -149,11 +149,11 @@ public class User {
 		this.address = address;
 	}
 
-	public Set<Role> getRoles() {
+	public Set<RoleUdt> getRoles() {
 		return roles;
 	}
 
-	public void setRoles(Set<Role> roles) {
+	public void setRoles(Set<RoleUdt> roles) {
 		this.roles = roles;
 	}
 
@@ -166,7 +166,7 @@ public class User {
 	}
 
 	public User(UUID id, String firstName, String lastName, String password, String gender, String emailId,
-			String phoneNumber, String isActive, Date createdDtm, Date updatedDtm, Address address, Set<Role> roles,
+			String phoneNumber, String isActive, Date createdDtm, Date updatedDtm, Address address, Set<RoleUdt> roles,
 			Set<Department> departments) {
 		super();
 		this.id = id;

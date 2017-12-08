@@ -3,41 +3,46 @@ package com.poc.trainingmanager.model;
 import java.util.Date;
 import java.util.UUID;
 
+import org.springframework.cassandra.core.PrimaryKeyType;
 import org.springframework.data.cassandra.mapping.Column;
+import org.springframework.data.cassandra.mapping.PrimaryKeyColumn;
 import org.springframework.data.cassandra.mapping.Table;
 
 @Table("role")
 public class Role {
 
-	@Column("role_id")
+	@PrimaryKeyColumn(name = "role_id", type = PrimaryKeyType.PARTITIONED)
 	private UUID roleId;
-	
+
 	@Column("role_name")
 	private String roleName;
-	
+
 	@Column("role_type")
 	private String roleType;
-	
+
 	@Column("role_description")
 	private String roleDescription;
-	
+
 	@Column("creation")
 	private int creationPrevilege;
-	
+
 	@Column("read")
 	private int readPrevilege;
-	
+
 	@Column("deletion")
 	private int deletionPrevilege;
-	
+
 	@Column("updation")
 	private int updationPrevilege;
-	
+
 	@Column("created_dtm")
 	private Date createdDtm;
-	
+
 	@Column("updated_dtm")
 	private Date updatedDtm;
+
+	public Role() {
+	}
 
 	public UUID getRoleId() {
 		return roleId;
@@ -133,5 +138,5 @@ public class Role {
 		this.createdDtm = createdDtm;
 		this.updatedDtm = updatedDtm;
 	}
-	
+
 }
