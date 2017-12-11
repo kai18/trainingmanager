@@ -3,12 +3,15 @@ package com.poc.trainingmanager.model;
 import java.util.Date;
 import java.util.UUID;
 
+import org.springframework.cassandra.core.PrimaryKeyType;
 import org.springframework.data.cassandra.mapping.Column;
+import org.springframework.data.cassandra.mapping.PrimaryKeyColumn;
 import org.springframework.data.cassandra.mapping.Table;
 
 @Table("department")
 public class Department {
-	
+
+	@PrimaryKeyColumn(name = "DEPARTMENT_ID", type = PrimaryKeyType.PARTITIONED)
 	@Column("DEPARTMENT_ID")
 	private UUID departmentId;
 
@@ -80,5 +83,5 @@ public class Department {
 				+ ", departmentDescription=" + departmentDescription + ", departmentCreatedDtm=" + departmentCreatedDtm
 				+ ", departmentUpdatedDtm=" + departmentUpdatedDtm + "]";
 	}
-	
+
 }

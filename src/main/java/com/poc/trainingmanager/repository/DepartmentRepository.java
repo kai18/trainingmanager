@@ -5,11 +5,10 @@ import java.util.UUID;
 import org.springframework.data.cassandra.repository.CassandraRepository;
 import org.springframework.stereotype.Repository;
 
-import com.poc.trainingmanager.model.User;
+import com.poc.trainingmanager.model.Department;
 
 @Repository
-public interface UserRepository extends CassandraRepository<User> {
+public interface DepartmentRepository extends CassandraRepository<Department> {
 
-	public User findById(UUID uuid);
-
+	public Department findByDepartmentId(UUID uuid);
 }

@@ -11,8 +11,8 @@ import org.springframework.data.cassandra.mapping.PrimaryKeyColumn;
 import org.springframework.data.cassandra.mapping.Table;
 
 import com.datastax.driver.mapping.annotations.Frozen;
-import com.poc.trainingmanager.model.cassandraudt.Address;
-import com.poc.trainingmanager.model.cassandraudt.Department;
+import com.poc.trainingmanager.model.cassandraudt.AddressUdt;
+import com.poc.trainingmanager.model.cassandraudt.DepartmentUdt;
 import com.poc.trainingmanager.model.cassandraudt.RoleUdt;
 
 @Table(value = "user")
@@ -35,7 +35,7 @@ public class User {
 	@Column(value = "GENDER")
 	private String gender;
 
-	@Column(value = "EMAIL_ID")
+	@Column(value = "EMAIL")
 	@Indexed
 	private String emailId;
 
@@ -43,7 +43,7 @@ public class User {
 	private String phoneNumber;
 
 	@Column(value = "IS_ACTIVE")
-	private String isActive;
+	private boolean isActive;
 
 	@Column(value = "CREATED_DTM")
 	private Date createdDtm;
@@ -51,15 +51,15 @@ public class User {
 	@Column(value = "UPDATED_DTM")
 	private Date updatedDtm;
 
-	private Address address;
-	
+	private AddressUdt address;
+
 	@Frozen
 	@Indexed
 	private Set<RoleUdt> roles;
-	
+
 	@Frozen
 	@Indexed
-	private Set<Department> departments;
+	private Set<DepartmentUdt> departments;
 
 	public UUID getId() {
 		return id;
@@ -117,12 +117,12 @@ public class User {
 		this.phoneNumber = phoneNumber;
 	}
 
-	public String getIsActive() {
+	public boolean getIsActive() {
 		return isActive;
 	}
 
-	public void setIsActive(String isActive) {
-		this.isActive = isActive;
+	public void setIsActive(boolean b) {
+		this.isActive = b;
 	}
 
 	public Date getCreatedDtm() {
@@ -141,11 +141,11 @@ public class User {
 		this.updatedDtm = updatedDtm;
 	}
 
-	public Address getAddress() {
+	public AddressUdt getAddress() {
 		return address;
 	}
 
-	public void setAddress(Address address) {
+	public void setAddress(AddressUdt address) {
 		this.address = address;
 	}
 
@@ -157,17 +157,17 @@ public class User {
 		this.roles = roles;
 	}
 
-	public Set<Department> getDepartments() {
+	public Set<DepartmentUdt> getDepartments() {
 		return departments;
 	}
 
-	public void setDepartments(Set<Department> departments) {
+	public void setDepartments(Set<DepartmentUdt> departments) {
 		this.departments = departments;
 	}
 
 	public User(UUID id, String firstName, String lastName, String password, String gender, String emailId,
-			String phoneNumber, String isActive, Date createdDtm, Date updatedDtm, Address address, Set<RoleUdt> roles,
-			Set<Department> departments) {
+			String phoneNumber, boolean isActive, Date createdDtm, Date updatedDtm, AddressUdt address, Set<RoleUdt> roles,
+			Set<DepartmentUdt> departments) {
 		super();
 		this.id = id;
 		this.firstName = firstName;
@@ -184,6 +184,10 @@ public class User {
 		this.departments = departments;
 	}
 
+	public User() {
+		// TODO Auto-generated constructor stub
+	}
+
 	@Override
 	public String toString() {
 		return "User [id=" + id + ", firstName=" + firstName + ", lastName=" + lastName + ", password=" + password
@@ -191,5 +195,5 @@ public class User {
 				+ isActive + ", createdDtm=" + createdDtm + ", updatedDtm=" + updatedDtm + ", address=" + address
 				+ ", roles=" + roles + ", departments=" + departments + "]";
 	}
-	
+
 }

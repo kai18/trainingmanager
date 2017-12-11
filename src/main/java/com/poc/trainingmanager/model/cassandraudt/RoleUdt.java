@@ -3,39 +3,43 @@ package com.poc.trainingmanager.model.cassandraudt;
 import java.util.Date;
 import java.util.UUID;
 
+import org.springframework.data.cassandra.mapping.CassandraType;
 import org.springframework.data.cassandra.mapping.Column;
 import org.springframework.data.cassandra.mapping.UserDefinedType;
+
+import com.datastax.driver.core.DataType;
 
 @UserDefinedType("role")
 public class RoleUdt {
 
+	@CassandraType(type = DataType.Name.UUID)
 	@Column("role_id")
 	private UUID roleId;
-	
+
 	@Column("role_name")
 	private String roleName;
-	
+
 	@Column("role_type")
 	private String roleType;
-	
+
 	@Column("role_description")
 	private String roleDescription;
-	
+
 	@Column("creation")
 	private int creationPrevilege;
-	
+
 	@Column("read")
 	private int readPrevilege;
-	
+
 	@Column("deletion")
 	private int deletionPrevilege;
-	
+
 	@Column("updation")
 	private int updationPrevilege;
-	
+
 	@Column("created_dtm")
 	private Date createdDtm;
-	
+
 	@Column("updated_dtm")
 	private Date updatedDtm;
 
@@ -133,5 +137,9 @@ public class RoleUdt {
 		this.createdDtm = createdDtm;
 		this.updatedDtm = updatedDtm;
 	}
-	
+
+	public RoleUdt() {
+		// TODO Auto-generated constructor stub
+	}
+
 }

@@ -12,7 +12,7 @@ import org.springframework.data.cassandra.mapping.UserDefinedType;
  *         </p>
  */
 @UserDefinedType("address")
-public class Address {
+public class AddressUdt {
 
 	@Column("door_number")
 	String doorNumber;
@@ -30,10 +30,10 @@ public class Address {
 
 	String zipcode;
 
-	public Address() {
+	public AddressUdt() {
 	}
 
-	public Address(String doorNumber, String streetName, String area, String city, String state, String country,
+	public AddressUdt(String doorNumber, String streetName, String area, String city, String state, String country,
 			String zipcode) {
 		super();
 		this.doorNumber = doorNumber;

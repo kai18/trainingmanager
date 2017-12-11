@@ -3,13 +3,16 @@ package com.poc.trainingmanager.model.cassandraudt;
 import java.util.Date;
 import java.util.UUID;
 
+import org.springframework.data.cassandra.mapping.CassandraType;
 import org.springframework.data.cassandra.mapping.Column;
 import org.springframework.data.cassandra.mapping.UserDefinedType;
 
+import com.datastax.driver.core.DataType;
+
 @UserDefinedType("department")
-public class Department {
-	
-	@Column("DEPARTMENT_ID")
+public class DepartmentUdt {
+
+	@CassandraType(type = DataType.Name.UUID, userTypeName = "department_id")
 	private UUID departmentId;
 
 	@Column("DEPARTMENT_NAME")
@@ -64,8 +67,8 @@ public class Department {
 		this.departmentUpdatedDtm = departmentUpdatedDtm;
 	}
 
-	public Department(UUID departmentId, String departmentName, String departmentDescription, Date departmentCreatedDtm,
-			Date departmentUpdatedDtm) {
+	public DepartmentUdt(UUID departmentId, String departmentName, String departmentDescription,
+			Date departmentCreatedDtm, Date departmentUpdatedDtm) {
 		super();
 		this.departmentId = departmentId;
 		this.departmentName = departmentName;
@@ -80,5 +83,5 @@ public class Department {
 				+ ", departmentDescription=" + departmentDescription + ", departmentCreatedDtm=" + departmentCreatedDtm
 				+ ", departmentUpdatedDtm=" + departmentUpdatedDtm + "]";
 	}
-	
+
 }
