@@ -1,7 +1,6 @@
 package com.poc.trainingmanager.config;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -29,8 +28,6 @@ public class TestAbc {
 
 	public Long test() {
 		Long count = userRepository.count();
-		List<User> users = (List<User>) userRepository.findAll();
-		// System.out.print("Count is being called" + users.get(0));
 		System.out.println(roleRepository.count());
 
 		Set<RoleUdt> roles = new HashSet<RoleUdt>();
