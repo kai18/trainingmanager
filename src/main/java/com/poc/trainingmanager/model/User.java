@@ -53,11 +53,9 @@ public class User {
 
 	private AddressUdt address;
 
-	@Frozen
 	@Indexed
 	private Set<RoleUdt> roles;
 
-	@Frozen
 	@Indexed
 	private Set<DepartmentUdt> departments;
 
