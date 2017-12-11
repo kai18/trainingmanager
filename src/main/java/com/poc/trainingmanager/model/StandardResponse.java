@@ -1,6 +1,6 @@
 package com.poc.trainingmanager.model;
 
-public class StandardReponse {
+public class StandardResponse {
 
 	Object element;
 	String error;
