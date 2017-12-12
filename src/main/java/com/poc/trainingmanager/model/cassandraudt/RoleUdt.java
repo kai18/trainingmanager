@@ -25,18 +25,8 @@ public class RoleUdt {
 	@Column("role_description")
 	private String roleDescription;
 
-	@Column("creation")
-	private int creationPrevilege;
-
-	@Column("read")
-	private int readPrevilege;
-
-	@Column("deletion")
-	private int deletionPrevilege;
-
-	@Column("updation")
-	private int updationPrevilege;
-
+	private PrevilegeUdt previlege;
+	
 	@Column("created_dtm")
 	private Date createdDtm;
 
@@ -75,36 +65,12 @@ public class RoleUdt {
 		this.roleDescription = roleDescription;
 	}
 
-	public int getCreationPrevilege() {
-		return creationPrevilege;
+	public PrevilegeUdt getPrevilege() {
+		return previlege;
 	}
 
-	public void setCreationPrevilege(int creationPrevilege) {
-		this.creationPrevilege = creationPrevilege;
-	}
-
-	public int getReadPrevilege() {
-		return readPrevilege;
-	}
-
-	public void setReadPrevilege(int readPrevilege) {
-		this.readPrevilege = readPrevilege;
-	}
-
-	public int getDeletionPrevilege() {
-		return deletionPrevilege;
-	}
-
-	public void setDeletionPrevilege(int deletionPrevilege) {
-		this.deletionPrevilege = deletionPrevilege;
-	}
-
-	public int getUpdationPrevilege() {
-		return updationPrevilege;
-	}
-
-	public void setUpdationPrevilege(int updationPrevilege) {
-		this.updationPrevilege = updationPrevilege;
+	public void setPrevilege(PrevilegeUdt previlege) {
+		this.previlege = previlege;
 	}
 
 	public Date getCreatedDtm() {
@@ -123,23 +89,17 @@ public class RoleUdt {
 		this.updatedDtm = updatedDtm;
 	}
 
-	public RoleUdt(UUID roleId, String roleName, String roleType, String roleDescription, int creationPrevilege,
-			int readPrevilege, int deletionPrevilege, int updationPrevilege, Date createdDtm, Date updatedDtm) {
+	public RoleUdt(UUID roleId, String roleName, String roleType, String roleDescription, PrevilegeUdt previlege,
+			Date createdDtm, Date updatedDtm) {
 		super();
 		this.roleId = roleId;
 		this.roleName = roleName;
 		this.roleType = roleType;
 		this.roleDescription = roleDescription;
-		this.creationPrevilege = creationPrevilege;
-		this.readPrevilege = readPrevilege;
-		this.deletionPrevilege = deletionPrevilege;
-		this.updationPrevilege = updationPrevilege;
+		this.previlege = previlege;
 		this.createdDtm = createdDtm;
 		this.updatedDtm = updatedDtm;
 	}
 
-	public RoleUdt() {
-		// TODO Auto-generated constructor stub
-	}
-
+	public RoleUdt() {}
 }

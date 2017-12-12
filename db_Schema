@@ -23,61 +23,37 @@ CREATE TYPE trainingmanager.role (
     role_name text,
     role_description text,
     role_type text,
-    creation int,
-    deletion int,
-    updation int,
-    read int,
+    privilege frozen<privilege>,
     created_dtm timestamp,
     updated_dtm timestamp
 );
 
+CREATE TYPE trainingmanager.privilege (
+    creation int,
+    deletion int,
+    updation int,
+    read int,
+    department_id uuid
+);
+
 CREATE TABLE trainingmanager.department (
     department_id uuid PRIMARY KEY,
-    created_dtm timestamp,
-    department_description text,
     department_name text,
+    department_description text,
+    created_dtm timestamp,
     updated_dtm timestamp
-) WITH bloom_filter_fp_chance = 0.01
-    AND caching = {'keys': 'ALL', 'rows_per_partition': 'NONE'}
-    AND comment = ''
-    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy', 'max_threshold': '32', 'min_threshold': '4'}
-    AND compression = {'chunk_length_in_kb': '64', 'class': 'org.apache.cassandra.io.compress.LZ4Compressor'}
-    AND crc_check_chance = 1.0
-    AND dclocal_read_repair_chance = 0.1
-    AND default_time_to_live = 0
-    AND gc_grace_seconds = 864000
-    AND max_index_interval = 2048
-    AND memtable_flush_period_in_ms = 0
-    AND min_index_interval = 128
-    AND read_repair_chance = 0.0
-    AND speculative_retry = '99PERCENTILE';
+);
 CREATE INDEX idx_department_department_name ON trainingmanager.department (department_name);
 
 CREATE TABLE trainingmanager.role (
     role_id uuid PRIMARY KEY,
-    created_dtm timestamp,
-    creation int,
-    deletion int,
-    read int,
-    role_description text,
     role_name text,
     role_type text,
+    role_description text,
+    created_dtm timestamp,
     updated_dtm timestamp,
-    updation int
-) WITH bloom_filter_fp_chance = 0.01
-    AND caching = {'keys': 'ALL', 'rows_per_partition': 'NONE'}
-    AND comment = ''
-    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy', 'max_threshold': '32', 'min_threshold': '4'}
-    AND compression = {'chunk_length_in_kb': '64', 'class': 'org.apache.cassandra.io.compress.LZ4Compressor'}
-    AND crc_check_chance = 1.0
-    AND dclocal_read_repair_chance = 0.1
-    AND default_time_to_live = 0
-    AND gc_grace_seconds = 864000
-    AND max_index_interval = 2048
-    AND memtable_flush_period_in_ms = 0
-    AND min_index_interval = 128
-    AND read_repair_chance = 0.0
-    AND speculative_retry = '99PERCENTILE';
+    privilege frozen<privilege>
+);
 CREATE INDEX role_role_type_idx ON trainingmanager.role (role_type);
 CREATE INDEX role_role_name_idx ON trainingmanager.role (role_name);
 
@@ -95,38 +71,29 @@ CREATE TABLE trainingmanager.user (
     phone_number text,
     roles set<frozen<role>>,
     updated_dtm timestamp
-) WITH bloom_filter_fp_chance = 0.01
-    AND caching = {'keys': 'ALL', 'rows_per_partition': 'NONE'}
-    AND comment = ''
-    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy', 'max_threshold': '32', 'min_threshold': '4'}
-    AND compression = {'chunk_length_in_kb': '64', 'class': 'org.apache.cassandra.io.compress.LZ4Compressor'}
-    AND crc_check_chance = 1.0
-    AND dclocal_read_repair_chance = 0.1
-    AND default_time_to_live = 0
-    AND gc_grace_seconds = 864000
-    AND max_index_interval = 2048
-    AND memtable_flush_period_in_ms = 0
-    AND min_index_interval = 128
-    AND read_repair_chance = 0.0
-    AND speculative_retry = '99PERCENTILE';
+);
 CREATE INDEX user_roles_idx ON trainingmanager.user (values(roles));
 CREATE INDEX user_email_idx ON trainingmanager.user (email);
 CREATE INDEX idx_user_last_name ON trainingmanager.user (last_name);
 CREATE INDEX user_departments_idx ON trainingmanager.user (values(departments));
 CREATE INDEX idx_user_first_name ON trainingmanager.user (first_name);
 
+CREATE TABLE trainingmanager.department_roles (
+	department_id uuid PRIMARY KEY,
+	roles set<frozen<role>>
+);
 
+use trainingmanager;
 
+insert into department(department_id,department_name,department_description,created_dtm,updated_dtm) values(07b1e4b0-df0c-11e7-8dac-bb71b9eabcd5,'Angular','Angular department',dateOf(now()),dateOf(now()));
+insert into department(department_id,department_name,department_description,created_dtm,updated_dtm) values(07aba320-df0c-11e7-8dac-bb71b9eabcd5,'Java','Java department',dateOf(now()),dateOf(now()));
+insert into department(department_id,department_name,department_description,created_dtm,updated_dtm) values(07b2f620-df0c-11e7-8dac-bb71b9eabcd5,'Dot Net','Dot net department',dateOf(now()),dateOf(now()));
 
-insert into department(department_id,department_name,department_description,created_dtm,updated_dtm) values(now(),'Angular','Angular department',dateOf(now()),dateOf(now()));
-insert into department(department_id,department_name,department_description,created_dtm,updated_dtm) values(now(),'Java','Java department',dateOf(now()),dateOf(now()));
-insert into department(department_id,department_name,department_description,created_dtm,updated_dtm) values(now(),'Dot Net','Dot net department',dateOf(now()),dateOf(now()));
-
-insert into role(role_id,role_name,role_type,role_description,creation,deletion,updation,read,created_dtm,updated_dtm) values(now(),'System Administrator','System','Manages overall system',1,1,1,1,dateOf(now()),dateOf(now()));
-insert into role(role_id,role_name,role_type,role_description,creation,deletion,updation,read,created_dtm,updated_dtm) values(now(),'Java Administrator','Department','Manages Java department ',1,1,1,1,dateOf(now()),dateOf(now()));
-insert into role(role_id,role_name,role_type,role_description,creation,deletion,updation,read,created_dtm,updated_dtm) values(now(),'Angular Administrator','Department','Manages Angular department',1,1,1,1,dateOf(now()),dateOf(now()));
-insert into role(role_id,role_name,role_type,role_description,creation,deletion,updation,read,created_dtm,updated_dtm) values(now(),'Dot Net Administrator','Department','Manages Dot net department' ,1,1,1,1,dateOf(now()),dateOf(now()));
-insert into role(role_id,role_name,role_type,role_description,creation,deletion,updation,read,created_dtm,updated_dtm) values(now(),'Java Update Administrator','Department','Manages Java department update operation',0,0,1,1,dateOf(now()),dateOf(now()));
-insert into role(role_id,role_name,role_type,role_description,creation,deletion,updation,read,created_dtm,updated_dtm) values(now(),'Java Delete Administrator','Department','Manages Java department delete operation',0,1,0,1,dateOf(now()),dateOf(now()));
-insert into role(role_id,role_name,role_type,role_description,creation,deletion,updation,read,created_dtm,updated_dtm) values(now(),'Faculty','User','Normal user with only view previlege',0,0,0,1,dateOf(now()),dateOf(now()));
-insert into role(role_id,role_name,role_type,role_description,creation,deletion,updation,read,created_dtm,updated_dtm) values(now(),'Student','User','Normal user with only view previlege',0,0,0,1,dateOf(now()),dateOf(now()));
+insert into role(role_id,role_name,role_type,role_description,privilege,created_dtm,updated_dtm) values(now(),'System Administrator','System','Manages overall system',{creation:9,deletion:9,updation:9,read:9,department_id:null},dateOf(now()),dateOf(now()));
+insert into role(role_id,role_name,role_type,role_description,privilege,created_dtm,updated_dtm) values(now(),'Java Administrator','Department','Manages Java department ',{creation:1,deletion:1,updation:1,read:1,department_id:07b1e4b0-df0c-11e7-8dac-bb71b9eabcd5},dateOf(now()),dateOf(now()));
+insert into role(role_id,role_name,role_type,role_description,privilege,created_dtm,updated_dtm) values(now(),'Angular Administrator','Department','Manages Angular department',{creation:1,deletion:1,updation:1,read:1,department_id:07aba320-df0c-11e7-8dac-bb71b9eabcd5},dateOf(now()),dateOf(now()));
+insert into role(role_id,role_name,role_type,role_description,privilege,created_dtm,updated_dtm) values(now(),'Dot Net Administrator','Department','Manages Dot net department',{creation:1,deletion:1,updation:1,read:1,department_id:07b2f620-df0c-11e7-8dac-bb71b9eabcd5},dateOf(now()),dateOf(now()));
+insert into role(role_id,role_name,role_type,role_description,privilege,created_dtm,updated_dtm) values(now(),'Java Update Administrator','Department','Manages Java department update operation',{creation:0,deletion:0,updation:1,read:1,department_id:07b1e4b0-df0c-11e7-8dac-bb71b9eabcd5},dateOf(now()),dateOf(now()));
+insert into role(role_id,role_name,role_type,role_description,privilege,created_dtm,updated_dtm) values(now(),'Java Delete Administrator','Department','Manages Java department delete operation',{creation:0,deletion:1,updation:0,read:1,department_id:07b1e4b0-df0c-11e7-8dac-bb71b9eabcd5},dateOf(now()),dateOf(now()));
+insert into role(role_id,role_name,role_type,role_description,privilege,created_dtm,updated_dtm) values(now(),'Faculty','User','Normal user with only view privilege',{creation:0,deletion:0,updation:0,read:9,department_id:null},dateOf(now()),dateOf(now()));
+insert into role(role_id,role_name,role_type,role_description,privilege,created_dtm,updated_dtm) values(now(),'Student','User','Normal user with only view privilege',{creation:0,deletion:0,updation:0,read:9,department_id:null},dateOf(now()),dateOf(now()));
