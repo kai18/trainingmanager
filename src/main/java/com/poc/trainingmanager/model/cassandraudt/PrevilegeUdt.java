@@ -1,7 +1,11 @@
 package com.poc.trainingmanager.model.cassandraudt;
 
+import org.springframework.data.cassandra.mapping.CassandraType;
 import org.springframework.data.cassandra.mapping.Column;
 import org.springframework.data.cassandra.mapping.UserDefinedType;
+
+import com.datastax.driver.core.DataType;
+import java.util.UUID;
 
 @UserDefinedType("previlege")
 public class PrevilegeUdt {
@@ -17,4 +21,7 @@ public class PrevilegeUdt {
 	
 	@Column("read")
 	private int readPrevilege;
+	
+	@CassandraType(type = DataType.Name.UUID, userTypeName = "department_id")
+	private UUID department_id;
 }
