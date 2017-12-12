@@ -40,7 +40,7 @@ public class UserController {
 		String firstName = searchParameters.get("firstName");
 		System.out.println(firstName);
 		StandardResponse searchResponse = new StandardResponse();
-		searchResponse.setError("No Error");
+
 		searchResponse.setMessage("Testing");
 		userService.search(searchParameters);
 		return searchResponse;

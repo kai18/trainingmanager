@@ -7,21 +7,21 @@ import org.springframework.data.cassandra.mapping.UserDefinedType;
 import com.datastax.driver.core.DataType;
 import java.util.UUID;
 
-@UserDefinedType("previlege")
-public class PrevilegeUdt {
+@UserDefinedType("privilege")
+public class PrivilegeUdt {
 
 	@Column("creation")
-	private int creationPrevilege;
+	private int creationPrivilege;
 	
 	@Column("deletion")
-	private int deletionPrevilege;
+	private int deletionPrivilege;
 
 	@Column("updation")
-	private int updationPrevilege;
+	private int updationPrivilege;
 	
 	@Column("read")
-	private int readPrevilege;
+	private int readPrivilege;
 	
-	@CassandraType(type = DataType.Name.UUID, userTypeName = "department_id")
+	@Column("department_id")
 	private UUID department_id;
 }
