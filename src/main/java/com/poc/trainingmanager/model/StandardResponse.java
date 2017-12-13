@@ -1,26 +1,27 @@
+
 package com.poc.trainingmanager.model;
 
-public class StandardReponse {
+public class StandardResponse<T> {
 
-	Object element;
-	String error;
+	int code;
+	String status;
 	String message;
-	boolean status;
+	T element;
 
-	public Object getElement() {
-		return element;
+	public String getStatus() {
+		return status;
 	}
 
-	public void setElement(Object element) {
-		this.element = element;
+	public void setStatus(String status) {
+		this.status = status;
 	}
 
-	public String getError() {
-		return error;
+	public int getCode() {
+		return code;
 	}
 
-	public void setError(String error) {
-		this.error = error;
+	public void setCode(int code) {
+		this.code = code;
 	}
 
 	public String getMessage() {
@@ -31,18 +32,11 @@ public class StandardReponse {
 		this.message = message;
 	}
 
-	public boolean isStatus() {
-		return status;
+	public T getElement() {
+		return element;
 	}
 
-	public void setStatus(boolean status) {
-		this.status = status;
+	public void setElement(T element) {
+		this.element = element;
 	}
-
-	@Override
-	public String toString() {
-		return "StandardReponse [element=" + element + ", error=" + error + ", message=" + message + ", status="
-				+ status + "]";
-	}
-
 }
