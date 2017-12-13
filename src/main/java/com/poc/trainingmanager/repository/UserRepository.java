@@ -6,6 +6,7 @@ import java.util.UUID;
 import org.springframework.data.cassandra.repository.CassandraRepository;
 import org.springframework.stereotype.Repository;
 
+import com.poc.trainingmanager.model.Department;
 import com.poc.trainingmanager.model.User;
 import com.poc.trainingmanager.model.cassandraudt.RoleUdt;
 
@@ -27,5 +28,10 @@ public interface UserRepository extends CassandraRepository<User> {
 	public List<User> findByFirstNameContainingIgnoreCaseAndLastNameContainingIgnoreCase(String firstName,
 			String lastName);
 
+<<<<<<< HEAD
+	public List<User> findByDepartments(Department department);
+}
+=======
 	public List<User> findByRoles(RoleUdt roleUdt);
 }
+>>>>>>> refs/remotes/origin/testing
