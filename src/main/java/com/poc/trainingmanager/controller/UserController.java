@@ -19,6 +19,8 @@ import com.poc.trainingmanager.model.Role;
 import com.poc.trainingmanager.model.StandardResponse;
 import com.poc.trainingmanager.model.User;
 import com.poc.trainingmanager.model.cassandraudt.AddressUdt;
+import com.poc.trainingmanager.model.cassandraudt.DepartmentUdt;
+import com.poc.trainingmanager.model.cassandraudt.RoleUdt;
 import com.poc.trainingmanager.service.UserService;
 
 @RestController
@@ -55,7 +57,7 @@ public class UserController {
 	}
 	
 	@RequestMapping(method=RequestMethod.POST)
-	StandardResponse insert(@RequestBody User user,AddressUdt address, Role role, Department department) {
+	StandardResponse insert(@RequestBody User user,AddressUdt address, RoleUdt role, DepartmentUdt department) {
 		return userService.insert(user, address, role, department);
 	}
 	
