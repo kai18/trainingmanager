@@ -14,8 +14,6 @@ public interface RoleService {
 
 	public StandardResponse<List<Role>> getAllRoles(List<PrivilegeUdt> assignedPrivileges);
 
-	//public StandardResponse getRole(int roleId);
-
 	public StandardResponse<Role> addRole(List<PrivilegeUdt> assignedPrivileges, Role role);
 
 	public StandardResponse<Role> updateRole(List<PrivilegeUdt> assignedPrivileges, Role role);
