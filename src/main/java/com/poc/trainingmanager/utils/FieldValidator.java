@@ -25,7 +25,7 @@ public class FieldValidator {
 		return false;
 	}
 	
-	public static void validateForUserInsert(User user) throws CustomWebException {
+	/*public static void validateForUserInsert(User user) throws CustomWebException {
 		StandardResponse standardResponse = new StandardResponse();
 		if (!CommonUtils.isNull((user))) {
 			if (CommonUtils.isStringNull(user.getEmailId())) {
@@ -82,6 +82,6 @@ public class FieldValidator {
 			standardResponse.setMessage("User insert Failed. User cannot be null.");
 			throw new CustomWebException(standardResponse);
 		}
-	}
+	}*/
 
 }

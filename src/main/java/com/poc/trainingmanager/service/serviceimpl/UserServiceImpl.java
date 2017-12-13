@@ -3,6 +3,7 @@ package com.poc.trainingmanager.service.serviceimpl;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -54,11 +55,20 @@ public class UserServiceImpl implements UserService {
 	public StandardResponse insert(User user,AddressUdt address, RoleUdt role, DepartmentUdt department) {
 		StandardResponse stdResponse = new StandardResponse();
 
-		FieldValidator.validateForUserInsert(user);
+		//FieldValidator.validateForUserInsert(user);
+		Set<RoleUdt> roles = null;
+		roles.add(role);
+		Set<DepartmentUdt> departments = null;
+		departments.add(department);
 		user.setAddress(address);
+		user.setDepartments(departments);
+		user.setRoles(roles);
+		
 		user.setPassword(PasswordUtil.getPasswordHash(user.getPassword()));
-		userRepository.insert(user);
+		userRepository.save(user);
 		stdResponse.setStatus(Constants.SUCCESS);
+		stdResponse.setCode(200);
+		stdResponse.setMessage("User added successfully");
 		return stdResponse;
 	}
 
