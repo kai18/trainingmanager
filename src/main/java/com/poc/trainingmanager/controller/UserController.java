@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.poc.trainingmanager.config.TestAbc;
 import com.poc.trainingmanager.config.TrainingmanagerApplication;
 import com.poc.trainingmanager.model.StandardResponse;
+import com.poc.trainingmanager.model.wrapper.UserSearchWrapper;
 import com.poc.trainingmanager.service.UserService;
 
 @RestController
@@ -35,15 +36,11 @@ public class UserController {
 	}
 
 	@GetMapping("search")
-	public StandardResponse search(@RequestParam Map<String, String> searchParameters) {
+	public StandardResponse<UserSearchWrapper> search(@RequestParam Map<String, String> searchParameters) {
 		LOGGER.info("Searching using given parameters");
 		String firstName = searchParameters.get("firstName");
 		System.out.println(firstName);
-		StandardResponse searchResponse = new StandardResponse();
-		searchResponse.setError("No Error");
-		searchResponse.setMessage("Testing");
-		userService.search(searchParameters);
-		return searchResponse;
+		return userService.search(searchParameters);
 
 	}
 
