@@ -11,7 +11,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.poc.trainingmanager.config.TestAbc;
 import com.poc.trainingmanager.config.TrainingmanagerApplication;
+import com.poc.trainingmanager.model.Department;
+import com.poc.trainingmanager.model.Role;
 import com.poc.trainingmanager.model.StandardResponse;
+import com.poc.trainingmanager.model.User;
+import com.poc.trainingmanager.model.cassandraudt.AddressUdt;
+import com.poc.trainingmanager.model.cassandraudt.DepartmentUdt;
+import com.poc.trainingmanager.model.cassandraudt.RoleUdt;
 import com.poc.trainingmanager.model.wrapper.UserSearchWrapper;
 import com.poc.trainingmanager.service.UserService;
 

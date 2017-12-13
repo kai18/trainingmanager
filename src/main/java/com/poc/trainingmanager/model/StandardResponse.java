@@ -1,4 +1,3 @@
-
 package com.poc.trainingmanager.model;
 
 public class StandardResponse<T> {
@@ -38,5 +37,11 @@ public class StandardResponse<T> {
 
 	public void setElement(T element) {
 		this.element = element;
+	}
+
+	@Override
+	public String toString() {
+		return "StandardResponse [code=" + code + ", status=" + status + ", message=" + message + ", element=" + element
+				+ "]";
 	}
 }

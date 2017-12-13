@@ -4,9 +4,13 @@ import java.util.Date;
 import java.util.UUID;
 
 import org.springframework.cassandra.core.PrimaryKeyType;
+import org.springframework.data.cassandra.mapping.CassandraType;
 import org.springframework.data.cassandra.mapping.Column;
 import org.springframework.data.cassandra.mapping.PrimaryKeyColumn;
 import org.springframework.data.cassandra.mapping.Table;
+
+import com.datastax.driver.core.DataType;
+import com.poc.trainingmanager.model.cassandraudt.PrivilegeUdt;
 
 @Table("role")
 public class Role {
@@ -23,26 +27,14 @@ public class Role {
 	@Column("role_description")
 	private String roleDescription;
 
-	@Column("creation")
-	private int creationPrevilege;
-
-	@Column("read")
-	private int readPrevilege;
-
-	@Column("deletion")
-	private int deletionPrevilege;
-
-	@Column("updation")
-	private int updationPrevilege;
+	@CassandraType(type = DataType.Name.UDT, userTypeName="privilege")
+	private PrivilegeUdt privilege;
 
 	@Column("created_dtm")
 	private Date createdDtm;
 
 	@Column("updated_dtm")
 	private Date updatedDtm;
-
-	public Role() {
-	}
 
 	public UUID getRoleId() {
 		return roleId;
@@ -76,36 +68,12 @@ public class Role {
 		this.roleDescription = roleDescription;
 	}
 
-	public int getCreationPrevilege() {
-		return creationPrevilege;
+	public PrivilegeUdt getPrivilege() {
+		return privilege;
 	}
 
-	public void setCreationPrevilege(int creationPrevilege) {
-		this.creationPrevilege = creationPrevilege;
-	}
-
-	public int getReadPrevilege() {
-		return readPrevilege;
-	}
-
-	public void setReadPrevilege(int readPrevilege) {
-		this.readPrevilege = readPrevilege;
-	}
-
-	public int getDeletionPrevilege() {
-		return deletionPrevilege;
-	}
-
-	public void setDeletionPrevilege(int deletionPrevilege) {
-		this.deletionPrevilege = deletionPrevilege;
-	}
-
-	public int getUpdationPrevilege() {
-		return updationPrevilege;
-	}
-
-	public void setUpdationPrevilege(int updationPrevilege) {
-		this.updationPrevilege = updationPrevilege;
+	public void setPrivilege(PrivilegeUdt privilege) {
+		this.privilege = privilege;
 	}
 
 	public Date getCreatedDtm() {
@@ -124,19 +92,17 @@ public class Role {
 		this.updatedDtm = updatedDtm;
 	}
 
-	public Role(UUID roleId, String roleName, String roleType, String roleDescription, int creationPrevilege,
-			int readPrevilege, int deletionPrevilege, int updationPrevilege, Date createdDtm, Date updatedDtm) {
+	public Role(UUID roleId, String roleName, String roleType, String roleDescription, PrivilegeUdt privilege,
+			Date createdDtm, Date updatedDtm) {
 		super();
 		this.roleId = roleId;
 		this.roleName = roleName;
 		this.roleType = roleType;
 		this.roleDescription = roleDescription;
-		this.creationPrevilege = creationPrevilege;
-		this.readPrevilege = readPrevilege;
-		this.deletionPrevilege = deletionPrevilege;
-		this.updationPrevilege = updationPrevilege;
+		this.privilege = privilege;
 		this.createdDtm = createdDtm;
 		this.updatedDtm = updatedDtm;
 	}
 
+	public Role() {}
 }
