@@ -25,7 +25,8 @@ public class RoleUdt {
 	@Column("role_description")
 	private String roleDescription;
 
-	private PrevilegeUdt previlege;
+	@CassandraType(type = DataType.Name.UDT, userTypeName="privilege")
+	private PrivilegeUdt privilege;
 	
 	@Column("created_dtm")
 	private Date createdDtm;
@@ -65,12 +66,12 @@ public class RoleUdt {
 		this.roleDescription = roleDescription;
 	}
 
-	public PrevilegeUdt getPrevilege() {
-		return previlege;
+	public PrivilegeUdt getPrivilege() {
+		return privilege;
 	}
 
-	public void setPrevilege(PrevilegeUdt previlege) {
-		this.previlege = previlege;
+	public void setPrivilege(PrivilegeUdt privilege) {
+		this.privilege = privilege;
 	}
 
 	public Date getCreatedDtm() {
@@ -89,14 +90,14 @@ public class RoleUdt {
 		this.updatedDtm = updatedDtm;
 	}
 
-	public RoleUdt(UUID roleId, String roleName, String roleType, String roleDescription, PrevilegeUdt previlege,
+	public RoleUdt(UUID roleId, String roleName, String roleType, String roleDescription, PrivilegeUdt privilege,
 			Date createdDtm, Date updatedDtm) {
 		super();
 		this.roleId = roleId;
 		this.roleName = roleName;
 		this.roleType = roleType;
 		this.roleDescription = roleDescription;
-		this.previlege = previlege;
+		this.privilege = privilege;
 		this.createdDtm = createdDtm;
 		this.updatedDtm = updatedDtm;
 	}

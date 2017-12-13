@@ -3,6 +3,8 @@ package com.poc.trainingmanager.controller;
 import java.util.List;
 import java.util.UUID;
 
+import javax.websocket.server.PathParam;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -12,40 +14,43 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.poc.trainingmanager.model.Role;
 import com.poc.trainingmanager.model.StandardResponse;
-import com.poc.trainingmanager.model.cassandraudt.PrevilegeUdt;
+import com.poc.trainingmanager.model.cassandraudt.PrivilegeUdt;
 import com.poc.trainingmanager.service.RoleService;
 
 @RestController
 @RequestMapping("/roles")
 public class RoleController {
 
-	List<PrevilegeUdt> assignedPrevileges=null;
+	List<PrivilegeUdt> assignedPrivileges=null;
 	
 	@Autowired
 	RoleService roleService;
 	
 	@RequestMapping(method=RequestMethod.GET)
-	StandardResponse getAllRoles(){
-		return roleService.getAllRoles(assignedPrevileges);
+	StandardResponse<List<Role>> getAllRoles(){
+		return roleService.getAllRoles(assignedPrivileges);
 	}
 	
-	@RequestMapping(method=RequestMethod.GET, value="/{roleName}")
-	StandardResponse getRoleByName(@RequestParam("roleName") String roleName) {
-		return roleService.getRoleByName(assignedPrevileges, roleName);
+	//not fetching
+	@RequestMapping(method=RequestMethod.GET, value="/name")
+	StandardResponse<Role> getRoleByName(@PathParam("roleName") String roleName) {
+		return roleService.getRoleByName(assignedPrivileges, roleName);
 	}
 	
+	//not posting
 	@RequestMapping(method=RequestMethod.POST)
-	StandardResponse insertRole(@RequestBody Role role) {
-		return roleService.updateRole(assignedPrevileges, role);
+	StandardResponse<Role> addRole(@RequestBody Role role) {
+		return roleService.addRole(assignedPrivileges, role);
 	}
 	
-	@RequestMapping(method=RequestMethod.PUT, value="/{roleId}")
-	StandardResponse updateRole(@RequestBody Role role) {
-		return roleService.updateRole(assignedPrevileges, role);
+	//updating, but making privilege field null
+	@RequestMapping(method=RequestMethod.PUT)
+	StandardResponse<Role> updateRole(@RequestBody Role role) {
+		return roleService.updateRole(assignedPrivileges, role);
 	}
 	
-	@RequestMapping(method=RequestMethod.DELETE, value="/{roleId}")
-	StandardResponse deleteRole(@RequestParam("roleId") UUID roleId) {
-		return roleService.deleteRole(assignedPrevileges, roleId);
+	@RequestMapping(method=RequestMethod.DELETE)
+	StandardResponse deleteRole(@RequestBody Role role) {
+		return roleService.deleteRole(assignedPrivileges, role);
 	}
 }

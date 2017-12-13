@@ -18,6 +18,14 @@ CREATE TYPE trainingmanager.department (
     updated_dtm timestamp
 );
 
+CREATE TYPE trainingmanager.privilege (
+    creation int,
+    deletion int,
+    updation int,
+    read int,
+    department_id uuid
+);
+
 CREATE TYPE trainingmanager.role (
     role_id uuid,
     role_name text,
@@ -26,14 +34,6 @@ CREATE TYPE trainingmanager.role (
     privilege frozen<privilege>,
     created_dtm timestamp,
     updated_dtm timestamp
-);
-
-CREATE TYPE trainingmanager.privilege (
-    creation int,
-    deletion int,
-    updation int,
-    read int,
-    department_id uuid
 );
 
 CREATE TABLE trainingmanager.department (
