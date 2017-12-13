@@ -1,30 +1,22 @@
 package com.poc.trainingmanager.controller;
 
-import java.util.Map;
-
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
 
 import com.poc.trainingmanager.config.TestAbc;
 import com.poc.trainingmanager.config.TrainingmanagerApplication;
 import com.poc.trainingmanager.model.StandardResponse;
-import com.poc.trainingmanager.model.wrapper.UserSearchWrapper;
-import com.poc.trainingmanager.service.UserService;
 
-@RestController
+@Controller
 public class UserController {
 
 	private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(TrainingmanagerApplication.class);
 
 	@Autowired
 	TestAbc test;
-
-	@Autowired
-	UserService userService;
 
 	@GetMapping("/")
 	@ResponseBody
@@ -36,11 +28,9 @@ public class UserController {
 	}
 
 	@GetMapping("search")
-	public StandardResponse<UserSearchWrapper> search(@RequestParam Map<String, String> searchParameters) {
-		LOGGER.info("Searching using given parameters");
-		String firstName = searchParameters.get("firstName");
-		System.out.println(firstName);
-		return userService.search(searchParameters);
+	@ResponseBody
+	public StandardResponse search() {
+		return null;
 
 	}
 

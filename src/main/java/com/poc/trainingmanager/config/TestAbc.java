@@ -1,6 +1,7 @@
 package com.poc.trainingmanager.config;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -28,6 +29,8 @@ public class TestAbc {
 
 	public Long test() {
 		Long count = userRepository.count();
+		List<User> users = (List<User>) userRepository.findAll();
+		// System.out.print("Count is being called" + users.get(0));
 		System.out.println(roleRepository.count());
 
 		Set<RoleUdt> roles = new HashSet<RoleUdt>();
@@ -50,9 +53,9 @@ public class TestAbc {
 		// Department department = new Department();
 		// department = departmentRepository.findByDepartmentId("")
 
-		user.setFirstName("pankaja");
-		user.setLastName("patel");
-		user.setEmailId("spoorthi@spoorthi.com");
+		user.setFirstName("Kaustubh");
+		user.setLastName("Kaustubh");
+		user.setEmailId("kaustubh@kaustubh.com");
 		user.setPhoneNumber("8126422399");
 		user.setId(UUID.randomUUID());
 		user.setPassword("cc03e747a6afbbcbf8be7668acfebee5");
@@ -71,7 +74,7 @@ public class TestAbc {
 
 		user.setAddress(address);
 
-		userRepository.save(user);
+		// userRepository.save(user);
 		User user1 = userRepository.findById(UUID.fromString("fd9a878f-a923-4e70-955d-ce42d0dccadf"));
 		System.out.println(user1);
 		return count;
