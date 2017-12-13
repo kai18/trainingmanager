@@ -3,7 +3,6 @@ package com.poc.trainingmanager.utils;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.poc.trainingmanager.exception.CustomWebException;
 import com.poc.trainingmanager.model.StandardResponse;
 import com.poc.trainingmanager.model.User;
 import com.poc.trainingmanager.utils.CommonUtils;
