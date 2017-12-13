@@ -39,13 +39,13 @@ public class RoleController {
 	
 	//not posting
 	@RequestMapping(method=RequestMethod.POST)
-	StandardResponse insertRole(@RequestBody Role role) {
-		return roleService.updateRole(assignedPrivileges, role);
+	StandardResponse<Role> addRole(@RequestBody Role role) {
+		return roleService.addRole(assignedPrivileges, role);
 	}
 	
 	//updating, but making privilege field null
 	@RequestMapping(method=RequestMethod.PUT)
-	StandardResponse updateRole(@RequestBody Role role) {
+	StandardResponse<Role> updateRole(@RequestBody Role role) {
 		return roleService.updateRole(assignedPrivileges, role);
 	}
 	

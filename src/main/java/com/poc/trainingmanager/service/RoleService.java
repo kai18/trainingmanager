@@ -16,9 +16,9 @@ public interface RoleService {
 
 	//public StandardResponse getRole(int roleId);
 
-	public StandardResponse addRole(List<PrivilegeUdt> assignedPrivileges, Role role);
+	public StandardResponse<Role> addRole(List<PrivilegeUdt> assignedPrivileges, Role role);
 
-	public StandardResponse updateRole(List<PrivilegeUdt> assignedPrivileges, Role role);
+	public StandardResponse<Role> updateRole(List<PrivilegeUdt> assignedPrivileges, Role role);
 
 	public StandardResponse deleteRole(List<PrivilegeUdt> assignedPrivileges, Role role);
 
