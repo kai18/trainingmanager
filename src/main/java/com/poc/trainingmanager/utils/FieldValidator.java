@@ -3,6 +3,11 @@ package com.poc.trainingmanager.utils;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.poc.trainingmanager.exception.CustomWebException;
+import com.poc.trainingmanager.model.StandardResponse;
+import com.poc.trainingmanager.model.User;
+import com.poc.trainingmanager.utils.CommonUtils;
+
 public class FieldValidator {
 
 	public static boolean validateEmail(String email) {
@@ -18,7 +23,65 @@ public class FieldValidator {
 				return true;
 		}
 		return false;
-
+	}
+	
+	public static void validateForUserInsert(User user) throws CustomWebException {
+		StandardResponse standardResponse = new StandardResponse();
+		if (!CommonUtils.isNull((user))) {
+			if (CommonUtils.isStringNull(user.getEmailId())) {
+				standardResponse.setStatus(ERROR);
+				standardResponse.setMessage("User insert Failed. Email ID cannot be null.");
+				throw new CustomWebException(standardResponse);
+			} else if (CommonUtils.isStringNull(user.getPhoneNumber())) {
+				standardResponse.setStatus(ERROR);
+				standardResponse.setMessage("User insert Failed. Phone number cannot be null.");
+				throw new CustomWebException(standardResponse);
+			}
+			else if (CommonUtils.isStringNull(user.getFirstName())) {
+				standardResponse.setStatus(ERROR);
+				standardResponse.setMessage("User insert Failed. First name cannot be null.");
+				throw new CustomWebException(standardResponse);
+			}
+			else if (CommonUtils.isStringNull(user.getLastName())) {
+				standardResponse.setStatus(ERROR);
+				standardResponse.setMessage("User insert Failed. Last name cannot be null.");
+				throw new CustomWebException(standardResponse);
+			}
+			else if (CommonUtils.isStringNull(user.getGender())) {
+				standardResponse.setStatus(ERROR);
+				standardResponse.setMessage("User insert Failed. Gender cannot be null.");
+				throw new CustomWebException(standardResponse);
+			}
+			else if (CommonUtils.isStringNull(user.getPassword())) {
+				standardResponse.setStatus(ERROR);
+				standardResponse.setMessage("User insert Failed. Password cannot be null.");
+				throw new CustomWebException(standardResponse);
+			}
+			else if (CommonUtils.isStringNull(user.getIsActive())) {
+				standardResponse.setStatus(ERROR);
+				standardResponse.setMessage("User insert Failed. Is Active cannot be null.");
+				throw new CustomWebException(standardResponse);
+			}
+			else if (CommonUtils.isNull(user.getAddress())) {
+				standardResponse.setStatus(ERROR);
+				standardResponse.setMessage("User insert Failed. Address cannot be null.");
+				throw new CustomWebException(standardResponse);
+			}
+			else if (CommonUtils.isNull(user.getRole())) {
+				standardResponse.setStatus(ERROR);
+				standardResponse.setMessage("User insert Failed. Role cannot be null.");
+				throw new CustomWebException(standardResponse);
+			}
+			else if (CommonUtils.isNull(user.getDepartments())) {
+				standardResponse.setStatus(ERROR);
+				standardResponse.setMessage("User insert Failed. Department cannot be null.");
+				throw new CustomWebException(standardResponse);
+			}
+		} else {
+			standardResponse.setStatus(ERROR);
+			standardResponse.setMessage("User insert Failed. User cannot be null.");
+			throw new CustomWebException(standardResponse);
+		}
 	}
 
 }
