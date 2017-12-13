@@ -21,7 +21,7 @@ public class DepartmentRoles {
 	
 	@CassandraType(type = DataType.Name.UDT, userTypeName="role")
 	@Column("roles")
-	private Set<Role> roles;
+	private Set<RoleUdt> roles;
 
 	public UUID getDepartmentId() {
 		return departmentId;
@@ -31,15 +31,15 @@ public class DepartmentRoles {
 		this.departmentId = departmentId;
 	}
 
-	public Set<Role> getRoles() {
+	public Set<RoleUdt> getRoles() {
 		return roles;
 	}
 
-	public void setRoles(Set<Role> roles) {
+	public void setRoles(Set<RoleUdt> roles) {
 		this.roles = roles;
 	}
 
-	public DepartmentRoles(UUID departmentId, Set<Role> roles) {
+	public DepartmentRoles(UUID departmentId, Set<RoleUdt> roles) {
 		super();
 		this.departmentId = departmentId;
 		this.roles = roles;

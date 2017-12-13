@@ -77,4 +77,41 @@ public class PrivilegeUdt {
 	}
 	
 	public PrivilegeUdt() {}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + creationPrivilege;
+		result = prime * result + deletionPrivilege;
+		result = prime * result + ((department_id == null) ? 0 : department_id.hashCode());
+		result = prime * result + readPrivilege;
+		result = prime * result + updationPrivilege;
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		PrivilegeUdt other = (PrivilegeUdt) obj;
+		if (creationPrivilege != other.creationPrivilege)
+			return false;
+		if (deletionPrivilege != other.deletionPrivilege)
+			return false;
+		if (department_id == null) {
+			if (other.department_id != null)
+				return false;
+		} else if (!department_id.equals(other.department_id))
+			return false;
+		if (readPrivilege != other.readPrivilege)
+			return false;
+		if (updationPrivilege != other.updationPrivilege)
+			return false;
+		return true;
+	}
 }
