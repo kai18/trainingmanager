@@ -7,11 +7,16 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.poc.trainingmanager.constants.Constants;
+import com.poc.trainingmanager.model.Department;
+import com.poc.trainingmanager.model.Role;
 import com.poc.trainingmanager.model.StandardResponse;
 import com.poc.trainingmanager.model.User;
+import com.poc.trainingmanager.model.cassandraudt.AddressUdt;
 import com.poc.trainingmanager.repository.UserRepository;
 import com.poc.trainingmanager.service.UserService;
 import com.poc.trainingmanager.utils.FieldValidator;
+import com.poc.trainingmanager.utils.PasswordUtil;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -41,6 +46,18 @@ public class UserServiceImpl implements UserService {
 
 		}
 		return null;
+	}
+
+	@Override
+	public StandardResponse insert(User user,AddressUdt address, Role role, Department department) {
+		StandardResponse stdResponse = new StandardResponse();
+
+		FieldValidator.validateForUserInsert(user);
+		user.setAddress(address);
+		user.setPassword(PasswordUtil.getPasswordHash(user.getPassword()));
+		userRepository.insert(user);
+		stdResponse.setStatus(Constants.SUCCESS);
+		return stdResponse;
 	}
 
 }

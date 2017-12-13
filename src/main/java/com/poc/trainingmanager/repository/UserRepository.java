@@ -11,6 +11,8 @@ import com.poc.trainingmanager.model.User;
 @Repository
 public interface UserRepository extends CassandraRepository<User> {
 
+	public User insert(User user);
+	
 	public User findById(UUID uuid);
 
 	public User findByEmailId(String email);
