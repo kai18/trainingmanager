@@ -54,6 +54,11 @@ public class UserController {
 		return userService.insert(user);
 	}
 	
+	@RequestMapping(method=RequestMethod.PUT)
+	StandardResponse<User> update(@RequestBody User user) {
+		return userService.update(user);
+	} 
+	
 	@GetMapping("{userId}/grantrole/{roleId}")
     @RequestMapping(method=RequestMethod.PUT)
     StandardResponse<User> grantRole(@RequestParam UUID userId,@RequestParam UUID roleId){

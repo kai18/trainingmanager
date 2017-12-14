@@ -100,6 +100,19 @@ public class UserServiceImpl implements UserService {
 		logger.info("User {" + user.getEmailId() + "} successfully added");
 		return standardResponse;
 	}
+	
+	@Override
+	public StandardResponse<User> update(User user)
+	{
+		StandardResponse<User> stdResponse = new StandardResponse();
+		
+		userRepository.save(user);
+		stdResponse.setStatus(Constants.SUCCESS);
+		stdResponse.setCode(200);
+		stdResponse.setElement(user);
+		stdResponse.setMessage("User updated successfully");
+		return stdResponse;
+	} 
 
 	@Override
 	public StandardResponse<User> grantrole(UUID userId, UUID roleId) {

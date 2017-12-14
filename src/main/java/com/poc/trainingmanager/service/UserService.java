@@ -13,6 +13,8 @@ public interface UserService {
 
 	public StandardResponse<User> insert(User user);
 	
+	public StandardResponse<User> update(User user); 
+	
 	public StandardResponse search(Map<String, String> searchParameters);
 
 	public StandardResponse<User> grantrole(UUID userId, UUID roleId);
