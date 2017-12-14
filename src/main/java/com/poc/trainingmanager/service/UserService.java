@@ -1,6 +1,7 @@
 package com.poc.trainingmanager.service;
 
 import java.util.Map;
+import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
@@ -14,4 +15,7 @@ public interface UserService {
 	
 	public StandardResponse search(Map<String, String> searchParameters);
 
+	public StandardResponse grantrole(UUID userId, UUID roleId);
+	
+	public StandardResponse revokerole(UUID userId, UUID roleId);
 }

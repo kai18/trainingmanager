@@ -16,7 +16,7 @@ import com.poc.trainingmanager.model.StandardResponse;
 import com.poc.trainingmanager.model.User;
 import com.poc.trainingmanager.model.cassandraudt.PrivilegeUdt;
 import com.poc.trainingmanager.model.cassandraudt.RoleUdt;
-import com.poc.trainingmanager.model.wrapper.RoleWrapper;
+import com.poc.trainingmanager.model.wrapper.WrapperUtil;
 import com.poc.trainingmanager.repository.DepartmentRolesRepository;
 import com.poc.trainingmanager.repository.RoleRepository;
 import com.poc.trainingmanager.repository.UserRepository;
@@ -75,7 +75,6 @@ public class RoleServiceImpl implements RoleService {
 	@Override
 	public StandardResponse<Role> addRole(List<PrivilegeUdt> assignedPrevileges, Role role) {
 		StandardResponse<Role> standardResponse = new StandardResponse<Role>();
-		RoleWrapper roleWrapper = new RoleWrapper();
 		Date date = new Date();
 
 		if (role == null) {
@@ -101,7 +100,7 @@ public class RoleServiceImpl implements RoleService {
 		DepartmentRoles departmentRoles = departmentRolesRepository
 				.findByDepartmentId(role.getPrivilege().getDepartment_id());
 		Set<RoleUdt> roleList = departmentRoles.getRoles();
-		roleList.add(roleWrapper.roleToRoleUdt(roleAdded));
+		roleList.add(WrapperUtil.roleToRoleUdt(roleAdded));
 		departmentRoles.setRoles(roleList);
 		DepartmentRoles departmentRolesAdded = departmentRolesRepository.save(departmentRoles);
 
@@ -122,14 +121,13 @@ public class RoleServiceImpl implements RoleService {
 	@Override
 	public StandardResponse<Role> updateRole(List<PrivilegeUdt> assignedPrevileges, Role role) {
 		StandardResponse<Role> standardResponse = new StandardResponse<Role>();
-		RoleWrapper roleWrapper = new RoleWrapper();
-		RoleUdt oldRole = roleWrapper.roleToRoleUdt(roleRepository.findByRoleId(role.getRoleId()));
+		RoleUdt oldRole = WrapperUtil.roleToRoleUdt(roleRepository.findByRoleId(role.getRoleId()));
 
 		DepartmentRoles departmentRoles = departmentRolesRepository
 				.findByDepartmentId(role.getPrivilege().getDepartment_id());
 		Set<RoleUdt> roleList = departmentRoles.getRoles();
 		roleList.remove(oldRole);
-		roleList.add(roleWrapper.roleToRoleUdt(role));
+		roleList.add(WrapperUtil.roleToRoleUdt(role));
 		departmentRoles.setRoles(roleList);
 
 		DepartmentRoles departmentRolesAdded = departmentRolesRepository.save(departmentRoles);
@@ -143,12 +141,12 @@ public class RoleServiceImpl implements RoleService {
 
 		Set<RoleUdt> roleUdtList;
 		User user = new User();
-		List<User> userList = userRepository.findByRoles(roleWrapper.roleToRoleUdt(role));
+		List<User> userList = userRepository.findByRoles(WrapperUtil.roleToRoleUdt(role));
 		for (int i = 0; i < userList.size(); i++) {
 			user = userList.get(i);
 			roleUdtList = user.getRoles();
 			roleUdtList.remove(oldRole);
-			roleUdtList.add(roleWrapper.roleToRoleUdt(role));
+			roleUdtList.add(WrapperUtil.roleToRoleUdt(role));
 			// userList.remove(user);
 			user.setRoles(roleUdtList);
 			// userList.add(i, user);
@@ -166,9 +164,8 @@ public class RoleServiceImpl implements RoleService {
 	}
 
 	@Override
-	public StandardResponse deleteRole(List<PrivilegeUdt> assignedPrevileges, Role role) {
-		StandardResponse standardResponse = new StandardResponse();
-		RoleWrapper roleWrapper = new RoleWrapper();
+	public StandardResponse<?> deleteRole(List<PrivilegeUdt> assignedPrevileges, Role role) {
+		StandardResponse<?> standardResponse = new StandardResponse<Object>();
 		DepartmentRoles departmentRoles = departmentRolesRepository
 				.findByDepartmentId(role.getPrivilege().getDepartment_id());
 		Set<RoleUdt> roleList = departmentRoles.getRoles();
@@ -179,7 +176,7 @@ public class RoleServiceImpl implements RoleService {
 			standardResponse.setMessage("No such role found to delete");
 			return standardResponse;
 		}
-		roleList.remove(roleWrapper.roleToRoleUdt(role));
+		roleList.remove(WrapperUtil.roleToRoleUdt(role));
 		departmentRoles.setRoles(roleList);
 
 		departmentRolesRepository.save(departmentRoles);
@@ -187,17 +184,17 @@ public class RoleServiceImpl implements RoleService {
 
 		Set<RoleUdt> roleUdtList;
 		User user = new User();
-		List<User> userList = userRepository.findByRoles(roleWrapper.roleToRoleUdt(role));
+		List<User> userList = userRepository.findByRoles(WrapperUtil.roleToRoleUdt(role));
 		for (int i = 0; i < userList.size(); i++) {
 			user = userList.get(i);
 			roleUdtList = user.getRoles();
-			roleUdtList.remove(roleWrapper.roleToRoleUdt(role));
+			roleUdtList.remove(WrapperUtil.roleToRoleUdt(role));
 			// userList.remove(user);
 			user.setRoles(roleUdtList);
 			// userList.add(i, user);
 			userRepository.save(user);
 		}
-		
+
 		logger.info("Role {" + role + "} successfully deleted");
 		logger.info("Deleted role was removed from DepartmentRoles {" + departmentRoles + "}");
 

@@ -77,11 +77,15 @@ CREATE INDEX user_email_idx ON trainingmanager.user (email);
 CREATE INDEX idx_user_last_name ON trainingmanager.user (last_name);
 CREATE INDEX user_departments_idx ON trainingmanager.user (values(departments));
 CREATE INDEX idx_user_first_name ON trainingmanager.user (first_name);
+CREATE CUSTOM INDEX user_firstname_like_idx ON trainingmanager.user (first_name) USING 'org.apache.cassandra.index.sasi.SASIIndex' WITH OPTIONS = {'mode': 'CONTAINS', 'analyzer_class': 'org.apache.cassandra.index.sasi.analyzer.StandardAnalyzer', 'case_sensitive': 'false'};
+CREATE CUSTOM INDEX user_lastname_like_idx ON trainingmanager.user (last_name) USING 'org.apache.cassandra.index.sasi.SASIIndex' WITH OPTIONS = {'mode': 'CONTAINS', 'analyzer_class': 'org.apache.cassandra.index.sasi.analyzer.StandardAnalyzer', 'case_sensitive': 'false'}; 
+CREATE CUSTOM INDEX user_email_like_idx ON trainingmanager.user (email) USING 'org.apache.cassandra.index.sasi.SASIIndex' WITH OPTIONS = {'mode': 'CONTAINS', 'analyzer_class': 'org.apache.cassandra.index.sasi.analyzer.StandardAnalyzer', 'case_sensitive': 'false'};
 
 CREATE TABLE trainingmanager.department_roles (
 	department_id uuid PRIMARY KEY,
 	roles set<frozen<role>>
 );
+CREATE INDEX department_roles_roles_idx ON trainingmanager.department_roles (values(roles));
 
 use trainingmanager;
 
