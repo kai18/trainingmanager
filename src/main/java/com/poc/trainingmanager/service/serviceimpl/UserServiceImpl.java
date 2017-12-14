@@ -54,7 +54,7 @@ public class UserServiceImpl implements UserService {
 	public StandardResponse insert(User user,AddressUdt address, RoleUdt role, DepartmentUdt department) {
 		StandardResponse stdResponse = new StandardResponse();
 
-		FieldValidator.validateForUserInsert(user);
+		//FieldValidator.validateForUserInsert(user);
 		user.setAddress(address);
 		user.setPassword(PasswordUtil.getPasswordHash(user.getPassword()));
 		userRepository.insert(user);

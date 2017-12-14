@@ -15,6 +15,10 @@ public class Department {
 	@Column("DEPARTMENT_ID")
 	private UUID departmentId;
 
+	public Department() {
+		
+	}
+
 	@Column("DEPARTMENT_NAME")
 	private String departmentName;
 

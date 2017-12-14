@@ -12,8 +12,13 @@ import com.datastax.driver.core.DataType;
 @UserDefinedType("department")
 public class DepartmentUdt {
 
-	@CassandraType(type = DataType.Name.UUID, userTypeName = "department_id")
+	@CassandraType(type = DataType.Name.UUID)
+	@Column("department_id")
 	private UUID departmentId;
+
+	public DepartmentUdt() {
+		
+	}
 
 	@Column("DEPARTMENT_NAME")
 	private String departmentName;
@@ -83,5 +88,7 @@ public class DepartmentUdt {
 				+ ", departmentDescription=" + departmentDescription + ", departmentCreatedDtm=" + departmentCreatedDtm
 				+ ", departmentUpdatedDtm=" + departmentUpdatedDtm + "]";
 	}
+	
+
 
 }
