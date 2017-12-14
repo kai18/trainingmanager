@@ -1,0 +1,38 @@
+{
+	"firstName": "John",
+	"lastName":"Doe",
+	"password": "12345",
+	"gender":"male",
+	"emailId": "johndoe@gmail.com",
+	"phoneNumber":"1234567890",
+	"isActive": true,
+	"createdDtm":null,
+	"updatedDtm" :null,
+
+"address":{
+	"area":"Outer ring road",
+	"city":"bangalore",
+	"streetName":"678",
+	"state":"Karnataka",
+	"country":"India",
+	"zipCode":"560001",
+	"doorNumber": "789"
+},
+"departments":[{
+	"departmentId":"de6d54a0-df0f-11e7-8dac-bb71b9eabcd5",
+	"departmentName":"Java",
+	"departmentDescription":"Java 1",
+	"departmentCreatedDtm": null,
+	"departmentUpdatedDtm": null
+}],
+"roles":[{
+	"roleName":"Java admin",
+	"roleId":"b7e79dd0-df10-11e7-8dac-bb71b9eabcd5",
+	"roleType":"dept",
+	"roleDescription":"java dept",
+	"createdDtm":null,
+	"updatedDtm" : null,
+	"privilege": null
+	
+}]
+} 

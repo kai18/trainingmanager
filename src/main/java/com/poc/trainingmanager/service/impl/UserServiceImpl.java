@@ -74,8 +74,8 @@ public class UserServiceImpl implements UserService {
 	 * </p>
 	 */
 	@Override
-	public StandardResponse insert(User user) {
-		StandardResponse standardResponse = new StandardResponse();
+	public StandardResponse<User> insert(User user) {
+		StandardResponse<User> standardResponse = new StandardResponse<User>();
 		if (user == null) {
 			logger.error("Inserted user was null, hence failed to Add user");
 			standardResponse.setCode(422);
@@ -95,14 +95,15 @@ public class UserServiceImpl implements UserService {
 		userRepository.save(user);
 		standardResponse.setStatus(Constants.SUCCESS);
 		standardResponse.setCode(200);
+		standardResponse.setElement(user);
 		standardResponse.setMessage("User added successfully");
 		logger.info("User {" + user.getEmailId() + "} successfully added");
 		return standardResponse;
 	}
 
 	@Override
-	public StandardResponse grantrole(UUID userId, UUID roleId) {
-		StandardResponse stdResponse = new StandardResponse();
+	public StandardResponse<User> grantrole(UUID userId, UUID roleId) {
+		StandardResponse<User> stdResponse = new StandardResponse<User>();
 		User user = userRepository.findById(userId);
 		Set<RoleUdt> assignedRoles = user.getRoles();
 		Role grantRole = roleRepository.findByRoleId(roleId);
@@ -123,8 +124,8 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public StandardResponse revokerole(UUID userId, UUID roleId) {
-		StandardResponse stdResponse = new StandardResponse();
+	public StandardResponse<User> revokerole(UUID userId, UUID roleId) {
+		StandardResponse<User> stdResponse = new StandardResponse<User>();
 		User user = userRepository.findById(userId);
 		Set<RoleUdt> assignedRoles = user.getRoles();
 		Role removeRole = roleRepository.findByRoleId(roleId);
