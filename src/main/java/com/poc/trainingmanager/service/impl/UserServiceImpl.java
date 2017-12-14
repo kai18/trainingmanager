@@ -2,17 +2,23 @@ package com.poc.trainingmanager.service.impl;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.poc.trainingmanager.constants.Constants;
 import com.poc.trainingmanager.model.StandardResponse;
 import com.poc.trainingmanager.model.User;
+import com.poc.trainingmanager.model.cassandraudt.AddressUdt;
+import com.poc.trainingmanager.model.cassandraudt.DepartmentUdt;
+import com.poc.trainingmanager.model.cassandraudt.RoleUdt;
 import com.poc.trainingmanager.model.wrapper.UserSearchWrapper;
 import com.poc.trainingmanager.model.wrapper.WrapperUtil;
 import com.poc.trainingmanager.repository.UserRepository;
 import com.poc.trainingmanager.search.SearchEngine;
 import com.poc.trainingmanager.service.UserService;
+import com.poc.trainingmanager.utils.PasswordUtil;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -45,5 +51,17 @@ public class UserServiceImpl implements UserService {
 
 		return searchResponse;
 	}
+	 
+	@Override
+	public StandardResponse insert(User user) {
+		StandardResponse stdResponse = new StandardResponse();
+		user.setId(UUID.randomUUID());
+		user.setPassword(PasswordUtil.getPasswordHash(user.getPassword()));
+		userRepository.save(user);
+		stdResponse.setStatus(Constants.SUCCESS);
+		stdResponse.setCode(200);
+		stdResponse.setMessage("User added successfully");
+		return stdResponse;
+	} 
 
 }
