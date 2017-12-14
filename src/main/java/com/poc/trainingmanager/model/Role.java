@@ -105,4 +105,65 @@ public class Role {
 	}
 
 	public Role() {}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((createdDtm == null) ? 0 : createdDtm.hashCode());
+		result = prime * result + ((privilege == null) ? 0 : privilege.hashCode());
+		result = prime * result + ((roleDescription == null) ? 0 : roleDescription.hashCode());
+		result = prime * result + ((roleId == null) ? 0 : roleId.hashCode());
+		result = prime * result + ((roleName == null) ? 0 : roleName.hashCode());
+		result = prime * result + ((roleType == null) ? 0 : roleType.hashCode());
+		result = prime * result + ((updatedDtm == null) ? 0 : updatedDtm.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Role other = (Role) obj;
+		if (createdDtm == null) {
+			if (other.createdDtm != null)
+				return false;
+		} else if (!createdDtm.equals(other.createdDtm))
+			return false;
+		if (privilege == null) {
+			if (other.privilege != null)
+				return false;
+		} else if (!privilege.equals(other.privilege))
+			return false;
+		if (roleDescription == null) {
+			if (other.roleDescription != null)
+				return false;
+		} else if (!roleDescription.equals(other.roleDescription))
+			return false;
+		if (roleId == null) {
+			if (other.roleId != null)
+				return false;
+		} else if (!roleId.equals(other.roleId))
+			return false;
+		if (roleName == null) {
+			if (other.roleName != null)
+				return false;
+		} else if (!roleName.equals(other.roleName))
+			return false;
+		if (roleType == null) {
+			if (other.roleType != null)
+				return false;
+		} else if (!roleType.equals(other.roleType))
+			return false;
+		if (updatedDtm == null) {
+			if (other.updatedDtm != null)
+				return false;
+		} else if (!updatedDtm.equals(other.updatedDtm))
+			return false;
+		return true;
+	}
 }

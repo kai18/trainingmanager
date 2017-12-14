@@ -1,5 +1,6 @@
 package com.poc.trainingmanager.service.impl;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -75,6 +76,7 @@ public class UserServiceImpl implements UserService {
 	 */
 	@Override
 	public StandardResponse<User> insert(User user) {
+		Date date = new Date();
 		StandardResponse<User> standardResponse = new StandardResponse<User>();
 		if (user == null) {
 			logger.error("Inserted user was null, hence failed to Add user");
@@ -92,6 +94,8 @@ public class UserServiceImpl implements UserService {
 		}
 		user.setId(UUID.randomUUID());
 		user.setPassword(PasswordUtil.getPasswordHash(user.getPassword()));
+		user.setCreatedDtm(date);
+		user.setUpdatedDtm(date);
 		userRepository.save(user);
 		standardResponse.setStatus(Constants.SUCCESS);
 		standardResponse.setCode(200);
@@ -104,9 +108,11 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public StandardResponse<User> update(User user)
 	{
-		StandardResponse<User> stdResponse = new StandardResponse();
-		
-		userRepository.save(user);
+		Date date = new Date();
+		StandardResponse<User> stdResponse = new StandardResponse<User>();
+		User oldUser = userRepository.findById(user.getId());
+		user.setUpdatedDtm(date);
+		userRepository.save(WrapperUtil.wrappedUserToUser(user, oldUser));
 		stdResponse.setStatus(Constants.SUCCESS);
 		stdResponse.setCode(200);
 		stdResponse.setElement(user);
@@ -116,6 +122,7 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public StandardResponse<User> grantrole(UUID userId, UUID roleId) {
+		Date date = new Date();
 		StandardResponse<User> stdResponse = new StandardResponse<User>();
 		User user = userRepository.findById(userId);
 		Set<RoleUdt> assignedRoles = user.getRoles();
@@ -127,6 +134,7 @@ public class UserServiceImpl implements UserService {
 		}
 		assignedRoles.add(WrapperUtil.roleToRoleUdt(grantRole));
 		user.setRoles(assignedRoles);
+		user.setUpdatedDtm(date);
 		user = userRepository.save(user);
 		stdResponse.setCode(200);
 		stdResponse.setStatus("success");
@@ -138,6 +146,7 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public StandardResponse<User> revokerole(UUID userId, UUID roleId) {
+		Date date = new Date();
 		StandardResponse<User> stdResponse = new StandardResponse<User>();
 		User user = userRepository.findById(userId);
 		Set<RoleUdt> assignedRoles = user.getRoles();
@@ -149,6 +158,7 @@ public class UserServiceImpl implements UserService {
 		}
 		assignedRoles.remove(WrapperUtil.roleToRoleUdt(removeRole));
 		user.setRoles(assignedRoles);
+		user.setUpdatedDtm(date);
 		user = userRepository.save(user);
 		stdResponse.setCode(200);
 		stdResponse.setStatus("success");

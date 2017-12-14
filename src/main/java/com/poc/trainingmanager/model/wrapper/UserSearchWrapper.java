@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import com.poc.trainingmanager.model.cassandraudt.AddressUdt;
 import com.poc.trainingmanager.model.cassandraudt.DepartmentUdt;
+import com.poc.trainingmanager.model.cassandraudt.RoleUdt;
 
 public class UserSearchWrapper {
 	private UUID id;
@@ -15,6 +16,7 @@ public class UserSearchWrapper {
 	private String phoneNumber;
 	private AddressUdt address;
 	private Set<DepartmentUdt> departments;
+	private Set<RoleUdt> roles;
 
 	public UUID getId() {
 		return id;
@@ -80,4 +82,11 @@ public class UserSearchWrapper {
 		this.departments = departments;
 	}
 
+	public Set<RoleUdt> getRoles() {
+		return roles;
+	}
+
+	public void setRoles(Set<RoleUdt> roles) {
+		this.roles = roles;
+	}
 }

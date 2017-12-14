@@ -1,6 +1,7 @@
 package com.poc.trainingmanager.service.impl;
 
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -120,18 +121,20 @@ public class RoleServiceImpl implements RoleService {
 
 	@Override
 	public StandardResponse<Role> updateRole(List<PrivilegeUdt> assignedPrevileges, Role role) {
+		Date date = new Date();
 		StandardResponse<Role> standardResponse = new StandardResponse<Role>();
-		RoleUdt oldRole = WrapperUtil.roleToRoleUdt(roleRepository.findByRoleId(role.getRoleId()));
-
+		Role oldRole = roleRepository.findByRoleId(role.getRoleId());
+		oldRole.setRoleDescription(role.getRoleDescription());
+		oldRole.setUpdatedDtm(date);
+		RoleUdt oldRoleUdt = WrapperUtil.roleToRoleUdt(oldRole);
 		DepartmentRoles departmentRoles = departmentRolesRepository
 				.findByDepartmentId(role.getPrivilege().getDepartment_id());
 		Set<RoleUdt> roleList = departmentRoles.getRoles();
-		roleList.remove(oldRole);
+		roleList.remove(oldRoleUdt);
 		roleList.add(WrapperUtil.roleToRoleUdt(role));
 		departmentRoles.setRoles(roleList);
-
 		DepartmentRoles departmentRolesAdded = departmentRolesRepository.save(departmentRoles);
-		Role roleUpdated = roleRepository.save(role);
+		Role roleUpdated = roleRepository.save(oldRole);
 		if (roleUpdated == null || departmentRolesAdded == null) {
 			standardResponse.setCode(409);
 			standardResponse.setMessage("Failed");
@@ -139,19 +142,23 @@ public class RoleServiceImpl implements RoleService {
 			return standardResponse;
 		}
 
-		Set<RoleUdt> roleUdtList;
+		/*Set<RoleUdt> roleUdtList;
 		User user = new User();
 		List<User> userList = userRepository.findByRoles(WrapperUtil.roleToRoleUdt(role));
+
 		for (int i = 0; i < userList.size(); i++) {
 			user = userList.get(i);
 			roleUdtList = user.getRoles();
-			roleUdtList.remove(oldRole);
-			roleUdtList.add(WrapperUtil.roleToRoleUdt(role));
-			// userList.remove(user);
-			user.setRoles(roleUdtList);
-			// userList.add(i, user);
-			userRepository.save(user);
-		}
+			if (roleUdtList.contains(oldRoleUdt)) {
+				roleUdtList.remove(oldRoleUdt);
+				roleUdtList.add(WrapperUtil.roleToRoleUdt(role));
+				// userList.remove(user);
+				user.setRoles(roleUdtList);
+				// userList.add(i, user);
+
+				userRepository.save(user);
+			}
+		}*/
 
 		logger.info("Role {" + role + "} successfully updated");
 		logger.info("Role in DepartmentRoles {" + departmentRolesAdded + "} successfully updated");
@@ -182,7 +189,7 @@ public class RoleServiceImpl implements RoleService {
 		departmentRolesRepository.save(departmentRoles);
 		roleRepository.delete(role);
 
-		Set<RoleUdt> roleUdtList;
+		/*Set<RoleUdt> roleUdtList;
 		User user = new User();
 		List<User> userList = userRepository.findByRoles(WrapperUtil.roleToRoleUdt(role));
 		for (int i = 0; i < userList.size(); i++) {
@@ -193,7 +200,7 @@ public class RoleServiceImpl implements RoleService {
 			user.setRoles(roleUdtList);
 			// userList.add(i, user);
 			userRepository.save(user);
-		}
+		}*/
 
 		logger.info("Role {" + role + "} successfully deleted");
 		logger.info("Deleted role was removed from DepartmentRoles {" + departmentRoles + "}");

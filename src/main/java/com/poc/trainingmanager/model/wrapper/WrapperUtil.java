@@ -49,4 +49,13 @@ public class WrapperUtil {
 		
 		return roleUdt;
 	}
+	
+	public static User wrappedUserToUser(User user, User oldUser) {
+		oldUser.setFirstName(user.getFirstName());
+		oldUser.setLastName(user.getLastName());
+		oldUser.setPhoneNumber(user.getPhoneNumber());
+		oldUser.setAddress(user.getAddress());
+		
+		return oldUser;
+	}
 }

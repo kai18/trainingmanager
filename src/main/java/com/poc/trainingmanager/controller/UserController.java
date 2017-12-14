@@ -21,6 +21,7 @@ import com.poc.trainingmanager.model.wrapper.UserSearchWrapper;
 import com.poc.trainingmanager.service.UserService;
 
 @RestController
+@RequestMapping("users")
 public class UserController {
 
 	private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(TrainingmanagerApplication.class);
@@ -59,7 +60,7 @@ public class UserController {
 		return userService.update(user);
 	} 
 	
-	@GetMapping("{userId}/grantrole/{roleId}")
+	/*@GetMapping("{userId}/grantrole/{roleId}")
     @RequestMapping(method=RequestMethod.PUT)
     StandardResponse<User> grantRole(@RequestParam UUID userId,@RequestParam UUID roleId){
            return userService.grantrole(userId, roleId);
@@ -69,5 +70,5 @@ public class UserController {
     @RequestMapping(method=RequestMethod.PUT)
     StandardResponse<User> revokeRole(@RequestParam UUID userId,@RequestParam UUID roleId){
            return userService.revokerole(userId, roleId);
-    }
+    }*/
 }

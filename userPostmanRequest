@@ -15,24 +15,29 @@
 	"streetName":"678",
 	"state":"Karnataka",
 	"country":"India",
-	"zipCode":"560001",
+	"zipcode":"560001",
 	"doorNumber": "789"
 },
 "departments":[{
-	"departmentId":"de6d54a0-df0f-11e7-8dac-bb71b9eabcd5",
-	"departmentName":"Java",
-	"departmentDescription":"Java 1",
-	"departmentCreatedDtm": null,
-	"departmentUpdatedDtm": null
-}],
+            "departmentId": "07b1e4b0-df0c-11e7-8dac-bb71b9eabcd5",
+            "departmentName": "Java",
+            "departmentDescription": "Java department",
+            "departmentCreatedDtm": 1513062841979,
+            "departmentUpdatedDtm": 1513062841979
+        }],
 "roles":[{
-	"roleName":"Java admin",
-	"roleId":"b7e79dd0-df10-11e7-8dac-bb71b9eabcd5",
-	"roleType":"dept",
-	"roleDescription":"java dept",
-	"createdDtm":null,
-	"updatedDtm" : null,
-	"privilege": null
-	
-}]
+            "roleId": "de6d54a0-df0f-11e7-8dac-bb71b9eabcd5",
+            "roleName": "Java Administrator",
+            "roleType": "Department",
+            "roleDescription": "Manages Java department ",
+            "privilege": {
+                "creationPrivilege": 1,
+                "deletionPrivilege": 1,
+                "updationPrivilege": 1,
+                "readPrivilege": 1,
+                "department_id": "07b1e4b0-df0c-11e7-8dac-bb71b9eabcd5"
+            },
+            "createdDtm": 1513064490730,
+            "updatedDtm": 1513064490731
+        }]
 } 
