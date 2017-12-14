@@ -6,7 +6,6 @@ import java.util.UUID;
 import org.springframework.data.cassandra.repository.CassandraRepository;
 import org.springframework.stereotype.Repository;
 
-import com.poc.trainingmanager.model.DepartmentRoles;
 import com.poc.trainingmanager.model.Role;
 
 @Repository
