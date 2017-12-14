@@ -31,4 +31,5 @@ public interface UserRepository extends CassandraRepository<User> {
 	public List<User> findByDepartments(Department department);
 
 	public List<User> findByRoles(RoleUdt roleUdt);
+
 }

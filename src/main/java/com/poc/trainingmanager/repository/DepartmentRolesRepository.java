@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 
 import com.poc.trainingmanager.model.Role;
 import com.poc.trainingmanager.model.cassandraudt.RoleUdt;
+import com.poc.trainingmanager.model.Department;
 import com.poc.trainingmanager.model.DepartmentRoles;
 
 @Repository
@@ -16,5 +17,6 @@ public interface DepartmentRolesRepository extends CassandraRepository<Departmen
 	public DepartmentRoles findByRoles(RoleUdt role);
 	public DepartmentRoles findByDepartmentId(UUID departmentId);
 	public DepartmentRoles save(DepartmentRoles departmentRoles);
+	public void delete(DepartmentRoles departmentRoles);
 	
 }

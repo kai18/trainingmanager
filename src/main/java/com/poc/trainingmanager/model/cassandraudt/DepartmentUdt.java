@@ -12,11 +12,15 @@ import com.datastax.driver.core.DataType;
 @UserDefinedType("department")
 public class DepartmentUdt {
 
-	@CassandraType(type = DataType.Name.UUID, userTypeName = "department_id")
+	@CassandraType(type = DataType.Name.UUID)
+	@Column("department_id")
 	private UUID departmentId;
 
 	@Column("DEPARTMENT_NAME")
 	private String departmentName;
+
+	public DepartmentUdt() {
+	}
 
 	@Column("DEPARTMENT_DESCRIPTION")
 	private String departmentDescription;

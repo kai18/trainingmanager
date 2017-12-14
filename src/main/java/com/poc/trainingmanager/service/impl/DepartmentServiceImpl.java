@@ -5,6 +5,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -29,6 +32,8 @@ public class DepartmentServiceImpl implements DepartmentService {
 	@Autowired
 	UserRepository userRepository;
 	
+	private static final Logger logger = LoggerFactory.getLogger(DepartmentServiceImpl.class);
+	
 	//Service method to fetch all the departments
 	public StandardResponse<List<Department>> getAllDepartments() {
 		StandardResponse<List<Department>> standardResponse = new StandardResponse<List<Department>>();
@@ -48,23 +53,32 @@ public class DepartmentServiceImpl implements DepartmentService {
 	public StandardResponse<Department> addDepartment(Department department) {
 		StandardResponse<Department> standardResponse = new StandardResponse<Department>();
 		Date date = new Date();
+		if (department==null)
+		{
+			logger.error("Inserted department was null, hence failed to Add department");
+			standardResponse.setCode(400);
+			standardResponse.setStatus("Failed");
+			standardResponse.setMessage("Department cant by null, failed to add this department");
+			return standardResponse;
+		}
+		if (departmentRepository.findByDepartmentName(department.getDepartmentName()) != null) {
+			logger.error("Department {" + department + "} already exists, duplicate department cannot be inserted");
+			standardResponse.setCode(409);
+			standardResponse.setStatus("Failed");
+			standardResponse.setMessage("Department already exists, failed to add this department");
+			return standardResponse;
+		}
+
 		department.setDepartmentId(UUID.randomUUID());
 		department.setDepartmentCreatedDtm(date);
 		department.setDepartmentUpdatedDtm(date);
 		Department addedDepartment = departmentRepository.save(department);
-		if (CommonUtils.isNull(addedDepartment))
-		{
-			standardResponse.setMessage("Department cannot be empty.");
-			return standardResponse;
-		}
-//		DepartmentRoles departmentRoles = new DepartmentRoles();
-//		departmentRoles.setDepartmentId(department.getDepartmentId());
-//		departmentRoles.setRoles(null);
-//		DepartmentRoles departmentRole = departmentRolesRepository.save(departmentRoles);
-//		if(departmentRole.getRoles()==null)
-//		{
-//			System.out.println("object is null");
-//		}
+
+		DepartmentRoles departmentRoles = new DepartmentRoles();
+		departmentRoles.setDepartmentId(department.getDepartmentId());
+		departmentRoles.setRoles(null);
+		departmentRolesRepository.save(departmentRoles);
+		//DepartmentRoles departmentRolesAdded = departmentRolesRepository.save(departmentRoles);
 		standardResponse.setCode(200);
 		standardResponse.setStatus("Success");
 		standardResponse.setMessage("Department inserted successfully");
@@ -78,12 +92,18 @@ public class DepartmentServiceImpl implements DepartmentService {
 		StandardResponse<Department> standardResponse = new StandardResponse<Department>();
 //		Date date = new Date();
 //		department.setDepartmentUpdatedDtm(date);
+		
+		
 		Department updatedDepartment = departmentRepository.save(department);
 		if(CommonUtils.isStringNull(updatedDepartment.getDepartmentName())||CommonUtils.isStringNull(updatedDepartment.getDepartmentDescription()))
 		{
 			standardResponse.setMessage("Department name and description cannot be empty");
 			return standardResponse;
 		}
+		
+		DepartmentRoles departmentRoles = new DepartmentRoles();
+		departmentRoles.setDepartmentId(department.getDepartmentId());
+		departmentRolesRepository.save(departmentRoles);
 		standardResponse.setCode(200);
 		standardResponse.setStatus("Success");
 		standardResponse.setMessage("Department updated successfully");
@@ -95,6 +115,9 @@ public class DepartmentServiceImpl implements DepartmentService {
 	public StandardResponse deleteDepartment(Department department) {
 		StandardResponse standardResponse = new StandardResponse();
 		departmentRepository.delete(department);
+		DepartmentRoles departmentRoles = new DepartmentRoles();
+		departmentRoles.setDepartmentId(department.getDepartmentId());
+		departmentRolesRepository.delete(departmentRoles);
 		standardResponse.setCode(200);
 		standardResponse.setStatus("Success");
 		standardResponse.setMessage("Department deleted successfully");

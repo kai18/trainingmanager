@@ -5,8 +5,10 @@ import java.util.List;
 
 import org.springframework.beans.BeanUtils;
 
+import com.poc.trainingmanager.model.Department;
 import com.poc.trainingmanager.model.Role;
 import com.poc.trainingmanager.model.User;
+import com.poc.trainingmanager.model.cassandraudt.DepartmentUdt;
 import com.poc.trainingmanager.model.cassandraudt.RoleUdt;
 
 public class WrapperUtil {
@@ -49,4 +51,17 @@ public class WrapperUtil {
 		
 		return roleUdt;
 	}
+	
+	public static DepartmentUdt departmentToDepartmentUdt(Department department) {
+		DepartmentUdt departmentUdt = new DepartmentUdt();
+		
+		departmentUdt.setDepartmentId(department.getDepartmentId());
+		departmentUdt.setDepartmentDescription(department.getDepartmentDescription());
+		departmentUdt.setDepartmentName(department.getDepartmentName());
+		departmentUdt.setDepartmentCreatedDtm(department.getDepartmentCreatedDtm());
+		departmentUdt.setDepartmentUpdatedDtm(department.getDepartmentUpdatedDtm());
+		
+		return departmentUdt;
+	}
+	
 }
