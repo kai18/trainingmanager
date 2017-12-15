@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,11 +39,16 @@ public class DepartmentServiceImpl implements DepartmentService {
 		List<Department> allDepartment = departmentRepository.findAll();
 		if(allDepartment == null)
 		{
-			return null;
+			logger.warn("No department found");
+			standardResponse.setCode(404);
+			standardResponse.setStatus("Success");
+			standardResponse.setMessage("No department found");
+			return standardResponse;
 		}
+		logger.info("All departments fetched successfully");
 		standardResponse.setCode(200);
 		standardResponse.setStatus("Success");
-		standardResponse.setMessage("All department fetched");
+		standardResponse.setMessage("All departments fetched");
 		standardResponse.setElement(allDepartment);
 		return standardResponse;
 	}
@@ -71,7 +75,6 @@ public class DepartmentServiceImpl implements DepartmentService {
 
 		department.setDepartmentId(UUID.randomUUID());
 		department.setDepartmentCreatedDtm(date);
-		department.setDepartmentUpdatedDtm(date);
 		Department addedDepartment = departmentRepository.save(department);
 
 		DepartmentRoles departmentRoles = new DepartmentRoles();
@@ -90,10 +93,9 @@ public class DepartmentServiceImpl implements DepartmentService {
 	@Override
 	public StandardResponse<Department> updateDepartment(Department department) {
 		StandardResponse<Department> standardResponse = new StandardResponse<Department>();
-//		Date date = new Date();
-//		department.setDepartmentUpdatedDtm(date);
-		
-		
+		Date date = new Date();
+		department.setDepartmentUpdatedDtm(date);
+		department.setDepartmentCreatedDtm(date);
 		Department updatedDepartment = departmentRepository.save(department);
 		if(CommonUtils.isStringNull(updatedDepartment.getDepartmentName())||CommonUtils.isStringNull(updatedDepartment.getDepartmentDescription()))
 		{
@@ -104,6 +106,8 @@ public class DepartmentServiceImpl implements DepartmentService {
 		DepartmentRoles departmentRoles = new DepartmentRoles();
 		departmentRoles.setDepartmentId(department.getDepartmentId());
 		departmentRolesRepository.save(departmentRoles);
+		logger.info("Department {" + department + "} successfully updated");
+		logger.info("Department in DepartmentRoles {" + departmentRoles + "} successfully updated");
 		standardResponse.setCode(200);
 		standardResponse.setStatus("Success");
 		standardResponse.setMessage("Department updated successfully");
