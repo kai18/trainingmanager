@@ -13,8 +13,9 @@ import com.poc.trainingmanager.model.cassandraudt.RoleUdt;
 @Repository
 public interface UserRepository extends CassandraRepository<User> {
 
+	@Override
 	public User save(User user);
-	
+
 	public User findById(UUID uuid);
 
 	public User findByEmailId(String email);
@@ -28,10 +29,7 @@ public interface UserRepository extends CassandraRepository<User> {
 	public List<User> findByFirstNameContainingIgnoreCaseAndLastNameContainingIgnoreCase(String firstName,
 			String lastName);
 
-<<<<<<< HEAD
 	public List<User> findByDepartments(Department department);
-}
-=======
+
 	public List<User> findByRoles(RoleUdt roleUdt);
 }
->>>>>>> refs/remotes/origin/testing

@@ -1,5 +1,6 @@
 package com.poc.trainingmanager.service.impl;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -8,6 +9,9 @@ import org.springframework.stereotype.Service;
 
 import com.poc.trainingmanager.model.StandardResponse;
 import com.poc.trainingmanager.model.User;
+import com.poc.trainingmanager.model.cassandraudt.AddressUdt;
+import com.poc.trainingmanager.model.cassandraudt.DepartmentUdt;
+import com.poc.trainingmanager.model.cassandraudt.RoleUdt;
 import com.poc.trainingmanager.model.wrapper.UserSearchWrapper;
 import com.poc.trainingmanager.model.wrapper.WrapperUtil;
 import com.poc.trainingmanager.repository.UserRepository;
@@ -36,6 +40,9 @@ public class UserServiceImpl implements UserService {
 		List<String> departmentList = null;
 		List<String> roleList = null;
 
+		departmentList = Arrays.asList(departments.split(","));
+		roleList = Arrays.asList(roles.split(","));
+
 		unwrappedResults = searchEngine.searchByAllParameters(email, firstName, lastName, departmentList, roleList);
 		List<UserSearchWrapper> wrappedResult = WrapperUtil.wrapUserToUserSearchWrapper(unwrappedResults);
 
@@ -44,6 +51,12 @@ public class UserServiceImpl implements UserService {
 		searchResponse.setMessage("X results found");
 
 		return searchResponse;
+	}
+
+	@Override
+	public StandardResponse insert(User user, AddressUdt address, RoleUdt role, DepartmentUdt department) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }
