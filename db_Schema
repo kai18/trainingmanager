@@ -36,6 +36,22 @@ CREATE TYPE trainingmanager.role (
     updated_dtm timestamp
 );
 
+CREATE TYPE trainingmanager.user (
+    id uuid,
+    address frozen<address>,
+    created_dtm timestamp,
+    departments set<frozen<department>>,
+    email text,
+    first_name text,
+    gender text,
+    is_active boolean,
+    last_name text,
+    password text,
+    phone_number text,
+    roles set<frozen<role>>,
+    updated_dtm timestamp
+);
+
 CREATE TABLE trainingmanager.department (
     department_id uuid PRIMARY KEY,
     department_name text,
@@ -85,7 +101,16 @@ CREATE TABLE trainingmanager.department_roles (
 	department_id uuid PRIMARY KEY,
 	roles set<frozen<role>>
 );
-CREATE INDEX department_roles_roles_idx ON trainingmanager.department_roles (values(roles));
+
+CREATE TABLE trainingmanager.department_users (
+	department_id uuid PRIMARY KEY,
+	users set<frozen<user>>
+);
+
+CREATE TABLE trainingmanager.role_users (
+	role_id uuid PRIMARY KEY,
+	users set<frozen<user>>
+);
 
 use trainingmanager;
 
@@ -102,6 +127,20 @@ insert into role(role_id,role_name,role_type,role_description,privilege,created_
 insert into role(role_id,role_name,role_type,role_description,privilege,created_dtm,updated_dtm) values(ab3aaeb0-df10-11e7-8dac-bb71b9eabcd5,'Faculty','User','Normal user with only view privilege',{creation:0,deletion:0,updation:0,read:9,department_id:null},dateOf(now()),dateOf(now()));
 insert into role(role_id,role_name,role_type,role_description,privilege,created_dtm,updated_dtm) values(ab3b9910-df10-11e7-8dac-bb71b9eabcd5,'Student','User','Normal user with only view privilege',{creation:0,deletion:0,updation:0,read:9,department_id:null},dateOf(now()),dateOf(now()));
 
+insert into role_users(role_id,users) values(b7e79dd0-df10-11e7-8dac-bb71b9eabcd5,null);
+insert into role_users(role_id,users) values(de6d54a0-df0f-11e7-8dac-bb71b9eabcd5,null);
+insert into role_users(role_id,users) values(ab361ad0-df10-11e7-8dac-bb71b9eabcd5,null);
+insert into role_users(role_id,users) values(ab377a60-df10-11e7-8dac-bb71b9eabcd5,null);
+insert into role_users(role_id,users) values(f4c60b60-df10-11e7-8dac-bb71b9eabcd5,null);
+insert into role_users(role_id,users) values(ab399d40-df10-11e7-8dac-bb71b9eabcd5,null);
+insert into role_users(role_id,users) values(ab3aaeb0-df10-11e7-8dac-bb71b9eabcd5,null);
+insert into role_users(role_id,users) values(ab3b9910-df10-11e7-8dac-bb71b9eabcd5,null);
+
+insert into department_users(department_id,users) values(07b1e4b0-df0c-11e7-8dac-bb71b9eabcd5,null);
+insert into department_users(department_id,users) values(07aba320-df0c-11e7-8dac-bb71b9eabcd5,null);
+insert into department_users(department_id,users) values(07b2f620-df0c-11e7-8dac-bb71b9eabcd5,null);
+
 insert into department_roles(department_id,roles) values(07aba320-df0c-11e7-8dac-bb71b9eabcd5,{(de6d54a0-df0f-11e7-8dac-bb71b9eabcd5,'Java Administrator','Department','Manages Java department ',{creation:1,deletion:1,updation:1,read:1,department_id:07b1e4b0-df0c-11e7-8dac-bb71b9eabcd5},dateOf(now()),dateOf(now())),(f4c60b60-df10-11e7-8dac-bb71b9eabcd5,'Java Update Administrator','Department','Manages Java department update operation',{creation:0,deletion:0,updation:1,read:1,department_id:07b1e4b0-df0c-11e7-8dac-bb71b9eabcd5},dateOf(now()),dateOf(now())),(ab399d40-df10-11e7-8dac-bb71b9eabcd5,'Java Delete Administrator','Department','Manages Java department delete operation',{creation:0,deletion:1,updation:0,read:1,department_id:07b1e4b0-df0c-11e7-8dac-bb71b9eabcd5},dateOf(now()),dateOf(now()))});
 insert into department_roles(department_id,roles) values(07b1e4b0-df0c-11e7-8dac-bb71b9eabcd5,{(ab361ad0-df10-11e7-8dac-bb71b9eabcd5,'Angular Administrator','Department','Manages Angular department',{creation:1,deletion:1,updation:1,read:1,department_id:07aba320-df0c-11e7-8dac-bb71b9eabcd5},dateOf(now()),dateOf(now()))});
 insert into department_roles(department_id,roles) values(07b2f620-df0c-11e7-8dac-bb71b9eabcd5,{(ab377a60-df10-11e7-8dac-bb71b9eabcd5,'Dot Net Administrator','Department','Manages Dot net department',{creation:1,deletion:1,updation:1,read:1,department_id:07b2f620-df0c-11e7-8dac-bb71b9eabcd5},dateOf(now()),dateOf(now()))});
+

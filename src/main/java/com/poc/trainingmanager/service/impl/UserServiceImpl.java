@@ -1,6 +1,7 @@
 package com.poc.trainingmanager.service.impl;
 
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -13,13 +14,16 @@ import org.springframework.stereotype.Service;
 
 import com.poc.trainingmanager.constants.Constants;
 import com.poc.trainingmanager.model.Role;
+import com.poc.trainingmanager.model.RoleUsers;
 import com.poc.trainingmanager.model.StandardResponse;
 import com.poc.trainingmanager.model.User;
 import com.poc.trainingmanager.model.cassandraudt.RoleUdt;
+import com.poc.trainingmanager.model.cassandraudt.UserUdt;
 import com.poc.trainingmanager.model.wrapper.UserSearchWrapper;
 import com.poc.trainingmanager.model.wrapper.WrapperUtil;
 import com.poc.trainingmanager.repository.DepartmentRolesRepository;
 import com.poc.trainingmanager.repository.RoleRepository;
+import com.poc.trainingmanager.repository.RoleUsersRepository;
 import com.poc.trainingmanager.repository.UserRepository;
 import com.poc.trainingmanager.search.SearchEngine;
 import com.poc.trainingmanager.service.UserService;
@@ -30,12 +34,15 @@ public class UserServiceImpl implements UserService {
 
 	@Autowired
 	UserRepository userRepository;
-	
+
 	@Autowired
 	RoleRepository roleRepository;
-	
+
 	@Autowired
 	DepartmentRolesRepository departmentRolesRepository;
+
+	@Autowired
+	RoleUsersRepository roleUsersRepository;
 
 	@Autowired
 	SearchEngine searchEngine;
@@ -96,75 +103,120 @@ public class UserServiceImpl implements UserService {
 		user.setPassword(PasswordUtil.getPasswordHash(user.getPassword()));
 		user.setCreatedDtm(date);
 		user.setUpdatedDtm(date);
-		userRepository.save(user);
-		standardResponse.setStatus(Constants.SUCCESS);
-		standardResponse.setCode(200);
-		standardResponse.setElement(user);
-		standardResponse.setMessage("User added successfully");
-		logger.info("User {" + user.getEmailId() + "} successfully added");
+
+		// setting the current user's userRolesUdt that is to be added to the set in
+		// RoleUsers
+		// fetch an entry from roleUsers table with the role id obtained from the user
+		RoleUsers roleUsers = roleUsersRepository.findByRoleId(user.getRoles().iterator().next().getRoleId());
+		// add this user to the set of users in the roleUsers mapping that role
+		Set<UserUdt> userList = new HashSet<UserUdt>();
+		if (roleUsers != null) {
+			userRepository.save(user); // insert user only if the role exists
+			userList.add(WrapperUtil.userToUserUdt(user));
+			// set the updated set of users belonging to that role
+			roleUsers.setUserRolesUdt(userList);
+			;
+			roleUsersRepository.save(roleUsers);
+			standardResponse.setStatus(Constants.SUCCESS);
+			standardResponse.setCode(200);
+			standardResponse.setElement(user);
+			standardResponse.setMessage("User added successfully");
+			logger.info("User {" + user.getEmailId() + "} successfully added");
+		}
 		return standardResponse;
 	}
-	
+
 	@Override
-	public StandardResponse<User> update(User user)
-	{
+	public StandardResponse<User> update(User user) {
 		Date date = new Date();
+		RoleUdt role = new RoleUdt();
+		RoleUsers roleUsers = new RoleUsers();
 		StandardResponse<User> stdResponse = new StandardResponse<User>();
 		User oldUser = userRepository.findById(user.getId());
 		user.setUpdatedDtm(date);
 		userRepository.save(WrapperUtil.wrappedUserToUser(user, oldUser));
-		stdResponse.setStatus(Constants.SUCCESS);
-		stdResponse.setCode(200);
-		stdResponse.setElement(user);
-		stdResponse.setMessage("User updated successfully");
-		return stdResponse;
-	} 
+		// these are the set of roles this user belongs to
+		Set<RoleUdt> roleUdtList = oldUser.getRoles();
 
-	@Override
-	public StandardResponse<User> grantrole(UUID userId, UUID roleId) {
-		Date date = new Date();
-		StandardResponse<User> stdResponse = new StandardResponse<User>();
-		User user = userRepository.findById(userId);
-		Set<RoleUdt> assignedRoles = user.getRoles();
-		Role grantRole = roleRepository.findByRoleId(roleId);
-		if (departmentRolesRepository.findByRoles(WrapperUtil.roleToRoleUdt(grantRole)) == null) {
-			stdResponse.setCode(404);
-			stdResponse.setStatus("Failed");
-			stdResponse.setMessage("Role not granted");
+		Set<UserUdt> userUdtList = new HashSet<UserUdt>();
+		if (roleUdtList != null) {
+			// for each role search for the user and replace with updated user
+			for (int i = 0; i < roleUdtList.size(); i++) {
+				role = roleUdtList.iterator().next();
+				roleUsers = roleUsersRepository.findByRoleId(role.getRoleId());
+				userUdtList = roleUsers.getUserUdt();
+				userUdtList.remove(WrapperUtil.userToUserUdt(oldUser));
+				userUdtList.add(WrapperUtil.userToUserUdt(user));
+				roleUsers.setUserRolesUdt(userUdtList);
+				roleUsersRepository.save(roleUsers);
+			}
+			stdResponse.setStatus(Constants.SUCCESS);
+			stdResponse.setCode(200);
+			stdResponse.setElement(user);
+			stdResponse.setMessage("User updated successfully");
 		}
-		assignedRoles.add(WrapperUtil.roleToRoleUdt(grantRole));
-		user.setRoles(assignedRoles);
-		user.setUpdatedDtm(date);
-		user = userRepository.save(user);
-		stdResponse.setCode(200);
-		stdResponse.setStatus("success");
-		stdResponse.setMessage("Role granted");
-		stdResponse.setElement(user);
 		return stdResponse;
-
 	}
 
 	@Override
-	public StandardResponse<User> revokerole(UUID userId, UUID roleId) {
-		Date date = new Date();
+	public StandardResponse<User> grantrole(String uId, String rId) {
 		StandardResponse<User> stdResponse = new StandardResponse<User>();
+		UUID userId = UUID.fromString(uId);
+		UUID roleId = UUID.fromString(rId);
 		User user = userRepository.findById(userId);
-		Set<RoleUdt> assignedRoles = user.getRoles();
-		Role removeRole = roleRepository.findByRoleId(roleId);
-		if (departmentRolesRepository.findByRoles(WrapperUtil.roleToRoleUdt(removeRole)) == null) {
-			stdResponse.setCode(404);
-			stdResponse.setStatus("Failed");
-			stdResponse.setMessage("Role not revoked");
+		Role role = new Role();
+		role = roleRepository.findByRoleId(roleId);
+		Date date = new Date();
+		Set<RoleUdt> roleUdtList = user.getRoles();
+
+		if (role != null) {
+			roleUdtList.add(WrapperUtil.roleToRoleUdt(role));
+			user.setRoles(roleUdtList);
+			user.setUpdatedDtm(date);
+			userRepository.save(user);
+
+			RoleUsers roleUsers = roleUsersRepository.findByRoleId(role.getRoleId());
+			Set<UserUdt> userUdtList = roleUsers.getUserUdt();
+			userUdtList.add(WrapperUtil.userToUserUdt(user));
+			roleUsers.setUserRolesUdt(userUdtList);
+			roleUsersRepository.save(roleUsers);
+			stdResponse.setCode(200);
+			stdResponse.setStatus("success");
+			stdResponse.setMessage("Role granted");
+			stdResponse.setElement(user);
+			return stdResponse;
 		}
-		assignedRoles.remove(WrapperUtil.roleToRoleUdt(removeRole));
-		user.setRoles(assignedRoles);
+		stdResponse.setCode(400);
+		stdResponse.setStatus("failed");
+		stdResponse.setMessage("Role not granted");
+		return stdResponse;
+	}
+
+	@Override
+	public StandardResponse<User> revokerole(String uId, String rId) {
+		StandardResponse<User> stdResponse = new StandardResponse<User>();
+		UUID userId = UUID.fromString(uId);
+		UUID roleId = UUID.fromString(rId);
+		User user = userRepository.findById(userId);
+		Role role = new Role();
+		role = roleRepository.findByRoleId(roleId);
+		Date date = new Date();
+
+		RoleUsers roleUsers = roleUsersRepository.findByRoleId(role.getRoleId());
+		Set<UserUdt> userUdtList = roleUsers.getUserUdt();
+		userUdtList.remove(WrapperUtil.userToUserUdt(user));
+		roleUsers.setUserRolesUdt(userUdtList);
+		roleUsersRepository.save(roleUsers);
+
+		Set<RoleUdt> roleUdtList = user.getRoles();
+		roleUdtList.remove(role);
+		user.setRoles(roleUdtList);
 		user.setUpdatedDtm(date);
-		user = userRepository.save(user);
+		userRepository.save(user);
 		stdResponse.setCode(200);
 		stdResponse.setStatus("success");
 		stdResponse.setMessage("Role Revoked");
 		stdResponse.setElement(user);
 		return stdResponse;
 	}
-
 }
