@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
+import com.poc.trainingmanager.model.Role;
 import com.poc.trainingmanager.model.StandardResponse;
 import com.poc.trainingmanager.model.User;
 
@@ -17,7 +18,7 @@ public interface UserService {
 	
 	public StandardResponse search(Map<String, String> searchParameters);
 
-	public StandardResponse<User> grantrole(UUID userId, UUID roleId);
+	public StandardResponse<User> grantrole(String userId, String roleId);
 	
-	public StandardResponse<User> revokerole(UUID userId, UUID roleId);
+	public StandardResponse<User> revokerole(String userId, String roleId);
 }
