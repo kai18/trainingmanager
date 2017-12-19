@@ -18,8 +18,8 @@ public class DepartmentRoles {
 	@PrimaryKeyColumn(name = "DEPARTMENT_ID", type = PrimaryKeyType.PARTITIONED)
 	@Column("DEPARTMENT_ID")
 	private UUID departmentId;
-	
-	@CassandraType(type = DataType.Name.UDT, userTypeName="role")
+
+	@CassandraType(type = DataType.Name.UDT, userTypeName = "role")
 	@Column("roles")
 	private Set<RoleUdt> roles;
 
@@ -44,6 +44,39 @@ public class DepartmentRoles {
 		this.departmentId = departmentId;
 		this.roles = roles;
 	}
-	
-	public DepartmentRoles() {}
+
+	public DepartmentRoles() {
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((departmentId == null) ? 0 : departmentId.hashCode());
+		result = prime * result + ((roles == null) ? 0 : roles.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		DepartmentRoles other = (DepartmentRoles) obj;
+		if (departmentId == null) {
+			if (other.departmentId != null)
+				return false;
+		} else if (!departmentId.equals(other.departmentId))
+			return false;
+		if (roles == null) {
+			if (other.roles != null)
+				return false;
+		} else if (!roles.equals(other.roles))
+			return false;
+		return true;
+	}
+
 }

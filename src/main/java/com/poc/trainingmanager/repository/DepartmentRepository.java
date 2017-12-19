@@ -12,8 +12,15 @@ import com.poc.trainingmanager.model.Department;
 public interface DepartmentRepository extends CassandraRepository<Department> {
 
 	public Department findByDepartmentId(UUID uuid);
+
+	public Department findByDepartmentName(String departmentName);
+
+	@Override
 	public List<Department> findAll();
+
+	@Override
 	public Department save(Department department);
+
+	@Override
 	public void delete(Department department);
 }
-
