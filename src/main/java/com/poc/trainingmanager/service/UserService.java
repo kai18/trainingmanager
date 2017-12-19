@@ -19,7 +19,7 @@ public interface UserService {
 	public StandardResponse<List<UserSearchWrapper>> search(String firstName, String lastName, String email,
 			String departments, String roles);
 
-	public StandardResponse<User> grantrole(UUID userId, UUID roleId);
-
-	public StandardResponse<User> revokerole(UUID userId, UUID roleId);
+	public StandardResponse<User> grantrole(String userId, String roleId);
+	
+	public StandardResponse<User> revokerole(String userId, String roleId);
 }

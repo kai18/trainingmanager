@@ -83,7 +83,24 @@ public class WrapperUtil {
 			}
 		return roleUdtList;
 	}
-
+public static User userUdtToUser(UserUdt userUdt) {
+		User user = new User();
+		user.setId(userUdt.getId());
+		user.setFirstName(userUdt.getFirstName());
+		user.setLastName(userUdt.getLastName());
+		user.setEmailId(userUdt.getEmailId());
+		user.setPassword(userUdt.getPassword());
+		user.setPhoneNumber(userUdt.getPhoneNumber());
+		user.setIsActive(userUdt.getIsActive());
+		user.setAddress(userUdt.getAddress());
+		user.setGender(userUdt.getGender());
+		user.setDepartments(userUdt.getDepartments());
+		user.setRoles(userUdt.getRoles());
+		user.setCreatedDtm(userUdt.getCreatedDtm());
+		user.setUpdatedDtm(userUdt.getUpdatedDtm());
+		
+		return user;
+	}
 	public static User wrappedUserToUser(User user, User oldUser) {
 		oldUser.setFirstName(user.getFirstName());
 		oldUser.setLastName(user.getLastName());
