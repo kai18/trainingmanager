@@ -10,6 +10,7 @@ import com.poc.trainingmanager.model.Role;
 import com.poc.trainingmanager.model.User;
 import com.poc.trainingmanager.model.cassandraudt.DepartmentUdt;
 import com.poc.trainingmanager.model.cassandraudt.RoleUdt;
+import com.poc.trainingmanager.model.cassandraudt.UserUdt;
 
 public class WrapperUtil {
 
@@ -83,7 +84,8 @@ public class WrapperUtil {
 			}
 		return roleUdtList;
 	}
-public static User userUdtToUser(UserUdt userUdt) {
+
+	public static User userUdtToUser(UserUdt userUdt) {
 		User user = new User();
 		user.setId(userUdt.getId());
 		user.setFirstName(userUdt.getFirstName());
@@ -98,9 +100,10 @@ public static User userUdtToUser(UserUdt userUdt) {
 		user.setRoles(userUdt.getRoles());
 		user.setCreatedDtm(userUdt.getCreatedDtm());
 		user.setUpdatedDtm(userUdt.getUpdatedDtm());
-		
+
 		return user;
 	}
+
 	public static User wrappedUserToUser(User user, User oldUser) {
 		oldUser.setFirstName(user.getFirstName());
 		oldUser.setLastName(user.getLastName());
@@ -108,5 +111,11 @@ public static User userUdtToUser(UserUdt userUdt) {
 		oldUser.setAddress(user.getAddress());
 
 		return oldUser;
+	}
+
+	public static UserUdt userToUserUdt(User user) {
+		UserUdt userUdt = new UserUdt();
+		BeanUtils.copyProperties(user, userUdt);
+		return userUdt;
 	}
 }

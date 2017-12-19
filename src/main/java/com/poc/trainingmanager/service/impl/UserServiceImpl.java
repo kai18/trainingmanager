@@ -3,6 +3,7 @@ package com.poc.trainingmanager.service.impl;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -26,8 +27,8 @@ import com.poc.trainingmanager.model.wrapper.WrapperUtil;
 import com.poc.trainingmanager.repository.DepartmentRepository;
 import com.poc.trainingmanager.repository.DepartmentRolesRepository;
 import com.poc.trainingmanager.repository.RoleRepository;
-import com.poc.trainingmanager.repository.UserRepository;
 import com.poc.trainingmanager.repository.RoleUsersRepository;
+import com.poc.trainingmanager.repository.UserRepository;
 import com.poc.trainingmanager.search.SearchEngine;
 import com.poc.trainingmanager.service.UserService;
 import com.poc.trainingmanager.utils.PasswordUtil;
@@ -50,7 +51,7 @@ public class UserServiceImpl implements UserService {
 
 	@Autowired
 	DepartmentRolesRepository departmentRolesRepository;
-	
+
 	@Autowired
 	RoleUsersRepository roleUsersRepository;
 
