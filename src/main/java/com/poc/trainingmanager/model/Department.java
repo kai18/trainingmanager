@@ -78,6 +78,55 @@ public class Department {
 	}
 
 	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((departmentCreatedDtm == null) ? 0 : departmentCreatedDtm.hashCode());
+		result = prime * result + ((departmentDescription == null) ? 0 : departmentDescription.hashCode());
+		result = prime * result + ((departmentId == null) ? 0 : departmentId.hashCode());
+		result = prime * result + ((departmentName == null) ? 0 : departmentName.hashCode());
+		result = prime * result + ((departmentUpdatedDtm == null) ? 0 : departmentUpdatedDtm.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Department other = (Department) obj;
+		if (departmentCreatedDtm == null) {
+			if (other.departmentCreatedDtm != null)
+				return false;
+		} else if (!departmentCreatedDtm.equals(other.departmentCreatedDtm))
+			return false;
+		if (departmentDescription == null) {
+			if (other.departmentDescription != null)
+				return false;
+		} else if (!departmentDescription.equals(other.departmentDescription))
+			return false;
+		if (departmentId == null) {
+			if (other.departmentId != null)
+				return false;
+		} else if (!departmentId.equals(other.departmentId))
+			return false;
+		if (departmentName == null) {
+			if (other.departmentName != null)
+				return false;
+		} else if (!departmentName.equals(other.departmentName))
+			return false;
+		if (departmentUpdatedDtm == null) {
+			if (other.departmentUpdatedDtm != null)
+				return false;
+		} else if (!departmentUpdatedDtm.equals(other.departmentUpdatedDtm))
+			return false;
+		return true;
+	}
+
+	@Override
 	public String toString() {
 		return "Department [departmentId=" + departmentId + ", departmentName=" + departmentName
 				+ ", departmentDescription=" + departmentDescription + ", departmentCreatedDtm=" + departmentCreatedDtm

@@ -1,8 +1,9 @@
 package com.poc.trainingmanager.service.impl;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -12,12 +13,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.poc.trainingmanager.constants.Constants;
+import com.poc.trainingmanager.model.Department;
 import com.poc.trainingmanager.model.Role;
 import com.poc.trainingmanager.model.StandardResponse;
 import com.poc.trainingmanager.model.User;
+import com.poc.trainingmanager.model.cassandraudt.DepartmentUdt;
 import com.poc.trainingmanager.model.cassandraudt.RoleUdt;
 import com.poc.trainingmanager.model.wrapper.UserSearchWrapper;
 import com.poc.trainingmanager.model.wrapper.WrapperUtil;
+import com.poc.trainingmanager.repository.DepartmentRepository;
 import com.poc.trainingmanager.repository.DepartmentRolesRepository;
 import com.poc.trainingmanager.repository.RoleRepository;
 import com.poc.trainingmanager.repository.UserRepository;
@@ -25,15 +29,22 @@ import com.poc.trainingmanager.search.SearchEngine;
 import com.poc.trainingmanager.service.UserService;
 import com.poc.trainingmanager.utils.PasswordUtil;
 
+/**
+ * //TODO
+ *
+ */
 @Service
 public class UserServiceImpl implements UserService {
 
 	@Autowired
 	UserRepository userRepository;
-	
+
+	@Autowired
+	DepartmentRepository departmentRespository;
+
 	@Autowired
 	RoleRepository roleRepository;
-	
+
 	@Autowired
 	DepartmentRolesRepository departmentRolesRepository;
 
@@ -43,22 +54,45 @@ public class UserServiceImpl implements UserService {
 	private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
 
 	@Override
-	public StandardResponse<List<UserSearchWrapper>> search(Map<String, String> searchParameters) {
+	public StandardResponse<List<UserSearchWrapper>> search(String firstName, String lastName, String email,
+			String departments, String roles) {
 
-		String firstName = searchParameters.get("firstName");
-		String lastName = searchParameters.get("lastName");
-		String email = searchParameters.get("email");
-		String departments = searchParameters.get("departments");
-		String roles = searchParameters.get("role");
+		List<String> departmentNameList = null;
+		List<String> roleNameList = null;
+		List<Department> departmentList = new ArrayList<Department>();
+		List<Role> roleList = new ArrayList<Role>();
 
-		List<User> unwrappedResults = null;
-		List<String> departmentList = null;
-		List<String> roleList = null;
+		List<RoleUdt> roleUdtList = null;
+		List<DepartmentUdt> departmentUdtList = null;
 
-		unwrappedResults = searchEngine.searchByAllParameters(email, firstName, lastName, departmentList, roleList);
+		if (departments != null) {
+			departmentNameList = Arrays.asList(departments.split(","));
+			for (String departmentName : departmentNameList) {
+				departmentList.add(departmentRespository.findByDepartmentName(departmentName));
+
+			}
+
+			departmentUdtList = WrapperUtil.departmentToDepartmentUdt(departmentList);
+
+		}
+
+		if (roles != null) {
+			roleNameList = Arrays.asList(roles.split(","));
+			for (String roleName : roleNameList) {
+				roleList.add(roleRepository.findByRoleName(roleName));
+			}
+
+			roleUdtList = WrapperUtil.roleToRoleUdt(roleList);
+
+		}
+
+		List<User> unwrappedResults = searchEngine.searchByAllParameters(email, firstName, lastName, departmentUdtList,
+				roleUdtList);
+
 		List<UserSearchWrapper> wrappedResult = WrapperUtil.wrapUserToUserSearchWrapper(unwrappedResults);
 
 		StandardResponse<List<UserSearchWrapper>> searchResponse = new StandardResponse<List<UserSearchWrapper>>();
+		System.out.println(wrappedResult);
 		searchResponse.setElement(wrappedResult);
 		searchResponse.setMessage("X results found");
 
@@ -104,10 +138,9 @@ public class UserServiceImpl implements UserService {
 		logger.info("User {" + user.getEmailId() + "} successfully added");
 		return standardResponse;
 	}
-	
+
 	@Override
-	public StandardResponse<User> update(User user)
-	{
+	public StandardResponse<User> update(User user) {
 		Date date = new Date();
 		StandardResponse<User> stdResponse = new StandardResponse<User>();
 		User oldUser = userRepository.findById(user.getId());
@@ -118,7 +151,7 @@ public class UserServiceImpl implements UserService {
 		stdResponse.setElement(user);
 		stdResponse.setMessage("User updated successfully");
 		return stdResponse;
-	} 
+	}
 
 	@Override
 	public StandardResponse<User> grantrole(UUID userId, UUID roleId) {

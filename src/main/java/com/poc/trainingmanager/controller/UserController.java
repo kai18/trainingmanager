@@ -1,7 +1,6 @@
 package com.poc.trainingmanager.controller;
 
-import java.util.Map;
-import java.util.UUID;
+import java.util.List;
 
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +20,7 @@ import com.poc.trainingmanager.model.wrapper.UserSearchWrapper;
 import com.poc.trainingmanager.service.UserService;
 
 @RestController
-@RequestMapping("users")
+@RequestMapping("users/")
 public class UserController {
 
 	private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(TrainingmanagerApplication.class);
@@ -42,33 +41,40 @@ public class UserController {
 	}
 
 	@GetMapping("search")
-	public StandardResponse<UserSearchWrapper> search(@RequestParam Map<String, String> searchParameters) {
+	public StandardResponse<List<UserSearchWrapper>> search(
+			@RequestParam(value = "firstName", required = false) String firstName,
+			@RequestParam(value = "lastName", required = false) String lastName,
+			@RequestParam(value = "email", required = false) String email,
+			@RequestParam(value = "departments", required = false) String departments,
+			@RequestParam(value = "roles", required = false) String roles) {
+
 		LOGGER.info("Searching using given parameters");
-		String firstName = searchParameters.get("firstName");
 		System.out.println(firstName);
-		return userService.search(searchParameters);
+		return userService.search(firstName, lastName, email, departments, roles);
 
 	}
-	
-	@RequestMapping(method=RequestMethod.POST)
+
+	@RequestMapping(method = RequestMethod.POST)
 	StandardResponse<User> insert(@RequestBody User user) {
 		return userService.insert(user);
 	}
-	
-	@RequestMapping(method=RequestMethod.PUT)
+
+	@RequestMapping(method = RequestMethod.PUT)
 	StandardResponse<User> update(@RequestBody User user) {
 		return userService.update(user);
-	} 
-	
-	/*@GetMapping("{userId}/grantrole/{roleId}")
-    @RequestMapping(method=RequestMethod.PUT)
-    StandardResponse<User> grantRole(@RequestParam UUID userId,@RequestParam UUID roleId){
-           return userService.grantrole(userId, roleId);
-    }
-    
-    @GetMapping("{userId}/revokerole/{roleId}")
-    @RequestMapping(method=RequestMethod.PUT)
-    StandardResponse<User> revokeRole(@RequestParam UUID userId,@RequestParam UUID roleId){
-           return userService.revokerole(userId, roleId);
-    }*/
+	}
+
+	/*
+	 * @GetMapping("{userId}/grantrole/{roleId}")
+	 * 
+	 * @RequestMapping(method=RequestMethod.PUT) StandardResponse<User>
+	 * grantRole(@RequestParam UUID userId,@RequestParam UUID roleId){ return
+	 * userService.grantrole(userId, roleId); }
+	 * 
+	 * @GetMapping("{userId}/revokerole/{roleId}")
+	 * 
+	 * @RequestMapping(method=RequestMethod.PUT) StandardResponse<User>
+	 * revokeRole(@RequestParam UUID userId,@RequestParam UUID roleId){ return
+	 * userService.revokerole(userId, roleId); }
+	 */
 }
