@@ -1,13 +1,13 @@
 package com.poc.trainingmanager.controller;
 
 import java.util.List;
-import java.util.UUID;
 
 import javax.websocket.server.PathParam;
 
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.poc.trainingmanager.config.TestAbc;
 import com.poc.trainingmanager.config.TrainingmanagerApplication;
-import com.poc.trainingmanager.model.Role;
 import com.poc.trainingmanager.model.StandardResponse;
 import com.poc.trainingmanager.model.User;
 import com.poc.trainingmanager.model.wrapper.UserSearchWrapper;
@@ -68,13 +67,15 @@ public class UserController {
 	StandardResponse<User> update(@RequestBody User user) {
 		return userService.update(user);
 	}
-@PutMapping("grant")
-    StandardResponse<User> grantRole(@PathParam("userId") String userId,@PathParam("roleId") String roleId){
-           return userService.grantrole(userId, roleId);
-    }
-    
-	@PutMapping("revoke")
-    StandardResponse<User> revokeRole(@PathParam("userId") String userId,@PathParam("roleId") String roleId){
-           return userService.revokerole(userId, roleId);
-    }
+
+	@PutMapping(value = "grant/{roleId}/user/{userId}")
+	StandardResponse<User> grantRole(@PathVariable("userId") String userId, @PathVariable("roleId") String roleId) {
+		LOGGER.error(userId);
+		return userService.grantrole(userId, roleId);
+	}
+
+	@PutMapping(value = "revoke/{roleId}/user/{userId}")
+	StandardResponse<User> revokeRole(@PathParam("roleId") String roleId, @PathParam("userId") String userId) {
+		return userService.revokerole(userId, roleId);
+	}
 }
