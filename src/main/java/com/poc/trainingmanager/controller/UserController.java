@@ -2,10 +2,9 @@ package com.poc.trainingmanager.controller;
 
 import java.util.List;
 
-import javax.websocket.server.PathParam;
-
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -13,7 +12,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.poc.trainingmanager.config.TestAbc;
@@ -35,15 +33,16 @@ public class UserController {
 	@Autowired
 	UserService userService;
 
-	@GetMapping("/")
-	@ResponseBody
-	public Long test() {
-		LOGGER.info("INFO LOGGING");
-		LOGGER.debug("Debug logging");
-		return test.test();
+	/*
+	 * @GetMapping("/")
+	 * 
+	 * @ResponseBody public Long test() { LOGGER.info("INFO LOGGING");
+	 * LOGGER.debug("Debug logging"); return test.test();
+	 * 
+	 * }
+	 */
 
-	}
-
+	@CrossOrigin()
 	@GetMapping("search")
 	public StandardResponse<List<UserSearchWrapper>> search(
 			@RequestParam(value = "firstName", required = false) String firstName,
@@ -71,11 +70,12 @@ public class UserController {
 	@PutMapping(value = "grant/{roleId}/user/{userId}")
 	StandardResponse<User> grantRole(@PathVariable("userId") String userId, @PathVariable("roleId") String roleId) {
 		LOGGER.error(userId);
-		return userService.grantrole(userId, roleId);
+		return userService.grantRole(userId, roleId);
 	}
 
 	@PutMapping(value = "revoke/{roleId}/user/{userId}")
-	StandardResponse<User> revokeRole(@PathParam("roleId") String roleId, @PathParam("userId") String userId) {
-		return userService.revokerole(userId, roleId);
+	StandardResponse<User> revokeRole(@PathVariable("userId") String userId, @PathVariable("roleId") String roleId) {
+		LOGGER.error(userId);
+		return userService.revokeRole(userId, roleId);
 	}
 }

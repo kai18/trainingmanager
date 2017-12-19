@@ -1,5 +1,6 @@
 package com.poc.trainingmanager.model;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.UUID;
 
@@ -9,7 +10,12 @@ import org.springframework.data.cassandra.mapping.PrimaryKeyColumn;
 import org.springframework.data.cassandra.mapping.Table;
 
 @Table("department")
-public class Department {
+public class Department implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 6762819638637980192L;
 
 	@PrimaryKeyColumn(name = "DEPARTMENT_ID", type = PrimaryKeyType.PARTITIONED)
 	@Column("DEPARTMENT_ID")

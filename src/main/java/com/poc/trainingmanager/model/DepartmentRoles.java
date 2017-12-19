@@ -1,5 +1,6 @@
 package com.poc.trainingmanager.model;
 
+import java.io.Serializable;
 import java.util.Set;
 import java.util.UUID;
 
@@ -13,7 +14,12 @@ import com.datastax.driver.core.DataType;
 import com.poc.trainingmanager.model.cassandraudt.RoleUdt;
 
 @Table("department_roles")
-public class DepartmentRoles {
+public class DepartmentRoles implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 3193126686386621270L;
 
 	@PrimaryKeyColumn(name = "DEPARTMENT_ID", type = PrimaryKeyType.PARTITIONED)
 	@Column("DEPARTMENT_ID")

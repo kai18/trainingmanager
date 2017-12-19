@@ -1,5 +1,6 @@
 package com.poc.trainingmanager.model.cassandraudt;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.UUID;
 
@@ -10,7 +11,12 @@ import org.springframework.data.cassandra.mapping.UserDefinedType;
 import com.datastax.driver.core.DataType;
 
 @UserDefinedType("department")
-public class DepartmentUdt {
+public class DepartmentUdt implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -5979140604240769588L;
 
 	@CassandraType(type = DataType.Name.UUID)
 	@Column("department_id")

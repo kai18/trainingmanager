@@ -1,5 +1,6 @@
 package com.poc.trainingmanager.model;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.Set;
 import java.util.UUID;
@@ -10,15 +11,19 @@ import org.springframework.data.cassandra.mapping.Indexed;
 import org.springframework.data.cassandra.mapping.PrimaryKeyColumn;
 import org.springframework.data.cassandra.mapping.Table;
 
-import com.datastax.driver.mapping.annotations.Frozen;
 import com.poc.trainingmanager.model.cassandraudt.AddressUdt;
 import com.poc.trainingmanager.model.cassandraudt.DepartmentUdt;
 import com.poc.trainingmanager.model.cassandraudt.RoleUdt;
 
 @Table(value = "user")
-public class User {
+public class User implements Serializable {
 
-	@PrimaryKeyColumn(name = "ID", type = PrimaryKeyType.PARTITIONED)
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -6564163417466759552L;
+
+	@PrimaryKeyColumn(name = "id", type = PrimaryKeyType.PARTITIONED)
 	private UUID id;
 
 	@Column(value = "FIRST_NAME")
@@ -164,8 +169,8 @@ public class User {
 	}
 
 	public User(UUID id, String firstName, String lastName, String password, String gender, String emailId,
-			String phoneNumber, boolean isActive, Date createdDtm, Date updatedDtm, AddressUdt address, Set<RoleUdt> roles,
-			Set<DepartmentUdt> departments) {
+			String phoneNumber, boolean isActive, Date createdDtm, Date updatedDtm, AddressUdt address,
+			Set<RoleUdt> roles, Set<DepartmentUdt> departments) {
 		super();
 		this.id = id;
 		this.firstName = firstName;

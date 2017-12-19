@@ -10,6 +10,7 @@ import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -138,10 +139,13 @@ public class UserServiceImpl implements UserService {
 		user.setCreatedDtm(date);
 		user.setUpdatedDtm(date);
 
-		// setting the current user's userRolesUdt that is to be added to the set in
-		// RoleUsers
-		// fetch an entry from roleUsers table with the role id obtained from the user
+		/*
+		 * setting the current user's userRolesUdt that is to be added to the set in
+		 * RoleUsers fetch an entry from roleUsers table with the role id obtained from
+		 * the user
+		 */
 		RoleUsers roleUsers = roleUsersRepository.findByRoleId(user.getRoles().iterator().next().getRoleId());
+
 		// add this user to the set of users in the roleUsers mapping that role
 		Set<UserUdt> userList = new HashSet<UserUdt>();
 		if (roleUsers != null) {
@@ -149,7 +153,6 @@ public class UserServiceImpl implements UserService {
 			userList.add(WrapperUtil.userToUserUdt(user));
 			// set the updated set of users belonging to that role
 			roleUsers.setUserRolesUdt(userList);
-			;
 			roleUsersRepository.save(roleUsers);
 			standardResponse.setStatus(Constants.SUCCESS);
 			standardResponse.setCode(200);
@@ -168,7 +171,10 @@ public class UserServiceImpl implements UserService {
 		StandardResponse<User> stdResponse = new StandardResponse<User>();
 		User oldUser = userRepository.findById(user.getId());
 		user.setUpdatedDtm(date);
-		userRepository.save(WrapperUtil.wrappedUserToUser(user, oldUser));
+		User tempUser = new User();
+		BeanUtils.copyProperties(oldUser, tempUser);
+		User newUser = WrapperUtil.wrappedUserToUser(user, oldUser);
+		userRepository.save(newUser);
 		// these are the set of roles this user belongs to
 		Set<RoleUdt> roleUdtList = oldUser.getRoles();
 
@@ -179,8 +185,8 @@ public class UserServiceImpl implements UserService {
 				role = roleUdtList.iterator().next();
 				roleUsers = roleUsersRepository.findByRoleId(role.getRoleId());
 				userUdtList = roleUsers.getUserUdt();
-				userUdtList.remove(WrapperUtil.userToUserUdt(oldUser));
-				userUdtList.add(WrapperUtil.userToUserUdt(user));
+				userUdtList.remove(WrapperUtil.userToUserUdt(tempUser));
+				userUdtList.add(WrapperUtil.userToUserUdt(newUser));
 				roleUsers.setUserRolesUdt(userUdtList);
 				roleUsersRepository.save(roleUsers);
 			}
@@ -193,7 +199,7 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public StandardResponse<User> grantrole(String uId, String rId) {
+	public StandardResponse<User> grantRole(String uId, String rId) {
 		StandardResponse<User> stdResponse = new StandardResponse<User>();
 		UUID userId = UUID.fromString(uId);
 		UUID roleId = UUID.fromString(rId);
@@ -211,6 +217,8 @@ public class UserServiceImpl implements UserService {
 
 			RoleUsers roleUsers = roleUsersRepository.findByRoleId(role.getRoleId());
 			Set<UserUdt> userUdtList = roleUsers.getUserUdt();
+			if (userUdtList == null)
+				userUdtList = new HashSet<UserUdt>();
 			userUdtList.add(WrapperUtil.userToUserUdt(user));
 			roleUsers.setUserRolesUdt(userUdtList);
 			roleUsersRepository.save(roleUsers);
@@ -227,7 +235,7 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public StandardResponse<User> revokerole(String uId, String rId) {
+	public StandardResponse<User> revokeRole(String uId, String rId) {
 		StandardResponse<User> stdResponse = new StandardResponse<User>();
 		UUID userId = UUID.fromString(uId);
 		UUID roleId = UUID.fromString(rId);
@@ -238,12 +246,14 @@ public class UserServiceImpl implements UserService {
 
 		RoleUsers roleUsers = roleUsersRepository.findByRoleId(role.getRoleId());
 		Set<UserUdt> userUdtList = roleUsers.getUserUdt();
+		if (userUdtList == null)
+			userUdtList = new HashSet<UserUdt>();
 		userUdtList.remove(WrapperUtil.userToUserUdt(user));
 		roleUsers.setUserRolesUdt(userUdtList);
 		roleUsersRepository.save(roleUsers);
 
 		Set<RoleUdt> roleUdtList = user.getRoles();
-		roleUdtList.remove(role);
+		roleUdtList.remove(WrapperUtil.roleToRoleUdt(role));
 		user.setRoles(roleUdtList);
 		user.setUpdatedDtm(date);
 		userRepository.save(user);

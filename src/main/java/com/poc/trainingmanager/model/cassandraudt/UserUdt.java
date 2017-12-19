@@ -1,5 +1,6 @@
 package com.poc.trainingmanager.model.cassandraudt;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.Set;
 import java.util.UUID;
@@ -11,7 +12,12 @@ import org.springframework.data.cassandra.mapping.UserDefinedType;
 import com.datastax.driver.core.DataType;
 
 @UserDefinedType("user")
-public class UserUdt {
+public class UserUdt implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 3619546279285348554L;
 
 	@CassandraType(type = DataType.Name.UUID)
 	@Column("id")
@@ -155,27 +161,27 @@ public class UserUdt {
 	}
 
 	public UserUdt(UUID id, String firstName, String lastName, String password, String gender, String emailId,
-				String phoneNumber, boolean isActive, Date createdDtm, Date updatedDtm, AddressUdt address, Set<RoleUdt> roles,
-				Set<DepartmentUdt> departments) {
-			super();
-			this.id = id;
-			this.firstName = firstName;
-			this.lastName = lastName;
-			this.password = password;
-			this.gender = gender;
-			this.emailId = emailId;
-			this.phoneNumber = phoneNumber;
-			this.isActive = isActive;
-			this.createdDtm = createdDtm;
-			this.updatedDtm = updatedDtm;
-			this.address = address;
-			this.roles = roles;
-			this.departments = departments;
-		}
+			String phoneNumber, boolean isActive, Date createdDtm, Date updatedDtm, AddressUdt address,
+			Set<RoleUdt> roles, Set<DepartmentUdt> departments) {
+		super();
+		this.id = id;
+		this.firstName = firstName;
+		this.lastName = lastName;
+		this.password = password;
+		this.gender = gender;
+		this.emailId = emailId;
+		this.phoneNumber = phoneNumber;
+		this.isActive = isActive;
+		this.createdDtm = createdDtm;
+		this.updatedDtm = updatedDtm;
+		this.address = address;
+		this.roles = roles;
+		this.departments = departments;
+	}
 
 	public UserUdt() {
-			// TODO Auto-generated constructor stub
-		}
+		// TODO Auto-generated constructor stub
+	}
 
 	@Override
 	public String toString() {

@@ -109,6 +109,7 @@ public class WrapperUtil {
 		oldUser.setLastName(user.getLastName());
 		oldUser.setPhoneNumber(user.getPhoneNumber());
 		oldUser.setAddress(user.getAddress());
+		oldUser.setUpdatedDtm(user.getUpdatedDtm());
 
 		return oldUser;
 	}

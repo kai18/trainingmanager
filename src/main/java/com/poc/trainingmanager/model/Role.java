@@ -1,5 +1,6 @@
 package com.poc.trainingmanager.model;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.UUID;
 
@@ -13,7 +14,12 @@ import com.datastax.driver.core.DataType;
 import com.poc.trainingmanager.model.cassandraudt.PrivilegeUdt;
 
 @Table("role")
-public class Role {
+public class Role implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 5320525691938196281L;
 
 	@PrimaryKeyColumn(name = "role_id", type = PrimaryKeyType.PARTITIONED)
 	private UUID roleId;
@@ -27,7 +33,7 @@ public class Role {
 	@Column("role_description")
 	private String roleDescription;
 
-	@CassandraType(type = DataType.Name.UDT, userTypeName="privilege")
+	@CassandraType(type = DataType.Name.UDT, userTypeName = "privilege")
 	private PrivilegeUdt privilege;
 
 	@Column("created_dtm")
@@ -104,7 +110,8 @@ public class Role {
 		this.updatedDtm = updatedDtm;
 	}
 
-	public Role() {}
+	public Role() {
+	}
 
 	@Override
 	public int hashCode() {

@@ -1,7 +1,13 @@
 package com.poc.trainingmanager.model;
 
-public class StandardResponse<T> {
+import java.io.Serializable;
 
+public class StandardResponse<T> implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -5858388419604766502L;
 	int code;
 	String status;
 	String message;
