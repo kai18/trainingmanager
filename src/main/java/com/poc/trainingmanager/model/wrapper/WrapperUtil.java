@@ -119,4 +119,14 @@ public class WrapperUtil {
 		BeanUtils.copyProperties(user, userUdt);
 		return userUdt;
 	}
+
+	public static List<User> userUdtToUser(List<UserUdt> userUdtList) {
+		List<User> userList = new ArrayList<User>();
+		for (UserUdt userUdt : userUdtList) {
+			User user = new User();
+			BeanUtils.copyProperties(userUdt, user);
+			userList.add(user);
+		}
+		return userList;
+	}
 }
