@@ -16,5 +16,6 @@ public interface DepartmentRolesRepository extends CassandraRepository<Departmen
 	public DepartmentRoles findByRoles(RoleUdt role);
 	public DepartmentRoles findByDepartmentId(UUID departmentId);
 	public DepartmentRoles save(DepartmentRoles departmentRoles);
+	public void delete(DepartmentRoles departmentRoles);
 	
 }

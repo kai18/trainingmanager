@@ -13,15 +13,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.poc.trainingmanager.constants.Constants;
+import com.poc.trainingmanager.model.DepartmentUsers;
 import com.poc.trainingmanager.model.Role;
 import com.poc.trainingmanager.model.RoleUsers;
 import com.poc.trainingmanager.model.StandardResponse;
 import com.poc.trainingmanager.model.User;
+import com.poc.trainingmanager.model.cassandraudt.DepartmentUdt;
 import com.poc.trainingmanager.model.cassandraudt.RoleUdt;
 import com.poc.trainingmanager.model.cassandraudt.UserUdt;
 import com.poc.trainingmanager.model.wrapper.UserSearchWrapper;
 import com.poc.trainingmanager.model.wrapper.WrapperUtil;
 import com.poc.trainingmanager.repository.DepartmentRolesRepository;
+import com.poc.trainingmanager.repository.DepartmentUsersRepository;
 import com.poc.trainingmanager.repository.RoleRepository;
 import com.poc.trainingmanager.repository.RoleUsersRepository;
 import com.poc.trainingmanager.repository.UserRepository;
@@ -46,6 +49,9 @@ public class UserServiceImpl implements UserService {
 
 	@Autowired
 	SearchEngine searchEngine;
+	
+	@Autowired
+	DepartmentUsersRepository departmentUsersRepository;
 
 	private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
 
@@ -103,7 +109,6 @@ public class UserServiceImpl implements UserService {
 		user.setPassword(PasswordUtil.getPasswordHash(user.getPassword()));
 		user.setCreatedDtm(date);
 		user.setUpdatedDtm(date);
-
 		// setting the current user's userRolesUdt that is to be added to the set in
 		// RoleUsers
 		// fetch an entry from roleUsers table with the role id obtained from the user
@@ -111,7 +116,7 @@ public class UserServiceImpl implements UserService {
 		// add this user to the set of users in the roleUsers mapping that role
 		Set<UserUdt> userList = new HashSet<UserUdt>();
 		if (roleUsers != null) {
-			userRepository.save(user); // insert user only if the role exists
+			//userRepository.save(user); // insert user only if the role exists
 			userList.add(WrapperUtil.userToUserUdt(user));
 			// set the updated set of users belonging to that role
 			roleUsers.setUserRolesUdt(userList);
@@ -122,7 +127,23 @@ public class UserServiceImpl implements UserService {
 			standardResponse.setElement(user);
 			standardResponse.setMessage("User added successfully");
 			logger.info("User {" + user.getEmailId() + "} successfully added");
-		}
+		}		
+		
+		DepartmentUsers departmentUsers = departmentUsersRepository.findByDepartmentId(user.getDepartments().iterator().next().getDepartmentId());
+		Set<UserUdt> userListforDept = new HashSet<UserUdt>();
+		if (departmentUsers != null) {
+			userRepository.save(user); // insert user only if the role exists
+			userList.add(WrapperUtil.userToUserUdt(user));
+			// set the updated set of users belonging to that role
+			departmentUsers.setUserDepartmentsUdt(userListforDept);
+			//;
+			departmentUsersRepository.save(departmentUsers);
+			standardResponse.setStatus(Constants.SUCCESS);
+			standardResponse.setCode(200);
+			standardResponse.setElement(user);
+			standardResponse.setMessage("User added successfully");
+			logger.info("User {" + user.getEmailId() + "} successfully added");
+		}		
 		return standardResponse;
 	}
 
@@ -130,7 +151,9 @@ public class UserServiceImpl implements UserService {
 	public StandardResponse<User> update(User user) {
 		Date date = new Date();
 		RoleUdt role = new RoleUdt();
+		DepartmentUdt department = new DepartmentUdt();
 		RoleUsers roleUsers = new RoleUsers();
+		DepartmentUsers departmentUsers = new DepartmentUsers();
 		StandardResponse<User> stdResponse = new StandardResponse<User>();
 		User oldUser = userRepository.findById(user.getId());
 		user.setUpdatedDtm(date);
@@ -154,6 +177,19 @@ public class UserServiceImpl implements UserService {
 			stdResponse.setCode(200);
 			stdResponse.setElement(user);
 			stdResponse.setMessage("User updated successfully");
+		}
+		Set<DepartmentUdt> departmentUdtList = oldUser.getDepartments();
+		if(departmentUdtList!=null) {
+			
+			for(int i=0;i< departmentUdtList.size();i++) {
+				department=departmentUdtList.iterator().next();
+				departmentUsers = departmentUsersRepository.findByDepartmentId(department.getDepartmentId());
+				userUdtList = departmentUsers.getUserUdt();
+				userUdtList.remove(WrapperUtil.userToUserUdt(oldUser));
+				userUdtList.add(WrapperUtil.userToUserUdt(user));
+				departmentUsers.setUserDepartmentsUdt(userUdtList);
+				departmentUsersRepository.save(departmentUsers);
+			}
 		}
 		return stdResponse;
 	}

@@ -35,9 +35,15 @@ public class DepartmentUsers {
 	public Set<UserUdt> getUserDepartmentsUdt() {
 		return userUdt;
 	}
+	public void setUserDepartmentsUdt(Set<UserUdt> userDepartmentsUdt) {
+		this.userUdt = userDepartmentsUdt;
+	}
 	public void setUserUdt(Set<UserUdt> userUdt) {
 		this.userUdt = userUdt;
 	}
+	public Set<UserUdt> getUserUdt() {
+		return userUdt;
+	} 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
