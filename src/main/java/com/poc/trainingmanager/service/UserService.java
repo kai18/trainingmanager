@@ -22,4 +22,6 @@ public interface UserService {
 	public StandardResponse<User> grantRole(String userId, String roleId);
 	
 	public StandardResponse<User> revokeRole(String userId, String roleId);
+
+	StandardResponse<UserSearchWrapper> getUserById(String id);
 }
