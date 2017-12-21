@@ -78,4 +78,10 @@ public class UserController {
 		LOGGER.error(userId);
 		return userService.revokeRole(userId, roleId);
 	}
+	
+	@GetMapping(value = "{userId}")
+	StandardResponse<UserSearchWrapper> getUserById(@PathVariable("userId") String userId) {
+		LOGGER.error(userId);
+		return userService.getUserById(userId);
+	}
 }
