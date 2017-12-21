@@ -1,7 +1,6 @@
 package com.poc.trainingmanager.service;
 
 import java.util.List;
-import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
@@ -20,6 +19,8 @@ public interface UserService {
 			String departments, String roles);
 
 	public StandardResponse<User> grantRole(String userId, String roleId);
-	
+
 	public StandardResponse<User> revokeRole(String userId, String roleId);
+
+	StandardResponse<UserSearchWrapper> getUserById(String id);
 }

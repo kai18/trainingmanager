@@ -263,4 +263,16 @@ public class UserServiceImpl implements UserService {
 		stdResponse.setElement(user);
 		return stdResponse;
 	}
+
+	@Override
+	public StandardResponse<UserSearchWrapper> getUserById(String id) {
+		UUID userId = UUID.fromString(id);
+		UserSearchWrapper wrappedResult = WrapperUtil.wrapUserToUserSearchWrapper(userRepository.findById(userId));
+		StandardResponse<UserSearchWrapper> searchResponse = new StandardResponse<UserSearchWrapper>();
+		searchResponse.setElement(wrappedResult);
+		searchResponse.setCode(200);
+		searchResponse.setStatus("success");
+		searchResponse.setMessage("User fetched");
+		return searchResponse;
+	}
 }
