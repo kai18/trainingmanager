@@ -19,7 +19,6 @@ public class Department {
 	private String departmentName;
 
 	public Department() {
-		super();
 	}
 
 	@Column("DEPARTMENT_DESCRIPTION")
@@ -73,7 +72,6 @@ public class Department {
 
 	public Department(UUID departmentId, String departmentName, String departmentDescription, Date departmentCreatedDtm,
 			Date departmentUpdatedDtm) {
-		super();
 		this.departmentId = departmentId;
 		this.departmentName = departmentName;
 		this.departmentDescription = departmentDescription;

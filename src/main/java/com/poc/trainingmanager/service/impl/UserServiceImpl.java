@@ -109,10 +109,12 @@ public class UserServiceImpl implements UserService {
 		user.setPassword(PasswordUtil.getPasswordHash(user.getPassword()));
 		user.setCreatedDtm(date);
 		user.setUpdatedDtm(date);
+		userRepository.save(user);
 		// setting the current user's userRolesUdt that is to be added to the set in
 		// RoleUsers
 		// fetch an entry from roleUsers table with the role id obtained from the user
 		RoleUsers roleUsers = roleUsersRepository.findByRoleId(user.getRoles().iterator().next().getRoleId());
+		DepartmentUsers departmentUsers = departmentUsersRepository.findByDepartmentId(user.getDepartments().iterator().next().getDepartmentId());
 		// add this user to the set of users in the roleUsers mapping that role
 		Set<UserUdt> userList = new HashSet<UserUdt>();
 		if (roleUsers != null) {
@@ -120,7 +122,7 @@ public class UserServiceImpl implements UserService {
 			userList.add(WrapperUtil.userToUserUdt(user));
 			// set the updated set of users belonging to that role
 			roleUsers.setUserRolesUdt(userList);
-			;
+			
 			roleUsersRepository.save(roleUsers);
 			standardResponse.setStatus(Constants.SUCCESS);
 			standardResponse.setCode(200);
@@ -128,21 +130,16 @@ public class UserServiceImpl implements UserService {
 			standardResponse.setMessage("User added successfully");
 			logger.info("User {" + user.getEmailId() + "} successfully added");
 		}		
-		
-		DepartmentUsers departmentUsers = departmentUsersRepository.findByDepartmentId(user.getDepartments().iterator().next().getDepartmentId());
-		Set<UserUdt> userListforDept = new HashSet<UserUdt>();
-		if (departmentUsers != null) {
-			userRepository.save(user); // insert user only if the role exists
-			userList.add(WrapperUtil.userToUserUdt(user));
-			// set the updated set of users belonging to that role
-			departmentUsers.setUserDepartmentsUdt(userListforDept);
-			//;
+		Set<UserUdt> userListForDept = new HashSet<UserUdt>();
+		if(departmentUsers!=null) {
+			userListForDept.add(WrapperUtil.userToUserUdt(user));
+			departmentUsers.setUserDepartmentsUdt(userListForDept);
 			departmentUsersRepository.save(departmentUsers);
 			standardResponse.setStatus(Constants.SUCCESS);
 			standardResponse.setCode(200);
 			standardResponse.setElement(user);
 			standardResponse.setMessage("User added successfully");
-			logger.info("User {" + user.getEmailId() + "} successfully added");
+			logger.info("User {" + user.getEmailId() + "} successfully added to departmentUsers");
 		}		
 		return standardResponse;
 	}
@@ -160,7 +157,7 @@ public class UserServiceImpl implements UserService {
 		userRepository.save(WrapperUtil.wrappedUserToUser(user, oldUser));
 		// these are the set of roles this user belongs to
 		Set<RoleUdt> roleUdtList = oldUser.getRoles();
-
+		Set<DepartmentUdt> departmentUdtList = oldUser.getDepartments();
 		Set<UserUdt> userUdtList = new HashSet<UserUdt>();
 		if (roleUdtList != null) {
 			// for each role search for the user and replace with updated user
@@ -173,23 +170,21 @@ public class UserServiceImpl implements UserService {
 				roleUsers.setUserRolesUdt(userUdtList);
 				roleUsersRepository.save(roleUsers);
 			}
-			stdResponse.setStatus(Constants.SUCCESS);
-			stdResponse.setCode(200);
-			stdResponse.setElement(user);
-			stdResponse.setMessage("User updated successfully");
 		}
-		Set<DepartmentUdt> departmentUdtList = oldUser.getDepartments();
 		if(departmentUdtList!=null) {
-			
-			for(int i=0;i< departmentUdtList.size();i++) {
-				department=departmentUdtList.iterator().next();
+			for(int i = 0; i<departmentUdtList.size();i++) {
+				department = departmentUdtList.iterator().next();
 				departmentUsers = departmentUsersRepository.findByDepartmentId(department.getDepartmentId());
-				userUdtList = departmentUsers.getUserUdt();
+				userUdtList = departmentUsers.getUserDepartmentsUdt();
 				userUdtList.remove(WrapperUtil.userToUserUdt(oldUser));
 				userUdtList.add(WrapperUtil.userToUserUdt(user));
 				departmentUsers.setUserDepartmentsUdt(userUdtList);
 				departmentUsersRepository.save(departmentUsers);
 			}
+			stdResponse.setStatus(Constants.SUCCESS);
+			stdResponse.setCode(200);
+			stdResponse.setElement(user);
+			stdResponse.setMessage("User updated successfully");
 		}
 		return stdResponse;
 	}

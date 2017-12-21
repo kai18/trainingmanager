@@ -15,5 +15,6 @@ public interface DepartmentRepository extends CassandraRepository<Department> {
 	public List<Department> findAll();
 	public Department save(Department department);
 	public void delete(Department department);
+	public Department findByDepartmentName(String departmentName);
 }
 
