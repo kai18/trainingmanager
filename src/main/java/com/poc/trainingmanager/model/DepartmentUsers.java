@@ -14,9 +14,6 @@ import com.poc.trainingmanager.model.cassandraudt.UserUdt;
 @Table("department_users")
 public class DepartmentUsers implements Serializable {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -7975337310062809371L;
 
 	@PrimaryKeyColumn(name = "DEPARTMENT_ID", type = PrimaryKeyType.PARTITIONED)
@@ -47,7 +44,7 @@ public class DepartmentUsers implements Serializable {
 		return userUdt;
 	}
 
-	public void setUserUdt(Set<UserUdt> userUdt) {
+	public void setUserDepartmentsUdt(Set<UserUdt> userUdt) {
 		this.userUdt = userUdt;
 	}
 

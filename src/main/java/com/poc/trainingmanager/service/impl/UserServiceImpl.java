@@ -284,7 +284,6 @@ public class UserServiceImpl implements UserService {
 		userUdtList.remove(WrapperUtil.userToUserUdt(user));
 		roleUsers.setUserRolesUdt(userUdtList);
 		roleUsersRepository.save(roleUsers);
-
 		Set<RoleUdt> roleUdtList = user.getRoles();
 		roleUdtList.remove(WrapperUtil.roleToRoleUdt(role));
 		user.setRoles(roleUdtList);

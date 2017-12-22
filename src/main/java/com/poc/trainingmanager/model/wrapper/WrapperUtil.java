@@ -85,6 +85,16 @@ public class WrapperUtil {
 		return roleUdtList;
 	}
 
+	public static DepartmentUdt departmentToDepartmentUdt(Department department) {
+		DepartmentUdt departmentUdt = new DepartmentUdt();
+		departmentUdt.setDepartmentId(department.getDepartmentId());
+		departmentUdt.setDepartmentName(department.getDepartmentName());
+		departmentUdt.setDepartmentDescription(department.getDepartmentDescription());
+		departmentUdt.setDepartmentCreatedDtm(department.getDepartmentCreatedDtm());
+		departmentUdt.setDepartmentUpdatedDtm(department.getDepartmentUpdatedDtm());
+		return departmentUdt;
+	}
+
 	public static User userUdtToUser(UserUdt userUdt) {
 		User user = new User();
 		user.setId(userUdt.getId());

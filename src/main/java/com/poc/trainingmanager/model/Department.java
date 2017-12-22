@@ -24,6 +24,9 @@ public class Department implements Serializable {
 	@Column("DEPARTMENT_NAME")
 	private String departmentName;
 
+	public Department() {
+	}
+
 	@Column("DEPARTMENT_DESCRIPTION")
 	private String departmentDescription;
 
@@ -75,7 +78,6 @@ public class Department implements Serializable {
 
 	public Department(UUID departmentId, String departmentName, String departmentDescription, Date departmentCreatedDtm,
 			Date departmentUpdatedDtm) {
-		super();
 		this.departmentId = departmentId;
 		this.departmentName = departmentName;
 		this.departmentDescription = departmentDescription;

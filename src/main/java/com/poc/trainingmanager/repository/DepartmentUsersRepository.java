@@ -15,5 +15,4 @@ public interface DepartmentUsersRepository extends CassandraRepository<Departmen
 
 	@Override
 	public void delete(DepartmentUsers departmentUsers);
-
 }
