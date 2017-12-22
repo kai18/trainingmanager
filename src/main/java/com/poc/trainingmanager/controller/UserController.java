@@ -52,6 +52,7 @@ public class UserController {
 
 	}
 
+	@CrossOrigin()
 	@RequestMapping(method = RequestMethod.POST)
 	StandardResponse<User> insert(@RequestBody User user) {
 		return userService.insert(user);
