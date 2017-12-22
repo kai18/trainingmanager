@@ -1,23 +1,18 @@
 package com.poc.trainingmanager.model.cassandraudt;
 
-import java.io.Serializable;
-
 import org.springframework.data.cassandra.mapping.Column;
 import org.springframework.data.cassandra.mapping.UserDefinedType;
 
 /**
- * <p>
- * This is the POJO that stores the user's address. It also mapped with the User
- * Defined Type "address" in Cassandra. Annotations used are Datastax driver's.
- * </p>
+ * @author Kaustubh.Kaustubh
+ *         <p>
+ *         This is the POJO that stores the user's address. It also mapped with
+ *         the User Defined Type "address" in Cassandra. Annotations used are
+ *         Datastax driver's.
+ *         </p>
  */
 @UserDefinedType("address")
-public class AddressUdt implements Serializable {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 7340533748579423388L;
+public class AddressUdt {
 
 	@Column("door_number")
 	String doorNumber;

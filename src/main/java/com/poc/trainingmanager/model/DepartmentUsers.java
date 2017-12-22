@@ -1,6 +1,5 @@
 package com.poc.trainingmanager.model;
 
-import java.io.Serializable;
 import java.util.Set;
 import java.util.UUID;
 
@@ -12,45 +11,39 @@ import org.springframework.data.cassandra.mapping.Table;
 import com.poc.trainingmanager.model.cassandraudt.UserUdt;
 
 @Table("department_users")
-public class DepartmentUsers implements Serializable {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -7975337310062809371L;
+public class DepartmentUsers {
 
 	@PrimaryKeyColumn(name = "DEPARTMENT_ID", type = PrimaryKeyType.PARTITIONED)
 	@Column("DEPARTMENT_ID")
 	private UUID departmentId;
-
+	
 	@Column("users")
 	private Set<UserUdt> userUdt;
 
-	public DepartmentUsers() {
-	}
-
+	public DepartmentUsers() {}
 	public DepartmentUsers(UUID departmentId, Set<UserUdt> userUdt) {
 		super();
 		this.departmentId = departmentId;
 		this.userUdt = userUdt;
 	}
-
 	public UUID getDepartmentId() {
 		return departmentId;
 	}
-
 	public void setDepartmentId(UUID departmentId) {
 		this.departmentId = departmentId;
 	}
-
 	public Set<UserUdt> getUserDepartmentsUdt() {
 		return userUdt;
 	}
-
+	public void setUserDepartmentsUdt(Set<UserUdt> userDepartmentsUdt) {
+		this.userUdt = userDepartmentsUdt;
+	}
 	public void setUserUdt(Set<UserUdt> userUdt) {
 		this.userUdt = userUdt;
 	}
-
+	public Set<UserUdt> getUserUdt() {
+		return userUdt;
+	} 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -59,7 +52,6 @@ public class DepartmentUsers implements Serializable {
 		result = prime * result + ((userUdt == null) ? 0 : userUdt.hashCode());
 		return result;
 	}
-
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)

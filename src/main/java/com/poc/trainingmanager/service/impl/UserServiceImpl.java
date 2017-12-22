@@ -1,23 +1,19 @@
 package com.poc.trainingmanager.service.impl;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.CrossOrigin;
 
 import com.poc.trainingmanager.constants.Constants;
-import com.poc.trainingmanager.model.Department;
+import com.poc.trainingmanager.model.DepartmentUsers;
 import com.poc.trainingmanager.model.Role;
 import com.poc.trainingmanager.model.RoleUsers;
 import com.poc.trainingmanager.model.StandardResponse;
@@ -27,8 +23,8 @@ import com.poc.trainingmanager.model.cassandraudt.RoleUdt;
 import com.poc.trainingmanager.model.cassandraudt.UserUdt;
 import com.poc.trainingmanager.model.wrapper.UserSearchWrapper;
 import com.poc.trainingmanager.model.wrapper.WrapperUtil;
-import com.poc.trainingmanager.repository.DepartmentRepository;
 import com.poc.trainingmanager.repository.DepartmentRolesRepository;
+import com.poc.trainingmanager.repository.DepartmentUsersRepository;
 import com.poc.trainingmanager.repository.RoleRepository;
 import com.poc.trainingmanager.repository.RoleUsersRepository;
 import com.poc.trainingmanager.repository.UserRepository;
@@ -36,19 +32,11 @@ import com.poc.trainingmanager.search.SearchEngine;
 import com.poc.trainingmanager.service.UserService;
 import com.poc.trainingmanager.utils.PasswordUtil;
 
-/**
- * 
- *
- */
-@CrossOrigin()
 @Service
 public class UserServiceImpl implements UserService {
 
 	@Autowired
 	UserRepository userRepository;
-
-	@Autowired
-	DepartmentRepository departmentRespository;
 
 	@Autowired
 	RoleRepository roleRepository;
@@ -61,72 +49,31 @@ public class UserServiceImpl implements UserService {
 
 	@Autowired
 	SearchEngine searchEngine;
+	
+	@Autowired
+	DepartmentUsersRepository departmentUsersRepository;
 
 	private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
 
-	/**
-	 * 
-	 * 
-	 * @param firstName
-	 *            String: Receives the user's first name as search criteria
-	 * @param lastName
-	 *            String: Receives the user's last name as search criteria
-	 * @param email
-	 *            String: Receives the user's email id as search criteria
-	 * 
-	 * 
-	 * @return StandardResponse: Contains search result as a user list along with
-	 *         message, status code and error code if any
-	 */
 	@Override
-	public StandardResponse<List<UserSearchWrapper>> search(String firstName, String lastName, String email,
-			String departments, String roles) {
+	public StandardResponse<List<UserSearchWrapper>> search(Map<String, String> searchParameters) {
 
-		List<String> departmentNameList = null;
-		List<String> roleNameList = null;
-		List<Department> departmentList = new ArrayList<Department>();
-		List<Role> roleList = new ArrayList<Role>();
+		String firstName = searchParameters.get("firstName");
+		String lastName = searchParameters.get("lastName");
+		String email = searchParameters.get("email");
+		String departments = searchParameters.get("departments");
+		String roles = searchParameters.get("role");
 
-		List<RoleUdt> roleUdtList = null;
-		List<DepartmentUdt> departmentUdtList = null;
+		List<User> unwrappedResults = null;
+		List<String> departmentList = null;
+		List<String> roleList = null;
 
-		if (departments != null) {
-			departmentNameList = Arrays.asList(departments.split(","));
-			for (String departmentName : departmentNameList) {
-				departmentList.add(departmentRespository.findByDepartmentName(departmentName));
-
-			}
-
-			departmentUdtList = WrapperUtil.departmentToDepartmentUdt(departmentList);
-
-		}
-
-		if (roles != null) {
-			roleNameList = Arrays.asList(roles.split(","));
-			for (String roleName : roleNameList) {
-				roleList.add(roleRepository.findByRoleName(roleName));
-			}
-
-			roleUdtList = WrapperUtil.roleToRoleUdt(roleList);
-
-		}
-
-		long start = System.currentTimeMillis();
-		List<User> unwrappedResults = searchEngine.searchByAllParameters(email, firstName, lastName, departmentUdtList,
-				roleUdtList);
-		long end = System.currentTimeMillis();
-
-		Double timeTakenToSearch = (double) ((end - start) / 1000);
-
-		Set<User> distinctUsers = new LinkedHashSet<User>(unwrappedResults);// Remove duplicates by converting to a hash
-																			// set that does not allow duplicates and
-																			// also preserves the ordering
-		List<User> distinctUserList = new ArrayList<User>(distinctUsers);
-		List<UserSearchWrapper> wrappedResult = WrapperUtil.wrapUserToUserSearchWrapper(distinctUserList);
+		unwrappedResults = searchEngine.searchByAllParameters(email, firstName, lastName, departmentList, roleList);
+		List<UserSearchWrapper> wrappedResult = WrapperUtil.wrapUserToUserSearchWrapper(unwrappedResults);
 
 		StandardResponse<List<UserSearchWrapper>> searchResponse = new StandardResponse<List<UserSearchWrapper>>();
 		searchResponse.setElement(wrappedResult);
-		searchResponse.setMessage(wrappedResult.size() + " results found in " + timeTakenToSearch + " seconds");
+		searchResponse.setMessage("X results found");
 
 		return searchResponse;
 	}
@@ -162,28 +109,41 @@ public class UserServiceImpl implements UserService {
 		user.setPassword(PasswordUtil.getPasswordHash(user.getPassword()));
 		user.setCreatedDtm(date);
 		user.setUpdatedDtm(date);
-
-		/*
-		 * setting the current user's userRolesUdt that is to be added to the set in
-		 * RoleUsers fetch an entry from roleUsers table with the role id obtained from
-		 * the user
-		 */
+		// setting the current user's userRolesUdt that is to be added to the set in
+		// RoleUsers
+		// fetch an entry from roleUsers table with the role id obtained from the user
 		RoleUsers roleUsers = roleUsersRepository.findByRoleId(user.getRoles().iterator().next().getRoleId());
-
 		// add this user to the set of users in the roleUsers mapping that role
 		Set<UserUdt> userList = new HashSet<UserUdt>();
 		if (roleUsers != null) {
-			userRepository.save(user); // insert user only if the role exists
+			//userRepository.save(user); // insert user only if the role exists
 			userList.add(WrapperUtil.userToUserUdt(user));
 			// set the updated set of users belonging to that role
 			roleUsers.setUserRolesUdt(userList);
+			;
 			roleUsersRepository.save(roleUsers);
 			standardResponse.setStatus(Constants.SUCCESS);
 			standardResponse.setCode(200);
 			standardResponse.setElement(user);
 			standardResponse.setMessage("User added successfully");
 			logger.info("User {" + user.getEmailId() + "} successfully added");
-		}
+		}		
+		
+		DepartmentUsers departmentUsers = departmentUsersRepository.findByDepartmentId(user.getDepartments().iterator().next().getDepartmentId());
+		Set<UserUdt> userListforDept = new HashSet<UserUdt>();
+		if (departmentUsers != null) {
+			userRepository.save(user); // insert user only if the role exists
+			userList.add(WrapperUtil.userToUserUdt(user));
+			// set the updated set of users belonging to that role
+			departmentUsers.setUserDepartmentsUdt(userListforDept);
+			//;
+			departmentUsersRepository.save(departmentUsers);
+			standardResponse.setStatus(Constants.SUCCESS);
+			standardResponse.setCode(200);
+			standardResponse.setElement(user);
+			standardResponse.setMessage("User added successfully");
+			logger.info("User {" + user.getEmailId() + "} successfully added");
+		}		
 		return standardResponse;
 	}
 
@@ -191,14 +151,13 @@ public class UserServiceImpl implements UserService {
 	public StandardResponse<User> update(User user) {
 		Date date = new Date();
 		RoleUdt role = new RoleUdt();
+		DepartmentUdt department = new DepartmentUdt();
 		RoleUsers roleUsers = new RoleUsers();
+		DepartmentUsers departmentUsers = new DepartmentUsers();
 		StandardResponse<User> stdResponse = new StandardResponse<User>();
 		User oldUser = userRepository.findById(user.getId());
 		user.setUpdatedDtm(date);
-		User tempUser = new User();
-		BeanUtils.copyProperties(oldUser, tempUser);
-		User newUser = WrapperUtil.wrappedUserToUser(user, oldUser);
-		userRepository.save(newUser);
+		userRepository.save(WrapperUtil.wrappedUserToUser(user, oldUser));
 		// these are the set of roles this user belongs to
 		Set<RoleUdt> roleUdtList = oldUser.getRoles();
 
@@ -209,8 +168,8 @@ public class UserServiceImpl implements UserService {
 				role = roleUdtList.iterator().next();
 				roleUsers = roleUsersRepository.findByRoleId(role.getRoleId());
 				userUdtList = roleUsers.getUserUdt();
-				userUdtList.remove(WrapperUtil.userToUserUdt(tempUser));
-				userUdtList.add(WrapperUtil.userToUserUdt(newUser));
+				userUdtList.remove(WrapperUtil.userToUserUdt(oldUser));
+				userUdtList.add(WrapperUtil.userToUserUdt(user));
 				roleUsers.setUserRolesUdt(userUdtList);
 				roleUsersRepository.save(roleUsers);
 			}
@@ -219,11 +178,24 @@ public class UserServiceImpl implements UserService {
 			stdResponse.setElement(user);
 			stdResponse.setMessage("User updated successfully");
 		}
+		Set<DepartmentUdt> departmentUdtList = oldUser.getDepartments();
+		if(departmentUdtList!=null) {
+			
+			for(int i=0;i< departmentUdtList.size();i++) {
+				department=departmentUdtList.iterator().next();
+				departmentUsers = departmentUsersRepository.findByDepartmentId(department.getDepartmentId());
+				userUdtList = departmentUsers.getUserUdt();
+				userUdtList.remove(WrapperUtil.userToUserUdt(oldUser));
+				userUdtList.add(WrapperUtil.userToUserUdt(user));
+				departmentUsers.setUserDepartmentsUdt(userUdtList);
+				departmentUsersRepository.save(departmentUsers);
+			}
+		}
 		return stdResponse;
 	}
 
 	@Override
-	public StandardResponse<User> grantRole(String uId, String rId) {
+	public StandardResponse<User> grantrole(String uId, String rId) {
 		StandardResponse<User> stdResponse = new StandardResponse<User>();
 		UUID userId = UUID.fromString(uId);
 		UUID roleId = UUID.fromString(rId);
@@ -237,21 +209,10 @@ public class UserServiceImpl implements UserService {
 			roleUdtList.add(WrapperUtil.roleToRoleUdt(role));
 			user.setRoles(roleUdtList);
 			user.setUpdatedDtm(date);
-			for (RoleUdt roleUdt : user.getRoles()) {
-				BeanUtils.copyProperties(roleRepository.findByRoleId(roleUdt.getRoleId()), roleUdt);
-			}
-
-			for (DepartmentUdt departmentUdt : user.getDepartments()) {
-				BeanUtils.copyProperties(departmentRespository.findByDepartmentId(departmentUdt.getDepartmentId()),
-						departmentUdt);
-			}
-			user.setIsActive(true);
 			userRepository.save(user);
 
 			RoleUsers roleUsers = roleUsersRepository.findByRoleId(role.getRoleId());
 			Set<UserUdt> userUdtList = roleUsers.getUserUdt();
-			if (userUdtList == null)
-				userUdtList = new HashSet<UserUdt>();
 			userUdtList.add(WrapperUtil.userToUserUdt(user));
 			roleUsers.setUserRolesUdt(userUdtList);
 			roleUsersRepository.save(roleUsers);
@@ -268,7 +229,7 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public StandardResponse<User> revokeRole(String uId, String rId) {
+	public StandardResponse<User> revokerole(String uId, String rId) {
 		StandardResponse<User> stdResponse = new StandardResponse<User>();
 		UUID userId = UUID.fromString(uId);
 		UUID roleId = UUID.fromString(rId);
@@ -279,14 +240,12 @@ public class UserServiceImpl implements UserService {
 
 		RoleUsers roleUsers = roleUsersRepository.findByRoleId(role.getRoleId());
 		Set<UserUdt> userUdtList = roleUsers.getUserUdt();
-		if (userUdtList == null)
-			userUdtList = new HashSet<UserUdt>();
 		userUdtList.remove(WrapperUtil.userToUserUdt(user));
 		roleUsers.setUserRolesUdt(userUdtList);
 		roleUsersRepository.save(roleUsers);
 
 		Set<RoleUdt> roleUdtList = user.getRoles();
-		roleUdtList.remove(WrapperUtil.roleToRoleUdt(role));
+		roleUdtList.remove(role);
 		user.setRoles(roleUdtList);
 		user.setUpdatedDtm(date);
 		userRepository.save(user);
@@ -295,17 +254,5 @@ public class UserServiceImpl implements UserService {
 		stdResponse.setMessage("Role Revoked");
 		stdResponse.setElement(user);
 		return stdResponse;
-	}
-
-	@Override
-	public StandardResponse<UserSearchWrapper> getUserById(String id) {
-		UUID userId = UUID.fromString(id);
-		UserSearchWrapper wrappedResult = WrapperUtil.wrapUserToUserSearchWrapper(userRepository.findById(userId));
-		StandardResponse<UserSearchWrapper> searchResponse = new StandardResponse<UserSearchWrapper>();
-		searchResponse.setElement(wrappedResult);
-		searchResponse.setCode(200);
-		searchResponse.setStatus("success");
-		searchResponse.setMessage("User fetched");
-		return searchResponse;
 	}
 }

@@ -1,9 +1,7 @@
 package com.poc.trainingmanager.search;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,41 +11,18 @@ import org.springframework.stereotype.Service;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.MultimapBuilder;
 import com.poc.trainingmanager.model.User;
-import com.poc.trainingmanager.model.cassandraudt.DepartmentUdt;
-import com.poc.trainingmanager.model.cassandraudt.RoleUdt;
-import com.poc.trainingmanager.model.cassandraudt.UserUdt;
-import com.poc.trainingmanager.model.wrapper.WrapperUtil;
-import com.poc.trainingmanager.repository.DepartmentUsersRepository;
-import com.poc.trainingmanager.repository.RoleUsersRepository;
 import com.poc.trainingmanager.repository.UserRepository;
 
-/**
- * @author Kaustubh.Kaustubh
- *         <p>
- *         This class searches for users given any criteria from firstName,
- *         lastName, email, department and role. It fetches the users from the
- *         database by executing appropriate select queries. At the core lies
- *         the ranking algorithm, that checks how many criteria a particular
- *         result satisfies and then ranks the results accordingly
- * 
- *         </p>
- */
 @Service
 public class SearchEngine {
 
 	@Autowired
 	UserRepository userRepository;
 
-	@Autowired
-	RoleUsersRepository roleUsersRepository;
-
-	@Autowired
-	DepartmentUsersRepository departmentUsersRepository;
-
 	private static final Logger LOGGER = LoggerFactory.getLogger(SearchEngine.class);
 
-	public List<User> searchByAllParameters(String email, String firstName, String lastName,
-			List<DepartmentUdt> departments, List<RoleUdt> roles) {
+	public List<User> searchByAllParameters(String email, String firstName, String lastName, List<String> departments,
+			List<String> roles) {
 
 		List<User> resultList = new ArrayList<User>();
 		if (email != null) {
@@ -75,37 +50,18 @@ public class SearchEngine {
 			this.addToResult(userList, resultList);
 		}
 
-		return this.rankResults(resultList, email, firstName, lastName, departments, roles);
+		return this.rankResults(resultList, email, firstName, lastName);
 	}
 
-	private int getDepartmentRank(List<DepartmentUdt> toBeRanked, List<DepartmentUdt> criteria) {
-		int rank = 0;
-		if (toBeRanked != null && criteria != null) {
-			for (DepartmentUdt departmentUdt : toBeRanked) {
-				for (DepartmentUdt criteriaDepartmentUdt : criteria) {
-					if (departmentUdt.equals(criteriaDepartmentUdt))
-						rank++;
-				}
-			}
-		}
-		return rank;
-	}
+	/*
+	 * private int getRank(List<String> results, List<String> toBeSearched) { int
+	 * rank = 0; for (String result : results) { for (String term : toBeSearched) {
+	 * if (result.equalsIgnoreCase(term)) rank += 2; else if
+	 * (result.toLowerCase().matches("(.*)" + term.toLowerCase() + "(.*)")) rank +=
+	 * 1; } } return rank; }
+	 */
 
-	private int getRoleRank(List<RoleUdt> toBeRanked, List<RoleUdt> criteria) {
-		int rank = 0;
-		if (toBeRanked != null && criteria != null) {
-			for (RoleUdt departmentUdt : toBeRanked) {
-				for (RoleUdt criteriaDepartmentUdt : criteria) {
-					if (departmentUdt.equals(criteriaDepartmentUdt))
-						rank++;
-				}
-			}
-		}
-		return rank;
-	}
-
-	private List<User> rankResults(List<User> resultList, String email, String firstName, String lastName,
-			List<DepartmentUdt> departments, List<RoleUdt> roles) {
+	private List<User> rankResults(List<User> resultList, String email, String firstName, String lastName) {
 
 		Multimap<Integer, User> resultMap = MultimapBuilder.treeKeys().linkedListValues().build();
 
@@ -117,11 +73,12 @@ public class SearchEngine {
 				rank += this.getRank(user.getFirstName(), firstName);
 			if (lastName != null)
 				rank += this.getRank(user.getLastName(), lastName);
-
-			if (departments != null && !departments.isEmpty())
-				rank += this.getDepartmentRank(new ArrayList<DepartmentUdt>(user.getDepartments()), departments);
-			if (roles != null && !roles.isEmpty())
-				rank += this.getRoleRank(new ArrayList<RoleUdt>(user.getRoles()), roles);
+			/*
+			 * if (departments != null && !departments.isEmpty()) rank += this.getRank(new
+			 * ArrayList(user.getDepartments()), departments); if (roles != null &&
+			 * !roles.isEmpty()) rank += this.getRank(new ArrayList(user.getRoles()),
+			 * roles);
+			 */
 
 			LOGGER.error("Rank for user: " + user.getFirstName() + " is " + rank);
 
@@ -130,14 +87,10 @@ public class SearchEngine {
 
 		List<User> sortedResultList = new ArrayList<User>();
 
-		System.out.println(resultMap);
-
 		for (User finalUser : resultMap.values()) {
 			sortedResultList.add(finalUser);
 		}
 
-		Collections.reverse(sortedResultList);
-		System.out.println(sortedResultList);
 		return sortedResultList;
 
 	}
@@ -182,33 +135,12 @@ public class SearchEngine {
 		return null;
 	}
 
-	public List<User> searchByDepartments(List<DepartmentUdt> departments) {
-		List<User> userList = new ArrayList<User>();
-		if (departments != null && !departments.isEmpty()) {
-			for (DepartmentUdt department : departments) {
-				Set<UserUdt> userUdts = departmentUsersRepository.findByDepartmentId(department.getDepartmentId())
-						.getUserDepartmentsUdt();
-				List<UserUdt> userUdtList = new ArrayList<UserUdt>(userUdts);
-				userList.addAll(WrapperUtil.userUdtToUser(userUdtList));
-			}
-		}
-		LOGGER.error("Department Result" + userList);
-
-		return userList;
+	public List<User> searchByDepartments(List<String> departments) {
+		return null;
 	}
 
-	public List<User> searchByRoles(List<RoleUdt> roles) {
-
-		List<User> userList = new ArrayList<User>();
-		if (roles != null && !roles.isEmpty()) {
-			for (RoleUdt role : roles) {
-				Set<UserUdt> userUdts = roleUsersRepository.findByRoleId(role.getRoleId()).getUserUdt();
-				List<UserUdt> userUdtList = new ArrayList<UserUdt>(userUdts);
-				userList.addAll(WrapperUtil.userUdtToUser(userUdtList));
-			}
-		}
-		LOGGER.error("Role Result" + userList);
-		return userList;
+	public List<User> searchByRoles(List<String> roles) {
+		return null;
 	}
 
 	public List<User> searchByPartialEmail(String email) {
@@ -228,6 +160,7 @@ public class SearchEngine {
 		int rank = 0;
 
 		LOGGER.error("result is " + result + " tobesearched is " + toBeSearched);
+		LOGGER.error("Check " + result.toLowerCase().matches("(.*)" + "ankaja" + "(.*)"));
 
 		if (result.equalsIgnoreCase(toBeSearched))
 			rank += 2;

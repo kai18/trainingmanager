@@ -8526,3 +8526,4 @@ java.lang.Error: Unresolved compilation problem:
 22-12-2017 11:40:26.346 [35m[http-nio-9080-exec-1][0;39m [1;31mERROR[0;39m com.poc.trainingmanager.search.SearchEngine.getRank - Here
 22-12-2017 11:40:26.347 [35m[http-nio-9080-exec-1][0;39m [1;31mERROR[0;39m com.poc.trainingmanager.search.SearchEngine.getRank - Rank is 1
 22-12-2017 11:40:26.348 [35m[http-nio-9080-exec-1][0;39m [1;31mERROR[0;39m com.poc.trainingmanager.search.SearchEngine.rankResults - Rank for user: jack is 1
+22-12-2017 11:56:30.951 [35m[restartedMain][0;39m [31mWARN [0;39m com.datastax.driver.core.Cluster.removeHost - You listed localhost/0:0:0:0:0:0:0:1:9042 in your contact points, but it wasn't found in the control host's system.peers at startup

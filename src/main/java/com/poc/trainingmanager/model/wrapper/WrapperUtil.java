@@ -5,10 +5,8 @@ import java.util.List;
 
 import org.springframework.beans.BeanUtils;
 
-import com.poc.trainingmanager.model.Department;
 import com.poc.trainingmanager.model.Role;
 import com.poc.trainingmanager.model.User;
-import com.poc.trainingmanager.model.cassandraudt.DepartmentUdt;
 import com.poc.trainingmanager.model.cassandraudt.RoleUdt;
 import com.poc.trainingmanager.model.cassandraudt.UserUdt;
 
@@ -38,21 +36,10 @@ public class WrapperUtil {
 
 		return userList;
 	}
-
-	public static List<DepartmentUdt> departmentToDepartmentUdt(List<Department> departmentList) {
-		List<DepartmentUdt> departmentUdtList = new ArrayList<DepartmentUdt>();
-
-		for (Department department : departmentList) {
-			DepartmentUdt departmentUdt = new DepartmentUdt();
-			BeanUtils.copyProperties(department, departmentUdt);
-			departmentUdtList.add(departmentUdt);
-		}
-		return departmentUdtList;
-	}
-
+	
 	public static RoleUdt roleToRoleUdt(Role role) {
 		RoleUdt roleUdt = new RoleUdt();
-
+		
 		roleUdt.setRoleId(role.getRoleId());
 		roleUdt.setRoleName(role.getRoleName());
 		roleUdt.setRoleType(role.getRoleType());
@@ -60,31 +47,29 @@ public class WrapperUtil {
 		roleUdt.setPrivilege(role.getPrivilege());
 		roleUdt.setCreatedDtm(role.getCreatedDtm());
 		roleUdt.setUpdatedDtm(role.getUpdatedDtm());
-
+		
 		return roleUdt;
 	}
-
-	public static List<RoleUdt> roleToRoleUdt(List<Role> roleList) {
-
-		List<RoleUdt> roleUdtList = new ArrayList<RoleUdt>();
-		if (roleList != null && !roleList.isEmpty())
-			for (Role role : roleList) {
-
-				RoleUdt roleUdt = new RoleUdt();
-				roleUdt.setRoleId(role.getRoleId());
-				roleUdt.setRoleName(role.getRoleName());
-				roleUdt.setRoleType(role.getRoleType());
-				roleUdt.setRoleDescription(role.getRoleDescription());
-				roleUdt.setPrivilege(role.getPrivilege());
-				roleUdt.setCreatedDtm(role.getCreatedDtm());
-				roleUdt.setUpdatedDtm(role.getUpdatedDtm());
-
-				roleUdtList.add(roleUdt);
-
-			}
-		return roleUdtList;
+	
+	public static UserUdt userToUserUdt(User user) {
+		UserUdt userUdt = new UserUdt();
+		userUdt.setId(user.getId());
+		userUdt.setFirstName(user.getFirstName());
+		userUdt.setLastName(user.getLastName());
+		userUdt.setEmailId(user.getEmailId());
+		userUdt.setPassword(user.getPassword());
+		userUdt.setPhoneNumber(user.getPhoneNumber());
+		userUdt.setIsActive(user.getIsActive());
+		userUdt.setAddress(user.getAddress());
+		userUdt.setGender(user.getGender());
+		userUdt.setDepartments(user.getDepartments());
+		userUdt.setRoles(user.getRoles());
+		userUdt.setCreatedDtm(user.getCreatedDtm());
+		userUdt.setUpdatedDtm(user.getUpdatedDtm());
+		
+		return userUdt;
 	}
-
+	
 	public static User userUdtToUser(UserUdt userUdt) {
 		User user = new User();
 		user.setId(userUdt.getId());
@@ -100,33 +85,16 @@ public class WrapperUtil {
 		user.setRoles(userUdt.getRoles());
 		user.setCreatedDtm(userUdt.getCreatedDtm());
 		user.setUpdatedDtm(userUdt.getUpdatedDtm());
-
+		
 		return user;
 	}
-
+	
 	public static User wrappedUserToUser(User user, User oldUser) {
 		oldUser.setFirstName(user.getFirstName());
 		oldUser.setLastName(user.getLastName());
 		oldUser.setPhoneNumber(user.getPhoneNumber());
 		oldUser.setAddress(user.getAddress());
-		oldUser.setUpdatedDtm(user.getUpdatedDtm());
-
+		
 		return oldUser;
-	}
-
-	public static UserUdt userToUserUdt(User user) {
-		UserUdt userUdt = new UserUdt();
-		BeanUtils.copyProperties(user, userUdt);
-		return userUdt;
-	}
-
-	public static List<User> userUdtToUser(List<UserUdt> userUdtList) {
-		List<User> userList = new ArrayList<User>();
-		for (UserUdt userUdt : userUdtList) {
-			User user = new User();
-			BeanUtils.copyProperties(userUdt, user);
-			userList.add(user);
-		}
-		return userList;
 	}
 }

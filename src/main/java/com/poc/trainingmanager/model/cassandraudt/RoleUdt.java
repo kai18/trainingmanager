@@ -1,6 +1,5 @@
 package com.poc.trainingmanager.model.cassandraudt;
 
-import java.io.Serializable;
 import java.util.Date;
 import java.util.UUID;
 
@@ -11,12 +10,7 @@ import org.springframework.data.cassandra.mapping.UserDefinedType;
 import com.datastax.driver.core.DataType;
 
 @UserDefinedType("role")
-public class RoleUdt implements Serializable {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 5869560545017743854L;
+public class RoleUdt {
 
 	@CassandraType(type = DataType.Name.UUID)
 	@Column("role_id")
@@ -31,9 +25,9 @@ public class RoleUdt implements Serializable {
 	@Column("role_description")
 	private String roleDescription;
 
-	@CassandraType(type = DataType.Name.UDT, userTypeName = "privilege")
+	@CassandraType(type = DataType.Name.UDT, userTypeName="privilege")
 	private PrivilegeUdt privilege;
-
+	
 	@Column("created_dtm")
 	private Date createdDtm;
 
@@ -108,8 +102,7 @@ public class RoleUdt implements Serializable {
 		this.updatedDtm = updatedDtm;
 	}
 
-	public RoleUdt() {
-	}
+	public RoleUdt() {}
 
 	@Override
 	public String toString() {

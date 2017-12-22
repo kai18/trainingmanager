@@ -1,34 +1,27 @@
 package com.poc.trainingmanager.model.cassandraudt;
 
-import java.io.Serializable;
-import java.util.UUID;
-
 import org.springframework.data.cassandra.mapping.CassandraType;
 import org.springframework.data.cassandra.mapping.Column;
 import org.springframework.data.cassandra.mapping.UserDefinedType;
 
 import com.datastax.driver.core.DataType;
+import java.util.UUID;
 
 @UserDefinedType("privilege")
-public class PrivilegeUdt implements Serializable {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -7717493614827637561L;
+public class PrivilegeUdt {
 
 	@Column("creation")
 	private int creationPrivilege;
-
+	
 	@Column("deletion")
 	private int deletionPrivilege;
 
 	@Column("updation")
 	private int updationPrivilege;
-
+	
 	@Column("read")
 	private int readPrivilege;
-
+	
 	@CassandraType(type = DataType.Name.UUID)
 	@Column("department_id")
 	private UUID department_id;
@@ -82,9 +75,8 @@ public class PrivilegeUdt implements Serializable {
 		this.readPrivilege = readPrivilege;
 		this.department_id = department_id;
 	}
-
-	public PrivilegeUdt() {
-	}
+	
+	public PrivilegeUdt() {}
 
 	@Override
 	public int hashCode() {

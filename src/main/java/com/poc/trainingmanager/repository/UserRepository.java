@@ -6,16 +6,15 @@ import java.util.UUID;
 import org.springframework.data.cassandra.repository.CassandraRepository;
 import org.springframework.stereotype.Repository;
 
+import com.poc.trainingmanager.model.Department;
 import com.poc.trainingmanager.model.User;
-import com.poc.trainingmanager.model.cassandraudt.DepartmentUdt;
 import com.poc.trainingmanager.model.cassandraudt.RoleUdt;
 
 @Repository
 public interface UserRepository extends CassandraRepository<User> {
 
-	@Override
 	public User save(User user);
-
+	
 	public User findById(UUID uuid);
 
 	public User findByEmailId(String email);
@@ -29,6 +28,7 @@ public interface UserRepository extends CassandraRepository<User> {
 	public List<User> findByFirstNameContainingIgnoreCaseAndLastNameContainingIgnoreCase(String firstName,
 			String lastName);
 
-	public List<User> findByDepartments(DepartmentUdt department);
+	public List<User> findByDepartments(Department department);
+
 	public List<User> findByRoles(RoleUdt roleUdt);
 }
