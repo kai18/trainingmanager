@@ -33,15 +33,10 @@ public class UserController {
 	@Autowired
 	UserService userService;
 
-	/*
-	 * @GetMapping("/")
-	 * 
-	 * @ResponseBody public Long test() { LOGGER.info("INFO LOGGING");
-	 * LOGGER.debug("Debug logging"); return test.test();
-	 * 
-	 * }
+	/**
+	 * @
+	 *
 	 */
-
 	@CrossOrigin()
 	@GetMapping("search")
 	public StandardResponse<List<UserSearchWrapper>> search(
@@ -78,7 +73,7 @@ public class UserController {
 		LOGGER.error(userId);
 		return userService.revokeRole(userId, roleId);
 	}
-	
+
 	@GetMapping(value = "{userId}")
 	StandardResponse<UserSearchWrapper> getUserById(@PathVariable("userId") String userId) {
 		LOGGER.error(userId);

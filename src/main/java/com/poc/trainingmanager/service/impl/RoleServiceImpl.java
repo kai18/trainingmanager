@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.CrossOrigin;
 
 import com.poc.trainingmanager.model.DepartmentRoles;
 import com.poc.trainingmanager.model.Role;
@@ -26,6 +27,7 @@ import com.poc.trainingmanager.repository.RoleUsersRepository;
 import com.poc.trainingmanager.repository.UserRepository;
 import com.poc.trainingmanager.service.RoleService;
 
+@CrossOrigin()
 @Service
 public class RoleServiceImpl implements RoleService {
 
@@ -42,6 +44,7 @@ public class RoleServiceImpl implements RoleService {
 	@Autowired
 	RoleUsersRepository roleUsersRepository;
 
+	@CrossOrigin()
 	@Override
 	public StandardResponse<List<Role>> getAllRoles(List<PrivilegeUdt> assignedPrevileges) {
 		StandardResponse<List<Role>> standardResponse = new StandardResponse<List<Role>>();

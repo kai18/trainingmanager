@@ -4,14 +4,17 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.CrossOrigin;
 
 import com.poc.trainingmanager.constants.Constants;
 import com.poc.trainingmanager.model.Department;
@@ -34,9 +37,10 @@ import com.poc.trainingmanager.service.UserService;
 import com.poc.trainingmanager.utils.PasswordUtil;
 
 /**
- * //TODO
+ * 
  *
  */
+@CrossOrigin()
 @Service
 public class UserServiceImpl implements UserService {
 
@@ -60,6 +64,20 @@ public class UserServiceImpl implements UserService {
 
 	private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
 
+	/**
+	 * 
+	 * 
+	 * @param firstName
+	 *            String: Receives the user's first name as search criteria
+	 * @param lastName
+	 *            String: Receives the user's last name as search criteria
+	 * @param email
+	 *            String: Receives the user's email id as search criteria
+	 * 
+	 * 
+	 * @return StandardResponse: Contains search result as a user list along with
+	 *         message, status code and error code if any
+	 */
 	@Override
 	public StandardResponse<List<UserSearchWrapper>> search(String firstName, String lastName, String email,
 			String departments, String roles) {
@@ -93,15 +111,22 @@ public class UserServiceImpl implements UserService {
 
 		}
 
+		long start = System.currentTimeMillis();
 		List<User> unwrappedResults = searchEngine.searchByAllParameters(email, firstName, lastName, departmentUdtList,
 				roleUdtList);
+		long end = System.currentTimeMillis();
 
-		List<UserSearchWrapper> wrappedResult = WrapperUtil.wrapUserToUserSearchWrapper(unwrappedResults);
+		Double timeTakenToSearch = (double) ((end - start) / 1000);
+
+		Set<User> distinctUsers = new LinkedHashSet<User>(unwrappedResults);// Remove duplicates by converting to a hash
+																			// set that does not allow duplicates and
+																			// also preserves the ordering
+		List<User> distinctUserList = new ArrayList<User>(distinctUsers);
+		List<UserSearchWrapper> wrappedResult = WrapperUtil.wrapUserToUserSearchWrapper(distinctUserList);
 
 		StandardResponse<List<UserSearchWrapper>> searchResponse = new StandardResponse<List<UserSearchWrapper>>();
-		System.out.println(wrappedResult);
 		searchResponse.setElement(wrappedResult);
-		searchResponse.setMessage("X results found");
+		searchResponse.setMessage(wrappedResult.size() + " results found in " + timeTakenToSearch + " seconds");
 
 		return searchResponse;
 	}
@@ -212,6 +237,15 @@ public class UserServiceImpl implements UserService {
 			roleUdtList.add(WrapperUtil.roleToRoleUdt(role));
 			user.setRoles(roleUdtList);
 			user.setUpdatedDtm(date);
+			for (RoleUdt roleUdt : user.getRoles()) {
+				BeanUtils.copyProperties(roleRepository.findByRoleId(roleUdt.getRoleId()), roleUdt);
+			}
+
+			for (DepartmentUdt departmentUdt : user.getDepartments()) {
+				BeanUtils.copyProperties(departmentRespository.findByDepartmentId(departmentUdt.getDepartmentId()),
+						departmentUdt);
+			}
+			user.setIsActive(true);
 			userRepository.save(user);
 
 			RoleUsers roleUsers = roleUsersRepository.findByRoleId(role.getRoleId());

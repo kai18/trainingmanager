@@ -21,6 +21,17 @@ import com.poc.trainingmanager.repository.DepartmentUsersRepository;
 import com.poc.trainingmanager.repository.RoleUsersRepository;
 import com.poc.trainingmanager.repository.UserRepository;
 
+/**
+ * @author Kaustubh.Kaustubh
+ *         <p>
+ *         This class searches for users given any criteria from firstName,
+ *         lastName, email, department and role. It fetches the users from the
+ *         database by executing appropriate select queries. At the core lies
+ *         the ranking algorithm, that checks how many criteria a particular
+ *         result satisfies and then ranks the results accordingly
+ * 
+ *         </p>
+ */
 @Service
 public class SearchEngine {
 
@@ -217,7 +228,6 @@ public class SearchEngine {
 		int rank = 0;
 
 		LOGGER.error("result is " + result + " tobesearched is " + toBeSearched);
-		LOGGER.error("Check " + result.toLowerCase().matches("(.*)" + "ankaja" + "(.*)"));
 
 		if (result.equalsIgnoreCase(toBeSearched))
 			rank += 2;
