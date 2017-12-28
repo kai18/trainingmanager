@@ -164,7 +164,16 @@ public class UserServiceImpl implements UserService {
 		user.setPassword(PasswordUtil.getPasswordHash(user.getPassword()));
 		user.setCreatedDtm(date);
 		user.setUpdatedDtm(date);
-
+		
+		RoleUdt rUdt = WrapperUtil.roleToRoleUdt(roleRepository.findByRoleId(user.getRoles().iterator().next().getRoleId()));
+		Set<RoleUdt> rUdtSet = new LinkedHashSet<RoleUdt>();
+		rUdtSet.add(rUdt);
+		user.setRoles(rUdtSet);
+		
+		DepartmentUdt dUdt = WrapperUtil.departmentToDepartmentUdt(departmentRespository.findByDepartmentId(user.getDepartments().iterator().next().getDepartmentId()));
+		Set<DepartmentUdt> dUdtSet = new LinkedHashSet<DepartmentUdt>();
+		dUdtSet.add(dUdt);
+		user.setDepartments(dUdtSet);
 		/*
 		 * setting the current user's userRolesUdt that is to be added to the set in
 		 * RoleUsers fetch an entry from roleUsers table with the role id obtained from
