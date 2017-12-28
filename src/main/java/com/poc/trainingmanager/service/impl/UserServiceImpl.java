@@ -107,6 +107,8 @@ public class UserServiceImpl implements UserService {
 				roleList.add(roleRepository.findByRoleName(roleName));
 			}
 
+			System.out.println(roleList.size());
+
 			roleUdtList = WrapperUtil.roleToRoleUdt(roleList);
 
 		}
