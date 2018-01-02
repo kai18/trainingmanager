@@ -40,10 +40,22 @@ public class PrivilegeChecker {
 		return null;
 	}
 
+	public boolean isSuperAdmin(Set<RoleUdt> roles) {
+		for (RoleUdt roleUdt : roles) {
+			if (roleUdt.getRoleType() == "System")
+				return true;
+		}
+
+		return false;
+	}
+
 	public boolean checkForDeletePrevilege(Set<DepartmentUdt> loggedInUserDepartments, Set<RoleUdt> roles,
 			Set<DepartmentUdt> userToBeDeletedDepartments) {
 
-		if (userBelongsToSameDepartment(loggedInUserDepartments, userToBeDeletedDepartments)) {
+		if (this.isSuperAdmin(roles))
+			return true;
+
+		else if (userBelongsToSameDepartment(loggedInUserDepartments, userToBeDeletedDepartments)) {
 			PrivilegeUdt privilegeUdt = this.getUserDepartmentPrevilege(loggedInUserDepartments, roles);
 			if (privilegeUdt != null) {
 				if (privilegeUdt.getDeletionPrivilege() == 1) {
@@ -58,7 +70,10 @@ public class PrivilegeChecker {
 	public boolean checkForUdatePrevilege(Set<DepartmentUdt> loggedInUserDepartments, Set<RoleUdt> roles,
 			Set<DepartmentUdt> userToBeDeletedDepartments) {
 
-		if (userBelongsToSameDepartment(loggedInUserDepartments, userToBeDeletedDepartments)) {
+		if (this.isSuperAdmin(roles))
+			return true;
+
+		else if (userBelongsToSameDepartment(loggedInUserDepartments, userToBeDeletedDepartments)) {
 			PrivilegeUdt privilegeUdt = this.getUserDepartmentPrevilege(loggedInUserDepartments, roles);
 			if (privilegeUdt != null) {
 				if (privilegeUdt.getUpdationPrivilege() == 1) {
@@ -73,7 +88,10 @@ public class PrivilegeChecker {
 	public boolean checkForCreatePrevilege(Set<DepartmentUdt> loggedInUserDepartments, Set<RoleUdt> roles,
 			Set<DepartmentUdt> userToBeDeletedDepartments) {
 
-		if (userBelongsToSameDepartment(loggedInUserDepartments, userToBeDeletedDepartments)) {
+		if (this.isSuperAdmin(roles))
+			return true;
+
+		else if (userBelongsToSameDepartment(loggedInUserDepartments, userToBeDeletedDepartments)) {
 			PrivilegeUdt privilegeUdt = this.getUserDepartmentPrevilege(loggedInUserDepartments, roles);
 			if (privilegeUdt != null) {
 				if (privilegeUdt.getCreationPrivilege() == 1) {
