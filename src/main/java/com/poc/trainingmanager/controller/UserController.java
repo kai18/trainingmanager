@@ -45,9 +45,7 @@ public class UserController {
 			@RequestParam(value = "email", required = false) String email,
 			@RequestParam(value = "departments", required = false) String departments,
 			@RequestParam(value = "roles", required = false) String roles) {
-
 		LOGGER.info("Searching using given parameters");
-		System.out.println(firstName);
 		return userService.search(firstName, lastName, email, departments, roles);
 
 	}
@@ -58,6 +56,7 @@ public class UserController {
 		return userService.insert(user);
 	}
 
+	@CrossOrigin()
 	@RequestMapping(method = RequestMethod.PUT)
 	StandardResponse<User> update(@RequestBody User user) {
 		return userService.update(user);
