@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.CrossOrigin;
 
 import com.poc.trainingmanager.constants.Constants;
+import com.poc.trainingmanager.exceptions.ResourceNotFoundException;
 import com.poc.trainingmanager.model.Department;
 import com.poc.trainingmanager.model.Role;
 import com.poc.trainingmanager.model.RoleUsers;
@@ -34,10 +35,11 @@ import com.poc.trainingmanager.repository.RoleUsersRepository;
 import com.poc.trainingmanager.repository.UserRepository;
 import com.poc.trainingmanager.search.SearchEngine;
 import com.poc.trainingmanager.service.UserService;
+import com.poc.trainingmanager.service.helper.UserDeleteHelper;
 import com.poc.trainingmanager.utils.PasswordUtil;
 
 /**
- * 
+ * @author Kaustubh.Kaustubh
  *
  */
 @CrossOrigin()
@@ -62,7 +64,10 @@ public class UserServiceImpl implements UserService {
 	@Autowired
 	SearchEngine searchEngine;
 
-	private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
+	@Autowired
+	UserDeleteHelper deleteHelper;
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(UserServiceImpl.class);
 
 	/**
 	 * 
@@ -135,11 +140,11 @@ public class UserServiceImpl implements UserService {
 
 	/**
 	 * <p>
-	 * Insert method is used to insert into a new user who is trying to register
-	 * into the database. For the insert operation the user should not be null.
-	 * Also, the user should not already exist in the table. The unique constraint
-	 * is set for Email Id. User ID is randomly generated and the password is hashed
-	 * before storing into the database.
+	 * Insert method is used to insert a new user who is trying to register into the
+	 * database. For the insert operation the user should not be null. Also, the
+	 * user should not already exist in the table. The unique constraint is set for
+	 * Email Id. User ID is randomly generated and the password is hashed before
+	 * storing into the database.
 	 * </p>
 	 */
 	@Override
@@ -147,14 +152,14 @@ public class UserServiceImpl implements UserService {
 		Date date = new Date();
 		StandardResponse<User> standardResponse = new StandardResponse<User>();
 		if (user == null) {
-			logger.error("Inserted user was null, hence failed to Add user");
+			LOGGER.error("Inserted user was null, hence failed to Add user");
 			standardResponse.setCode(422);
 			standardResponse.setStatus("Failed");
 			standardResponse.setMessage("User cant be null, failed to add this user");
 			return standardResponse;
 		}
 		if (userRepository.findByEmailId(user.getEmailId()) != null) {
-			logger.error("User {" + user.getEmailId() + "} already exists, duplicate user cannot be inserted");
+			LOGGER.error("User {" + user.getEmailId() + "} already exists, duplicate user cannot be inserted");
 			standardResponse.setCode(409);
 			standardResponse.setStatus("Failed");
 			standardResponse.setMessage("user already exists, failed to add this user");
@@ -164,13 +169,15 @@ public class UserServiceImpl implements UserService {
 		user.setPassword(PasswordUtil.getPasswordHash(user.getPassword()));
 		user.setCreatedDtm(date);
 		user.setUpdatedDtm(date);
-		
-		RoleUdt rUdt = WrapperUtil.roleToRoleUdt(roleRepository.findByRoleId(user.getRoles().iterator().next().getRoleId()));
+
+		RoleUdt rUdt = WrapperUtil
+				.roleToRoleUdt(roleRepository.findByRoleId(user.getRoles().iterator().next().getRoleId()));
 		Set<RoleUdt> rUdtSet = new LinkedHashSet<RoleUdt>();
 		rUdtSet.add(rUdt);
 		user.setRoles(rUdtSet);
-		
-		DepartmentUdt dUdt = WrapperUtil.departmentToDepartmentUdt(departmentRespository.findByDepartmentId(user.getDepartments().iterator().next().getDepartmentId()));
+
+		DepartmentUdt dUdt = WrapperUtil.departmentToDepartmentUdt(
+				departmentRespository.findByDepartmentId(user.getDepartments().iterator().next().getDepartmentId()));
 		Set<DepartmentUdt> dUdtSet = new LinkedHashSet<DepartmentUdt>();
 		dUdtSet.add(dUdt);
 		user.setDepartments(dUdtSet);
@@ -193,7 +200,7 @@ public class UserServiceImpl implements UserService {
 			standardResponse.setCode(200);
 			standardResponse.setElement(user);
 			standardResponse.setMessage("User added successfully");
-			logger.info("User {" + user.getEmailId() + "} successfully added");
+			LOGGER.info("User {" + user.getEmailId() + "} successfully added");
 		}
 		return standardResponse;
 	}
@@ -204,7 +211,12 @@ public class UserServiceImpl implements UserService {
 		RoleUdt role = new RoleUdt();
 		RoleUsers roleUsers = new RoleUsers();
 		StandardResponse<User> stdResponse = new StandardResponse<User>();
+
 		User oldUser = userRepository.findById(user.getId());
+
+		if (oldUser == null)
+			throw new ResourceNotFoundException("User to be updated does not exist, please first register the user");
+
 		user.setUpdatedDtm(date);
 		User tempUser = new User();
 		BeanUtils.copyProperties(oldUser, tempUser);
@@ -310,12 +322,58 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public StandardResponse<UserSearchWrapper> getUserById(String id) {
 		UUID userId = UUID.fromString(id);
-		UserSearchWrapper wrappedResult = WrapperUtil.wrapUserToUserSearchWrapper(userRepository.findById(userId));
+		User user = userRepository.findById(userId);
+		if (user == null)
+			throw new ResourceNotFoundException("User with id does not exist");
+		UserSearchWrapper wrappedResult = WrapperUtil.wrapUserToUserSearchWrapper(user);
 		StandardResponse<UserSearchWrapper> searchResponse = new StandardResponse<UserSearchWrapper>();
 		searchResponse.setElement(wrappedResult);
 		searchResponse.setCode(200);
 		searchResponse.setStatus("success");
 		searchResponse.setMessage("User fetched");
 		return searchResponse;
+	}
+
+	/**
+	 * 
+	 *
+	 */
+	@Override
+	public StandardResponse deleteUser(String userId) {
+
+		UUID userUuid = UUID.fromString(userId);
+		User user = userRepository.findById(userUuid);
+
+		if (user == null || !user.getIsActive()) {
+			throw new ResourceNotFoundException("Requested user does not exist");
+		}
+
+		UserUdt userToBeDeleted = WrapperUtil.userToUserUdt(user);
+
+		// Deleting user from department_users table
+		Set<DepartmentUdt> departments = user.getDepartments();
+		if (departments != null) {
+			for (DepartmentUdt department : departments) {
+				deleteHelper.deleteFromDepartmentUsers(department.getDepartmentId(), userToBeDeleted);
+			}
+		}
+
+		// Deleting user from role_users table
+		Set<RoleUdt> roles = user.getRoles();
+		if (roles != null) {
+			for (RoleUdt role : roles) {
+				deleteHelper.deleteFromRoleUsers(role.getRoleId(), userToBeDeleted);
+			}
+		}
+
+		deleteHelper.deactivateUser(user);// setting user's isActive field to false
+
+		StandardResponse<?> deleteResponse = new StandardResponse();
+		deleteResponse.setCode(200);
+		deleteResponse.setElement(null);
+		deleteResponse.setMessage("User successfully deleted");
+
+		return deleteResponse;
+
 	}
 }

@@ -8,7 +8,7 @@ import org.springframework.data.cassandra.repository.config.EnableCassandraRepos
 @SpringBootApplication
 @EnableCassandraRepositories(basePackages = "com.poc.trainingmanager.repository")
 @ComponentScan(basePackages = { "com.poc.trainingmanager", "com.poc.trainingmanager.config",
-		"com.poc.trainingmanager.repository", "com.poc.trainingmanager.model" })
+		"com.poc.trainingmanager.repository", "com.poc.trainingmanager.model", "com.poc.trainingmanager.exceptions" })
 public class TrainingmanagerApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(TrainingmanagerApplication.class, args);
