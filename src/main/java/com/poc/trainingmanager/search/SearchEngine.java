@@ -1,7 +1,6 @@
 package com.poc.trainingmanager.search;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -10,8 +9,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.google.common.collect.Multimap;
-import com.google.common.collect.MultimapBuilder;
 import com.poc.trainingmanager.model.User;
 import com.poc.trainingmanager.model.cassandraudt.DepartmentUdt;
 import com.poc.trainingmanager.model.cassandraudt.RoleUdt;
@@ -70,76 +67,12 @@ public class SearchEngine {
 			this.addToResult(userList, resultList);
 		}
 
-		if (roles != null && roles.isEmpty()) {
+		if (roles != null && !roles.isEmpty()) {
 			List<User> userList = this.searchByRoles(roles);
 			this.addToResult(userList, resultList);
 		}
 
-		return this.rankResults(resultList, email, firstName, lastName, departments, roles);
-	}
-
-	private int getDepartmentRank(List<DepartmentUdt> toBeRanked, List<DepartmentUdt> criteria) {
-		int rank = 0;
-		if (toBeRanked != null && criteria != null) {
-			for (DepartmentUdt departmentUdt : toBeRanked) {
-				for (DepartmentUdt criteriaDepartmentUdt : criteria) {
-					if (departmentUdt.equals(criteriaDepartmentUdt))
-						rank++;
-				}
-			}
-		}
-		return rank;
-	}
-
-	private int getRoleRank(List<RoleUdt> toBeRanked, List<RoleUdt> criteria) {
-		int rank = 0;
-		if (toBeRanked != null && criteria != null) {
-			for (RoleUdt departmentUdt : toBeRanked) {
-				for (RoleUdt criteriaDepartmentUdt : criteria) {
-					if (departmentUdt.equals(criteriaDepartmentUdt))
-						rank++;
-				}
-			}
-		}
-		return rank;
-	}
-
-	private List<User> rankResults(List<User> resultList, String email, String firstName, String lastName,
-			List<DepartmentUdt> departments, List<RoleUdt> roles) {
-
-		Multimap<Integer, User> resultMap = MultimapBuilder.treeKeys().linkedListValues().build();
-
-		for (User user : resultList) {
-			int rank = 0;
-			if (email != null)
-				rank += this.getRank(user.getEmailId(), email);
-			if (firstName != null)
-				rank += this.getRank(user.getFirstName(), firstName);
-			if (lastName != null)
-				rank += this.getRank(user.getLastName(), lastName);
-
-			if (departments != null && !departments.isEmpty())
-				rank += this.getDepartmentRank(new ArrayList<DepartmentUdt>(user.getDepartments()), departments);
-			if (roles != null && !roles.isEmpty())
-				rank += this.getRoleRank(new ArrayList<RoleUdt>(user.getRoles()), roles);
-
-			LOGGER.error("Rank for user: " + user.getFirstName() + " is " + rank);
-
-			resultMap.put(rank, user);
-		}
-
-		List<User> sortedResultList = new ArrayList<User>();
-
-		System.out.println(resultMap);
-
-		for (User finalUser : resultMap.values()) {
-			sortedResultList.add(finalUser);
-		}
-
-		Collections.reverse(sortedResultList);
-		System.out.println(sortedResultList);
-		return sortedResultList;
-
+		return RankingEngine.rankResults(resultList, email, firstName, lastName, departments, roles);
 	}
 
 	public User searchByEmail(String email) {
@@ -200,11 +133,14 @@ public class SearchEngine {
 	public List<User> searchByRoles(List<RoleUdt> roles) {
 
 		List<User> userList = new ArrayList<User>();
+		List<UserUdt> userUdtList = null;
 		if (roles != null && !roles.isEmpty()) {
 			for (RoleUdt role : roles) {
 				Set<UserUdt> userUdts = roleUsersRepository.findByRoleId(role.getRoleId()).getUserUdt();
-				List<UserUdt> userUdtList = new ArrayList<UserUdt>(userUdts);
-				userList.addAll(WrapperUtil.userUdtToUser(userUdtList));
+				if (userUdts != null) {
+					userUdtList = new ArrayList<UserUdt>(userUdts);
+					userList.addAll(WrapperUtil.userUdtToUser(userUdtList));
+				}
 			}
 		}
 		LOGGER.error("Role Result" + userList);
@@ -220,26 +156,7 @@ public class SearchEngine {
 				LOGGER.error("Null email value passed");
 			}
 		}
-
 		return null;
-	}
-
-	private int getRank(String result, String toBeSearched) {
-		int rank = 0;
-
-		LOGGER.error("result is " + result + " tobesearched is " + toBeSearched);
-
-		if (result.equalsIgnoreCase(toBeSearched))
-			rank += 2;
-
-		else if (result.toLowerCase().matches("(.*)" + toBeSearched + "(.*)")) {
-			LOGGER.error("Here");
-			rank += 1;
-		}
-
-		LOGGER.error("Rank is " + rank);
-
-		return rank;
 	}
 
 	private void addToResult(List<User> userList, List<User> resultList) {

@@ -35,10 +35,11 @@ import com.poc.trainingmanager.repository.RoleUsersRepository;
 import com.poc.trainingmanager.repository.UserRepository;
 import com.poc.trainingmanager.search.SearchEngine;
 import com.poc.trainingmanager.service.UserService;
+import com.poc.trainingmanager.service.helper.UserDeleteHelper;
 import com.poc.trainingmanager.utils.PasswordUtil;
 
 /**
- * 
+ * @author Kaustubh.Kaustubh
  *
  */
 @CrossOrigin()
@@ -62,6 +63,9 @@ public class UserServiceImpl implements UserService {
 
 	@Autowired
 	SearchEngine searchEngine;
+
+	@Autowired
+	UserDeleteHelper deleteHelper;
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(UserServiceImpl.class);
 
@@ -328,5 +332,48 @@ public class UserServiceImpl implements UserService {
 		searchResponse.setStatus("success");
 		searchResponse.setMessage("User fetched");
 		return searchResponse;
+	}
+
+	/**
+	 * 
+	 *
+	 */
+	@Override
+	public StandardResponse deleteUser(String userId) {
+
+		UUID userUuid = UUID.fromString(userId);
+		User user = userRepository.findById(userUuid);
+
+		if (user == null || !user.getIsActive()) {
+			throw new ResourceNotFoundException("Requested user does not exist");
+		}
+
+		UserUdt userToBeDeleted = WrapperUtil.userToUserUdt(user);
+
+		// Deleting user from department_users table
+		Set<DepartmentUdt> departments = user.getDepartments();
+		if (departments != null) {
+			for (DepartmentUdt department : departments) {
+				deleteHelper.deleteFromDepartmentUsers(department.getDepartmentId(), userToBeDeleted);
+			}
+		}
+
+		// Deleting user from role_users table
+		Set<RoleUdt> roles = user.getRoles();
+		if (roles != null) {
+			for (RoleUdt role : roles) {
+				deleteHelper.deleteFromRoleUsers(role.getRoleId(), userToBeDeleted);
+			}
+		}
+
+		deleteHelper.deactivateUser(user);// setting user's isActive field to false
+
+		StandardResponse<?> deleteResponse = new StandardResponse();
+		deleteResponse.setCode(200);
+		deleteResponse.setElement(null);
+		deleteResponse.setMessage("User successfully deleted");
+
+		return deleteResponse;
+
 	}
 }
