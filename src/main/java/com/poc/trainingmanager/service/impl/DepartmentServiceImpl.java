@@ -213,19 +213,20 @@ public class DepartmentServiceImpl implements DepartmentService {
 	 * trainingmanager.model.Department)
 	 */
 	@Override
-	public StandardResponse deleteDepartment(Department department) {
-		StandardResponse standardResponse = new StandardResponse();
-		DepartmentRoles departmentRoles = new DepartmentRoles();
-		departmentRoles = departmentRolesRepository.findByDepartmentId(department.getDepartmentId());
-		departmentRolesRepository.delete(departmentRoles);
-		DepartmentUsers departmentUsers = new DepartmentUsers();
-		departmentUsers = departmentUsersRepository.findByDepartmentId(department.getDepartmentId());
-		departmentUsersRepository.delete(departmentUsers);
-		departmentRepository.delete(department);
-		standardResponse.setCode(200);
-		standardResponse.setStatus("Success");
-		standardResponse.setMessage("Department deleted successfully");
-		logger.info("Department {" + department + "} successfully deleted");
-		return null;
-	}
+		public StandardResponse deleteDepartment(String deptId) {
+			UUID departmentId = UUID.fromString(deptId);
+			StandardResponse standardResponse = new StandardResponse<Object>();
+			DepartmentRoles departmentRoles = new DepartmentRoles();
+			departmentRoles = departmentRolesRepository.findByDepartmentId(departmentId);
+			departmentRolesRepository.delete(departmentRoles);
+			DepartmentUsers departmentUsers = new DepartmentUsers();
+			departmentUsers = departmentUsersRepository.findByDepartmentId(departmentId);
+			departmentUsersRepository.delete(departmentUsers);
+			departmentRepository.delete(departmentRepository.findByDepartmentId(departmentId));
+			standardResponse.setCode(200);
+			standardResponse.setStatus("Success");
+			standardResponse.setMessage("Department deleted successfully");
+			logger.info("Department with ID {" + departmentId + "} successfully deleted");
+			return standardResponse;
+		} 
 }

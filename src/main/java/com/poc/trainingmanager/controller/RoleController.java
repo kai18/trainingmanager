@@ -31,21 +31,25 @@ public class RoleController {
 		return roleService.getAllRoles(assignedPrivileges);
 	}
 
+	@CrossOrigin()
 	@RequestMapping(method = RequestMethod.GET, value = "/name")
 	StandardResponse<Role> getRoleByName(@PathParam("roleName") String roleName) {
 		return roleService.getRoleByName(assignedPrivileges, roleName);
 	}
 
+	@CrossOrigin()
 	@RequestMapping(method = RequestMethod.POST)
 	StandardResponse<Role> addRole(@RequestBody Role role) {
 		return roleService.addRole(assignedPrivileges, role);
 	}
 
+	@CrossOrigin()
 	@RequestMapping(method = RequestMethod.PUT)
 	StandardResponse<Role> updateRole(@RequestBody Role role) {
 		return roleService.updateRole(assignedPrivileges, role);
 	}
 
+	@CrossOrigin()
 	@RequestMapping(method = RequestMethod.DELETE)
 	StandardResponse deleteRole(@RequestBody Role role) {
 		return roleService.deleteRole(assignedPrivileges, role);

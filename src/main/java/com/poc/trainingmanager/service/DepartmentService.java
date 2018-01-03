@@ -11,5 +11,5 @@ public interface DepartmentService {
 	public StandardResponse<List<Department>> getAllDepartments();
 	public StandardResponse<Department> addDepartment(Department department);
 	public StandardResponse<Department> updateDepartment(Department department);
-	public StandardResponse deleteDepartment(Department department);
+	public StandardResponse deleteDepartment(String departmentId);
 } 

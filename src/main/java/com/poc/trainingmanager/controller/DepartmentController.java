@@ -3,6 +3,9 @@ package com.poc.trainingmanager.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -19,24 +22,28 @@ public class DepartmentController {
 	@Autowired
 	DepartmentService departmentService;
 
+	@CrossOrigin()
 	@RequestMapping(method = RequestMethod.GET)
 	StandardResponse<List<Department>> getAllDepartments() {
 		return departmentService.getAllDepartments();
 	}
 
+	@CrossOrigin()
 	@RequestMapping(method = RequestMethod.POST)
 	StandardResponse<Department> addDepartment(@RequestBody Department department) {
 		return departmentService.addDepartment(department);
 	}
 
+	@CrossOrigin()
 	@RequestMapping(method = RequestMethod.PUT)
 	StandardResponse<Department> updateDepartment(@RequestBody Department department) {
 		return departmentService.updateDepartment(department);
 	}
 
-	@RequestMapping(method = RequestMethod.DELETE)
-	StandardResponse deleteDepartment(@RequestBody Department department) {
-		return departmentService.deleteDepartment(department);
+	@CrossOrigin()
+	@DeleteMapping(value = "{departmentId}")
+	StandardResponse deleteDepartment(@PathVariable(value= "departmentId") String departmentId) {
+		return departmentService.deleteDepartment(departmentId);
 
-	}
+	} 
 }
