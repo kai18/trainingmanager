@@ -9,15 +9,16 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.poc.trainingmanager.config.TrainingmanagerApplication;
 import com.poc.trainingmanager.model.StandardResponse;
 import com.poc.trainingmanager.model.User;
+import com.poc.trainingmanager.model.wrapper.LoggedInUserWrapper;
 import com.poc.trainingmanager.model.wrapper.UserSearchWrapper;
 import com.poc.trainingmanager.service.UserService;
 
@@ -25,7 +26,7 @@ import com.poc.trainingmanager.service.UserService;
 @RequestMapping("users/")
 public class UserController {
 
-	private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(TrainingmanagerApplication.class);
+	private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(UserController.class);
 
 	@Autowired
 	UserService userService;
@@ -51,20 +52,21 @@ public class UserController {
 
 	@CrossOrigin()
 	@RequestMapping(method = RequestMethod.PUT)
-	public StandardResponse<User> update(@RequestBody User user) {
+	public StandardResponse<User> update(@RequestBody User user,
+			@RequestAttribute("loggedInUser") LoggedInUserWrapper loggedInUser) {
 		return userService.update(user);
 	}
 
 	@PutMapping(value = "grant/{roleId}/user/{userId}")
 	public StandardResponse<User> grantRole(@PathVariable("userId") String userId,
-			@PathVariable("roleId") String roleId) {
+			@PathVariable("roleId") String roleId, @RequestAttribute("loggedInUser") LoggedInUserWrapper loggedInUser) {
 		LOGGER.error(userId);
 		return userService.grantRole(userId, roleId);
 	}
 
 	@PutMapping(value = "revoke/{roleId}/user/{userId}")
 	public StandardResponse<User> revokeRole(@PathVariable("userId") String userId,
-			@PathVariable("roleId") String roleId) {
+			@PathVariable("roleId") String roleId, @RequestAttribute("loggedInUser") LoggedInUserWrapper loggedInUser) {
 		LOGGER.error(userId);
 		return userService.revokeRole(userId, roleId);
 	}
@@ -76,7 +78,8 @@ public class UserController {
 	}
 
 	@DeleteMapping(value = "{userId}")
-	public StandardResponse<?> deleteUser(@PathVariable("userId") String userId) {
+	public StandardResponse<?> deleteUser(@PathVariable("userId") String userId,
+			@RequestAttribute("loggedInUser") LoggedInUserWrapper loggedInUser) {
 		LOGGER.info("Attempting to delete user with id " + userId);
 		return userService.deleteUser(userId);
 	}
