@@ -4,7 +4,9 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import com.poc.trainingmanager.model.DepartmentRoles;
 import com.poc.trainingmanager.model.Role;
+import com.poc.trainingmanager.model.RoleUsers;
 import com.poc.trainingmanager.model.StandardResponse;
 import com.poc.trainingmanager.model.cassandraudt.PrivilegeUdt;
 
@@ -44,6 +46,10 @@ public interface RoleService {
 	public StandardResponse<Role> updateRole(List<PrivilegeUdt> assignedPrivileges, Role role);
     
 	//This method is used to delete an existing Role in the Role table.
-	public StandardResponse<?> deleteRole(List<PrivilegeUdt> assignedPrivileges, Role role);
+	public StandardResponse<Role> deleteRole(List<PrivilegeUdt> assignedPrivileges, String roleId);
+
+	public StandardResponse<List<RoleUsers>> getAllRoleUsers(List<PrivilegeUdt> assignedPrivileges);
+
+	public StandardResponse<List<DepartmentRoles>> getAllDepartmentRoles(List<PrivilegeUdt> assignedPrivileges);
 
 }

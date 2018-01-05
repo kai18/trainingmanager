@@ -13,6 +13,7 @@ import com.poc.trainingmanager.model.DepartmentRoles;
 @Repository
 public interface DepartmentRolesRepository extends CassandraRepository<DepartmentRoles> {
 	
+	public List<DepartmentRoles> findAll();
 	public DepartmentRoles findByRoles(RoleUdt role);
 	public DepartmentRoles findByDepartmentId(UUID departmentId);
 	public DepartmentRoles save(DepartmentRoles departmentRoles);

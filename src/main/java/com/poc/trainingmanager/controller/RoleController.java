@@ -9,9 +9,12 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.poc.trainingmanager.model.DepartmentRoles;
 import com.poc.trainingmanager.model.Role;
+import com.poc.trainingmanager.model.RoleUsers;
 import com.poc.trainingmanager.model.StandardResponse;
 import com.poc.trainingmanager.model.cassandraudt.PrivilegeUdt;
 import com.poc.trainingmanager.service.RoleService;
@@ -51,7 +54,17 @@ public class RoleController {
 
 	@CrossOrigin()
 	@RequestMapping(method = RequestMethod.DELETE)
-	StandardResponse deleteRole(@RequestBody Role role) {
-		return roleService.deleteRole(assignedPrivileges, role);
+	StandardResponse<Role> deleteRole(@RequestParam("roleId") String roleId) {
+		return roleService.deleteRole(assignedPrivileges, roleId);
+	}
+	
+	@RequestMapping(method = RequestMethod.GET, value="/roleUsers")
+	StandardResponse<List<RoleUsers>> getAllRoleUsers() {
+		return roleService.getAllRoleUsers(assignedPrivileges);
+	}
+	
+	@RequestMapping(method = RequestMethod.GET, value="/departmentRoles")
+	StandardResponse<List<DepartmentRoles>> getAllDepartmentRoles() {
+		return roleService.getAllDepartmentRoles(assignedPrivileges);
 	}
 }
