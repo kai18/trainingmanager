@@ -4,9 +4,7 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
 
-import javax.servlet.Filter;
 import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -18,7 +16,9 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.filter.GenericFilterBean;
 
 import com.poc.trainingmanager.exceptions.AccessDeniedException;
 import com.poc.trainingmanager.model.StandardResponse;
@@ -26,14 +26,14 @@ import com.poc.trainingmanager.model.cassandraudt.DepartmentUdt;
 import com.poc.trainingmanager.model.wrapper.LoggedInUserWrapper;
 
 @Component
-public class AuthenticationFilter implements Filter {
+@CrossOrigin
+public class AuthenticationFilter extends GenericFilterBean {
 
 	private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(AuthenticationFilter.class);
 
 	@Override
 	public void destroy() {
 		// TODO Auto-generated method stub
-
 	}
 
 	@Override
@@ -43,22 +43,25 @@ public class AuthenticationFilter implements Filter {
 		LOGGER.info("filter");
 
 		HttpServletRequest httpRequest = (HttpServletRequest) request;
-		String jwtToken = httpRequest.getHeader("jwt-token");
-		Map<String, Object> loggedInUserDetails = this.isValidJwtToken(jwtToken);
-		if (loggedInUserDetails != null) {
-			LoggedInUserWrapper user = new LoggedInUserWrapper();
-			user.setDepartments((Set<DepartmentUdt>) loggedInUserDetails.get("departments"));
-			request.setAttribute("loggedInUser", user);
-			filterChain.doFilter(request, response);
-		} else {
-			throw new AccessDeniedException("Invalid JWT Token");
+
+		LOGGER.debug("Request detected: ", httpRequest.getMethod());
+
+		if (httpRequest.getMethod().equals("GET") || httpRequest.getMethod().equals("POST")
+				|| httpRequest.getMethod().equals("PUT") || httpRequest.getMethod().equals("DELETE")) {
+
+			String jwtToken = httpRequest.getHeader("jwt-token");
+
+			Map<String, Object> loggedInUserDetails = this.isValidJwtToken(jwtToken);
+			if (loggedInUserDetails != null) {
+				LoggedInUserWrapper user = new LoggedInUserWrapper();
+				user.setDepartments((Set<DepartmentUdt>) loggedInUserDetails.get("departments"));
+				request.setAttribute("loggedInUser", user);
+				filterChain.doFilter(request, response);
+			} else {
+				throw new AccessDeniedException("Invalid JWT Token");
+			}
+
 		}
-	}
-
-	@Override
-	public void init(FilterConfig arg0) throws ServletException {
-		// TODO Auto-generated method stub
-
 	}
 
 	private Map<String, Object> isValidJwtToken(String jwtToken) {

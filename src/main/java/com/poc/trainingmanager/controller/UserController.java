@@ -72,12 +72,14 @@ public class UserController {
 	}
 
 	@GetMapping(value = "{userId}")
+	@CrossOrigin
 	public StandardResponse<UserSearchWrapper> getUserById(@PathVariable("userId") String userId) {
 		LOGGER.info("Attempting to get user with Id " + userId);
 		return userService.getUserById(userId);
 	}
 
 	@DeleteMapping(value = "{userId}")
+	@CrossOrigin
 	public StandardResponse<?> deleteUser(@PathVariable("userId") String userId,
 			@RequestAttribute("loggedInUser") LoggedInUserWrapper loggedInUser) {
 		LOGGER.info("Attempting to delete user with id " + userId);
