@@ -21,6 +21,7 @@ import com.poc.trainingmanager.service.RoleService;
 
 @RestController
 @RequestMapping("/roles")
+@CrossOrigin
 public class RoleController {
 
 	List<PrivilegeUdt> assignedPrivileges = null;

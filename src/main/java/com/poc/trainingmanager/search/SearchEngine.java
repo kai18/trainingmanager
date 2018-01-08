@@ -25,8 +25,8 @@ import com.poc.trainingmanager.repository.UserRepository;
  *         lastName, email, department and role. It fetches the users from the
  *         database by executing appropriate select queries. At the core lies
  *         the ranking algorithm, that checks how many criteria a particular
- *         result satisfies and then ranks the results accordingly
- * 
+ *         result satisfies and to what degree and then ranks the results
+ *         accordingly
  *         </p>
  */
 @Service
@@ -117,15 +117,18 @@ public class SearchEngine {
 
 	public List<User> searchByDepartments(List<DepartmentUdt> departments) {
 		List<User> userList = new ArrayList<User>();
+		List<UserUdt> userUdtList = null;
+
 		if (departments != null && !departments.isEmpty()) {
 			for (DepartmentUdt department : departments) {
 				Set<UserUdt> userUdts = departmentUsersRepository.findByDepartmentId(department.getDepartmentId())
 						.getUserDepartmentsUdt();
-				List<UserUdt> userUdtList = new ArrayList<UserUdt>(userUdts);
-				userList.addAll(WrapperUtil.userUdtToUser(userUdtList));
+				if (userUdts != null) {
+					userUdtList = new ArrayList<UserUdt>(userUdts);
+					userList.addAll(WrapperUtil.userUdtToUser(userUdtList));
+				}
 			}
 		}
-		LOGGER.error("Department Result" + userList);
 
 		return userList;
 	}

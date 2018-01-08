@@ -26,6 +26,7 @@ import com.poc.trainingmanager.model.User;
 import com.poc.trainingmanager.model.cassandraudt.DepartmentUdt;
 import com.poc.trainingmanager.model.cassandraudt.RoleUdt;
 import com.poc.trainingmanager.model.cassandraudt.UserUdt;
+import com.poc.trainingmanager.model.wrapper.LoggedInUserWrapper;
 import com.poc.trainingmanager.model.wrapper.UserSearchWrapper;
 import com.poc.trainingmanager.model.wrapper.WrapperUtil;
 import com.poc.trainingmanager.repository.DepartmentRepository;
@@ -37,6 +38,7 @@ import com.poc.trainingmanager.search.SearchEngine;
 import com.poc.trainingmanager.service.UserService;
 import com.poc.trainingmanager.service.helper.UserDeleteHelper;
 import com.poc.trainingmanager.utils.PasswordUtil;
+import com.poc.trainingmanager.utils.PrivilegeChecker;
 
 /**
  * @author Kaustubh.Kaustubh
@@ -95,6 +97,10 @@ public class UserServiceImpl implements UserService {
 		List<RoleUdt> roleUdtList = null;
 		List<DepartmentUdt> departmentUdtList = null;
 
+		/*
+		 * get all departments from the database that the user has specified as search
+		 * criteria
+		 */
 		if (departments != null) {
 			departmentNameList = Arrays.asList(departments.split(","));
 			for (String departmentName : departmentNameList) {
@@ -103,9 +109,12 @@ public class UserServiceImpl implements UserService {
 			}
 
 			departmentUdtList = WrapperUtil.departmentToDepartmentUdt(departmentList);
-
 		}
 
+		/*
+		 * get all roles from the database that the user has specified as search
+		 * criteria
+		 */
 		if (roles != null) {
 			roleNameList = Arrays.asList(roles.split(","));
 			for (String roleName : roleNameList) {
@@ -115,7 +124,6 @@ public class UserServiceImpl implements UserService {
 			System.out.println(roleList.size());
 
 			roleUdtList = WrapperUtil.roleToRoleUdt(roleList);
-
 		}
 
 		long start = System.currentTimeMillis();
@@ -123,9 +131,11 @@ public class UserServiceImpl implements UserService {
 				roleUdtList);
 		long end = System.currentTimeMillis();
 
-		Double timeTakenToSearch = (double) ((end - start) / 1000);
+		Double timeTakenToSearch = (double) ((end - start) / 1000);// time elapsed between calling the search engine adn
+																	// receiving the result
 
-		Set<User> distinctUsers = new LinkedHashSet<User>(unwrappedResults);// Remove duplicates by converting to a hash
+		Set<User> distinctUsers = new LinkedHashSet<User>(unwrappedResults);// Remove duplicate results by converting to
+																			// a hash
 																			// set that does not allow duplicates and
 																			// also preserves the ordering
 		List<User> distinctUserList = new ArrayList<User>(distinctUsers);
@@ -232,8 +242,10 @@ public class UserServiceImpl implements UserService {
 				role = roleUdtList.iterator().next();
 				roleUsers = roleUsersRepository.findByRoleId(role.getRoleId());
 				userUdtList = roleUsers.getUserUdt();
-				userUdtList.remove(WrapperUtil.userToUserUdt(tempUser));
-				userUdtList.add(WrapperUtil.userToUserUdt(newUser));
+				if (userUdtList != null) {
+					userUdtList.remove(WrapperUtil.userToUserUdt(tempUser));
+					userUdtList.add(WrapperUtil.userToUserUdt(newUser));
+				}
 				roleUsers.setUserRolesUdt(userUdtList);
 				roleUsersRepository.save(roleUsers);
 			}
@@ -339,10 +351,13 @@ public class UserServiceImpl implements UserService {
 	 *
 	 */
 	@Override
-	public StandardResponse deleteUser(String userId) {
+	public StandardResponse deleteUser(String userId, LoggedInUserWrapper loggedInUser) {
 
 		UUID userUuid = UUID.fromString(userId);
 		User user = userRepository.findById(userUuid);
+
+		PrivilegeChecker privilegeChecker = new PrivilegeChecker();
+		privilegeChecker.checkIAllowedToDelete(loggedInUser.getDepartments(), user.getDepartments());
 
 		if (user == null || !user.getIsActive()) {
 			throw new ResourceNotFoundException("Requested user does not exist");
