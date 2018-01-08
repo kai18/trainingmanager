@@ -69,6 +69,9 @@ public class UserServiceImpl implements UserService {
 	DepartmentUsersRepository departmentUsersRepository;
 
 	@Autowired
+	PrivilegeChecker privilegeChecker;
+
+	@Autowired
 	SearchEngine searchEngine;
 
 	@Autowired
@@ -184,6 +187,7 @@ public class UserServiceImpl implements UserService {
 		user.setPassword(PasswordUtil.getPasswordHash(user.getPassword()));
 		user.setCreatedDtm(date);
 		user.setUpdatedDtm(date);
+		user.setIsActive(true);
 
 		RoleUdt rUdt = WrapperUtil
 				.roleToRoleUdt(roleRepository.findByRoleId(user.getRoles().iterator().next().getRoleId()));
@@ -380,7 +384,6 @@ public class UserServiceImpl implements UserService {
 		UUID userUuid = UUID.fromString(userId);
 		User user = userRepository.findById(userUuid);
 
-		PrivilegeChecker privilegeChecker = new PrivilegeChecker();
 		privilegeChecker.checkIAllowedToDelete(loggedInUser.getDepartments(), user.getDepartments());
 
 		if (user == null || !user.getIsActive()) {

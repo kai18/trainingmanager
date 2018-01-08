@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import com.poc.trainingmanager.exceptions.AccessDeniedException;
 import com.poc.trainingmanager.model.DepartmentRoles;
@@ -12,6 +13,7 @@ import com.poc.trainingmanager.model.cassandraudt.PrivilegeUdt;
 import com.poc.trainingmanager.model.cassandraudt.RoleUdt;
 import com.poc.trainingmanager.repository.DepartmentRolesRepository;
 
+@Component
 public class PrivilegeChecker {
 
 	@Autowired

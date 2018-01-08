@@ -2,7 +2,7 @@ package com.poc.trainingmanager.filter;
 
 import java.io.IOException;
 import java.util.Map;
-import java.util.Set;
+import java.util.UUID;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -11,6 +11,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -22,13 +23,15 @@ import org.springframework.web.filter.GenericFilterBean;
 
 import com.poc.trainingmanager.exceptions.AccessDeniedException;
 import com.poc.trainingmanager.model.StandardResponse;
-import com.poc.trainingmanager.model.cassandraudt.DepartmentUdt;
 import com.poc.trainingmanager.model.wrapper.LoggedInUserWrapper;
+import com.poc.trainingmanager.repository.UserRepository;
 
 @Component
 @CrossOrigin
 public class AuthenticationFilter extends GenericFilterBean {
 
+	@Autowired
+	UserRepository userRepository;
 	private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(AuthenticationFilter.class);
 
 	@Override
@@ -54,7 +57,8 @@ public class AuthenticationFilter extends GenericFilterBean {
 			Map<String, Object> loggedInUserDetails = this.isValidJwtToken(jwtToken);
 			if (loggedInUserDetails != null) {
 				LoggedInUserWrapper user = new LoggedInUserWrapper();
-				user.setDepartments((Set<DepartmentUdt>) loggedInUserDetails.get("departments"));
+				user.setDepartments(userRepository.findById(UUID.fromString((String) loggedInUserDetails.get("id")))
+						.getDepartments());
 				request.setAttribute("loggedInUser", user);
 				LOGGER.info("Authentication Successful");
 			} else {
