@@ -83,7 +83,7 @@ public class UserController {
 	public StandardResponse<?> deleteUser(@PathVariable("userId") String userId,
 			@RequestAttribute("loggedInUser") LoggedInUserWrapper loggedInUser) {
 		LOGGER.info("Attempting to delete user with id " + userId);
-		return userService.deleteUser(userId);
+		return userService.deleteUser(userId, loggedInUser);
 	}
 
 }

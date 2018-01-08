@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 
 import com.poc.trainingmanager.model.StandardResponse;
 import com.poc.trainingmanager.model.User;
+import com.poc.trainingmanager.model.wrapper.LoggedInUserWrapper;
 import com.poc.trainingmanager.model.wrapper.UserSearchWrapper;
 
 @Service
@@ -24,5 +25,5 @@ public interface UserService {
 
 	StandardResponse<UserSearchWrapper> getUserById(String id);
 
-	public StandardResponse deleteUser(String userId);
+	public StandardResponse deleteUser(String userId, LoggedInUserWrapper loggedInUser);
 }

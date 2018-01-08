@@ -44,7 +44,7 @@ public class AuthenticationFilter extends GenericFilterBean {
 
 		HttpServletRequest httpRequest = (HttpServletRequest) request;
 
-		LOGGER.debug("Request detected: ", httpRequest.getMethod());
+		LOGGER.info("Request detected: " + httpRequest.getMethod());
 
 		if (httpRequest.getMethod().equals("GET") || httpRequest.getMethod().equals("POST")
 				|| httpRequest.getMethod().equals("PUT") || httpRequest.getMethod().equals("DELETE")) {
@@ -56,12 +56,13 @@ public class AuthenticationFilter extends GenericFilterBean {
 				LoggedInUserWrapper user = new LoggedInUserWrapper();
 				user.setDepartments((Set<DepartmentUdt>) loggedInUserDetails.get("departments"));
 				request.setAttribute("loggedInUser", user);
-				filterChain.doFilter(request, response);
+				LOGGER.info("Authentication Successful");
 			} else {
 				throw new AccessDeniedException("Invalid JWT Token");
 			}
-
 		}
+		filterChain.doFilter(request, response);
+
 	}
 
 	private Map<String, Object> isValidJwtToken(String jwtToken) {
