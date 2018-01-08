@@ -5,10 +5,12 @@ import java.util.Set;
 import java.util.UUID;
 
 import org.springframework.cassandra.core.PrimaryKeyType;
+import org.springframework.data.cassandra.mapping.CassandraType;
 import org.springframework.data.cassandra.mapping.Column;
 import org.springframework.data.cassandra.mapping.PrimaryKeyColumn;
 import org.springframework.data.cassandra.mapping.Table;
 
+import com.datastax.driver.core.DataType;
 import com.poc.trainingmanager.model.cassandraudt.UserUdt;
 
 @Table("department_users")
@@ -18,6 +20,7 @@ public class DepartmentUsers implements Serializable {
 
 	@PrimaryKeyColumn(name = "DEPARTMENT_ID", type = PrimaryKeyType.PARTITIONED)
 	@Column("DEPARTMENT_ID")
+	@CassandraType(type = DataType.Name.UUID)
 	private UUID departmentId;
 
 	@Column("users")

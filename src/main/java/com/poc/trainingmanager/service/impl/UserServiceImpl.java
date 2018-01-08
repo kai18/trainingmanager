@@ -193,9 +193,13 @@ public class UserServiceImpl implements UserService {
 
 		DepartmentUdt dUdt = WrapperUtil.departmentToDepartmentUdt(
 				departmentRespository.findByDepartmentId(user.getDepartments().iterator().next().getDepartmentId()));
-		Set<DepartmentUdt> dUdtSet = new LinkedHashSet<DepartmentUdt>();
-		dUdtSet.add(dUdt);
-		user.setDepartments(dUdtSet);
+
+		if (dUdt != null) {
+			Set<DepartmentUdt> dUdtSet = new HashSet<DepartmentUdt>();
+			dUdtSet.add(dUdt);
+			user.setDepartments(dUdtSet);
+		}
+
 		/*
 		 * setting the current user's userRolesUdt that is to be added to the set in
 		 * RoleUsers fetch an entry from roleUsers table with the role id obtained from
@@ -220,14 +224,15 @@ public class UserServiceImpl implements UserService {
 
 		DepartmentUsers departmentUsers = departmentUsersRepository
 				.findByDepartmentId(user.getDepartments().iterator().next().getDepartmentId());
-
 		if (departmentUsers != null) {
+			LOGGER.info("DEPARTMENT USERS IS NOT NULL");
 			Set<UserUdt> usersInDepartment = departmentUsers.getUserDepartmentsUdt();
 			if (usersInDepartment == null) {
 				usersInDepartment = new HashSet<UserUdt>();
 			}
 
 			usersInDepartment.add(WrapperUtil.userToUserUdt(user));
+			departmentUsers.setUserDepartmentsUdt(usersInDepartment);
 			departmentUsersRepository.save(departmentUsers);
 		}
 
