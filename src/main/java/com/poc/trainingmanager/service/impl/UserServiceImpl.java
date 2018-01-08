@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import com.poc.trainingmanager.constants.Constants;
 import com.poc.trainingmanager.exceptions.ResourceNotFoundException;
 import com.poc.trainingmanager.model.Department;
+import com.poc.trainingmanager.model.DepartmentUsers;
 import com.poc.trainingmanager.model.Role;
 import com.poc.trainingmanager.model.RoleUsers;
 import com.poc.trainingmanager.model.StandardResponse;
@@ -31,6 +32,7 @@ import com.poc.trainingmanager.model.wrapper.UserSearchWrapper;
 import com.poc.trainingmanager.model.wrapper.WrapperUtil;
 import com.poc.trainingmanager.repository.DepartmentRepository;
 import com.poc.trainingmanager.repository.DepartmentRolesRepository;
+import com.poc.trainingmanager.repository.DepartmentUsersRepository;
 import com.poc.trainingmanager.repository.RoleRepository;
 import com.poc.trainingmanager.repository.RoleUsersRepository;
 import com.poc.trainingmanager.repository.UserRepository;
@@ -62,6 +64,9 @@ public class UserServiceImpl implements UserService {
 
 	@Autowired
 	RoleUsersRepository roleUsersRepository;
+
+	@Autowired
+	DepartmentUsersRepository departmentUsersRepository;
 
 	@Autowired
 	SearchEngine searchEngine;
@@ -212,6 +217,20 @@ public class UserServiceImpl implements UserService {
 			standardResponse.setMessage("User added successfully");
 			LOGGER.info("User {" + user.getEmailId() + "} successfully added");
 		}
+
+		DepartmentUsers departmentUsers = departmentUsersRepository
+				.findByDepartmentId(user.getDepartments().iterator().next().getDepartmentId());
+
+		if (departmentUsers != null) {
+			Set<UserUdt> usersInDepartment = departmentUsers.getUserDepartmentsUdt();
+			if (usersInDepartment == null) {
+				usersInDepartment = new HashSet<UserUdt>();
+			}
+
+			usersInDepartment.add(WrapperUtil.userToUserUdt(user));
+			departmentUsersRepository.save(departmentUsers);
+		}
+
 		return standardResponse;
 	}
 
