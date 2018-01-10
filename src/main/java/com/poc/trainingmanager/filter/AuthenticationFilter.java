@@ -1,7 +1,9 @@
 package com.poc.trainingmanager.filter;
 
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -20,8 +22,12 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.filter.GenericFilterBean;
 
+import com.poc.trainingmanager.constants.Constants;
 import com.poc.trainingmanager.exceptions.AccessDeniedException;
 import com.poc.trainingmanager.model.StandardResponse;
+import com.poc.trainingmanager.model.User;
+import com.poc.trainingmanager.model.cassandraudt.PrivilegeUdt;
+import com.poc.trainingmanager.model.cassandraudt.RoleUdt;
 import com.poc.trainingmanager.model.wrapper.LoggedInUserWrapper;
 import com.poc.trainingmanager.repository.UserRepository;
 
@@ -53,7 +59,6 @@ public class AuthenticationFilter extends GenericFilterBean {
 
 		if (this.checkIfWhiteListedRequest(httpRequest.getRequestURL().toString(), httpRequest.getMethod())) {
 			LOGGER.info("Allowed url skipping JWT authentication");
-			filterChain.doFilter(request, response);
 		}
 
 		else if (httpRequest.getMethod().equals("GET") || httpRequest.getMethod().equals("POST")
@@ -64,7 +69,18 @@ public class AuthenticationFilter extends GenericFilterBean {
 			Map<String, Object> loggedInUserDetails = this.isValidJwtToken(jwtToken);
 			if (loggedInUserDetails != null) {
 				LoggedInUserWrapper user = new LoggedInUserWrapper();
-				user.setDepartments(user.getDepartments());
+				User tempUser = userRepository.findByEmailId((String) loggedInUserDetails.get(Constants.EMAIL_ID));
+
+				Set<RoleUdt> roles = tempUser.getRoles();
+				Set<PrivilegeUdt> privileges = new HashSet<PrivilegeUdt>();
+				for (RoleUdt role : roles) {
+					privileges.add(role.getPrivilege());
+				}
+				user.setPrivileges(privileges);
+
+				user.setDepartments(tempUser.getDepartments());
+				user.setUserId(tempUser.getId());
+
 				request.setAttribute("loggedInUser", user);
 				LOGGER.info("Authentication Successful");
 			} else {
@@ -103,7 +119,8 @@ public class AuthenticationFilter extends GenericFilterBean {
 	private boolean checkIfWhiteListedRequest(String url, String method) {
 
 		if ((url.matches("(.*)roles(.*)") && method.equals("GET"))
-				|| (url.toString().matches("(.*)departments(.*)") && method.equals("GET"))) {
+				|| (url.toString().matches("(.*)departments(.*)") && method.equals("GET"))
+				|| (url.toString().matches("(.*)users(.*)") && method.equals("POST"))) {
 			return true;
 		} else
 			return false;

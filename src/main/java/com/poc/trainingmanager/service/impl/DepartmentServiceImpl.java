@@ -19,6 +19,7 @@ import com.poc.trainingmanager.model.StandardResponse;
 import com.poc.trainingmanager.model.User;
 import com.poc.trainingmanager.model.cassandraudt.DepartmentUdt;
 import com.poc.trainingmanager.model.cassandraudt.UserUdt;
+import com.poc.trainingmanager.model.wrapper.LoggedInUserWrapper;
 import com.poc.trainingmanager.model.wrapper.WrapperUtil;
 import com.poc.trainingmanager.repository.DepartmentRepository;
 import com.poc.trainingmanager.repository.DepartmentRolesRepository;
@@ -26,6 +27,7 @@ import com.poc.trainingmanager.repository.DepartmentUsersRepository;
 import com.poc.trainingmanager.repository.UserRepository;
 import com.poc.trainingmanager.service.DepartmentService;
 import com.poc.trainingmanager.utils.CommonUtils;
+import com.poc.trainingmanager.utils.PrivilegeChecker;
 
 /**
  * DepartmentService methods allow CRUD operations to be done on the department
@@ -53,6 +55,9 @@ public class DepartmentServiceImpl implements DepartmentService {
 
 	@Autowired
 	DepartmentUsersRepository departmentUsersRepository;
+
+	@Autowired
+	PrivilegeChecker privilegeChecker;
 
 	/*
 	 * method to get all the departments of the department table.
@@ -89,8 +94,11 @@ public class DepartmentServiceImpl implements DepartmentService {
 	 * trainingmanager.model.Department)
 	 */
 	@Override
-	public StandardResponse<Department> addDepartment(Department department) {
+	public StandardResponse<Department> addDepartment(Department department, LoggedInUserWrapper loggedInUser) {
 		StandardResponse<Department> standardResponse = new StandardResponse<Department>();
+
+		privilegeChecker.isAllowedToCreateDepartment(loggedInUser.getPrivileges());
+
 		Date date = new Date();
 		if (department == null) {
 			logger.error("Inserted department was null, hence failed to Add department");
@@ -147,7 +155,10 @@ public class DepartmentServiceImpl implements DepartmentService {
 	 * trainingmanager.model.Department)
 	 */
 	@Override
-	public StandardResponse<Department> updateDepartment(Department department) {
+	public StandardResponse<Department> updateDepartment(Department department, LoggedInUserWrapper loggedInUser) {
+
+		privilegeChecker.isAllowedToEditDepartment(loggedInUser.getPrivileges(), department.getDepartmentId());
+
 		StandardResponse<Department> standardResponse = new StandardResponse<Department>();
 		Date date = new Date();
 		Department oldDepartment = new Department();
@@ -213,20 +224,23 @@ public class DepartmentServiceImpl implements DepartmentService {
 	 * trainingmanager.model.Department)
 	 */
 	@Override
-		public StandardResponse deleteDepartment(String deptId) {
-			UUID departmentId = UUID.fromString(deptId);
-			StandardResponse standardResponse = new StandardResponse<Object>();
-			DepartmentRoles departmentRoles = new DepartmentRoles();
-			departmentRoles = departmentRolesRepository.findByDepartmentId(departmentId);
-			departmentRolesRepository.delete(departmentRoles);
-			DepartmentUsers departmentUsers = new DepartmentUsers();
-			departmentUsers = departmentUsersRepository.findByDepartmentId(departmentId);
-			departmentUsersRepository.delete(departmentUsers);
-			departmentRepository.delete(departmentRepository.findByDepartmentId(departmentId));
-			standardResponse.setCode(200);
-			standardResponse.setStatus("Success");
-			standardResponse.setMessage("Department deleted successfully");
-			logger.info("Department with ID {" + departmentId + "} successfully deleted");
-			return standardResponse;
-		} 
+	public StandardResponse deleteDepartment(String deptId, LoggedInUserWrapper loggedInUser) {
+
+		this.privilegeChecker.IsAllowedToDeleteDepartment(loggedInUser.getPrivileges());
+
+		UUID departmentId = UUID.fromString(deptId);
+		StandardResponse standardResponse = new StandardResponse<Object>();
+		DepartmentRoles departmentRoles = new DepartmentRoles();
+		departmentRoles = departmentRolesRepository.findByDepartmentId(departmentId);
+		departmentRolesRepository.delete(departmentRoles);
+		DepartmentUsers departmentUsers = new DepartmentUsers();
+		departmentUsers = departmentUsersRepository.findByDepartmentId(departmentId);
+		departmentUsersRepository.delete(departmentUsers);
+		departmentRepository.delete(departmentRepository.findByDepartmentId(departmentId));
+		standardResponse.setCode(200);
+		standardResponse.setStatus("Success");
+		standardResponse.setMessage("Department deleted successfully");
+		logger.info("Department with ID {" + departmentId + "} successfully deleted");
+		return standardResponse;
+	}
 }

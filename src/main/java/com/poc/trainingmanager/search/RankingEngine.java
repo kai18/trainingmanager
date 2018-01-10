@@ -3,6 +3,7 @@ package com.poc.trainingmanager.search;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,6 +68,8 @@ public class RankingEngine {
 		Multimap<Integer, User> resultMap = MultimapBuilder.treeKeys().linkedListValues().build();
 
 		for (User user : resultList) {
+			if (!user.getIsActive())
+				continue;
 			int rank = 0;
 			if (email != null)
 				rank += RankingEngine.getRank(user.getEmailId(), email);
@@ -75,11 +78,21 @@ public class RankingEngine {
 			if (lastName != null)
 				rank += RankingEngine.getRank(user.getLastName(), lastName);
 
-			if (departments != null && !departments.isEmpty())
-				rank += RankingEngine.getDepartmentRank(new ArrayList<DepartmentUdt>(user.getDepartments()),
-						departments);
-			if (roles != null && !roles.isEmpty())
-				rank += RankingEngine.getRoleRank(new ArrayList<RoleUdt>(user.getRoles()), roles);
+			if (departments != null && !departments.isEmpty()) {
+				Set<DepartmentUdt> criteriaDepartments = user.getDepartments();
+				if (criteriaDepartments != null && !criteriaDepartments.isEmpty()) {
+					rank += RankingEngine.getDepartmentRank(new ArrayList<DepartmentUdt>(user.getDepartments()),
+							departments);
+				}
+
+			}
+			if (roles != null && !roles.isEmpty()) {
+
+				Set<RoleUdt> criteriaRoles = user.getRoles();
+				if (criteriaRoles != null && !criteriaRoles.isEmpty()) {
+					rank += RankingEngine.getRoleRank(new ArrayList<RoleUdt>(user.getRoles()), roles);
+				}
+			}
 
 			LOGGER.error("Rank for user: " + user.getFirstName() + " is " + rank);
 

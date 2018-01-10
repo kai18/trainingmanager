@@ -17,6 +17,7 @@ import com.poc.trainingmanager.model.RoleUsers;
 import com.poc.trainingmanager.model.StandardResponse;
 import com.poc.trainingmanager.model.cassandraudt.PrivilegeUdt;
 import com.poc.trainingmanager.model.cassandraudt.RoleUdt;
+import com.poc.trainingmanager.model.wrapper.LoggedInUserWrapper;
 import com.poc.trainingmanager.repository.DepartmentRolesRepository;
 import com.poc.trainingmanager.repository.RoleRepository;
 import com.poc.trainingmanager.repository.RoleUsersRepository;
@@ -25,6 +26,7 @@ import com.poc.trainingmanager.service.RoleService;
 import com.poc.trainingmanager.service.helper.RoleDeleteHelper;
 import com.poc.trainingmanager.service.helper.RoleInsertHelper;
 import com.poc.trainingmanager.service.helper.RoleUpdateHelper;
+import com.poc.trainingmanager.utils.PrivilegeChecker;
 
 @CrossOrigin()
 @Service
@@ -52,9 +54,12 @@ public class RoleServiceImpl implements RoleService {
 	@Autowired
 	RoleUsersRepository roleUsersRepository;
 
+	@Autowired
+	PrivilegeChecker privilegeChecker;
+
 	@CrossOrigin()
 	@Override
-	public StandardResponse<List<Role>> getAllRoles(List<PrivilegeUdt> assignedPrevileges) {
+	public StandardResponse<List<Role>> getAllRoles() {
 		StandardResponse<List<Role>> standardResponse = new StandardResponse<List<Role>>();
 		List<Role> allRoles = roleRepository.findAll();
 		if (allRoles == null) {
@@ -73,7 +78,7 @@ public class RoleServiceImpl implements RoleService {
 	}
 
 	@Override
-	public StandardResponse<Role> getRoleByName(List<PrivilegeUdt> assignedPrevileges, String roleName) {
+	public StandardResponse<Role> getRoleByName(String roleName) {
 		StandardResponse<Role> standardResponse = new StandardResponse<Role>();
 		Role role = roleRepository.findByRoleName(roleName);
 		if (role == null) {
@@ -91,7 +96,10 @@ public class RoleServiceImpl implements RoleService {
 	}
 
 	@Override
-	public StandardResponse<Role> addRole(List<PrivilegeUdt> assignedPrevileges, Role role) {
+	public StandardResponse<Role> addRole(Role role, LoggedInUserWrapper loggedInUser) {
+
+		privilegeChecker.isAllowedToCreateRole(loggedInUser.getPrivileges());
+
 		StandardResponse<Role> standardResponse = new StandardResponse<Role>();
 
 		if (role == null) {
@@ -137,7 +145,10 @@ public class RoleServiceImpl implements RoleService {
 	}
 
 	@Override
-	public StandardResponse<Role> updateRole(List<PrivilegeUdt> assignedPrevileges, Role role) {
+	public StandardResponse<Role> updateRole(Role role, LoggedInUserWrapper loggedInUser) {
+
+		privilegeChecker.isAllowedToEditRole(loggedInUser.getPrivileges());
+
 		StandardResponse<Role> standardResponse = new StandardResponse<Role>();
 		// fetch the old role from role table
 		Role oldRole = roleRepository.findByRoleId(role.getRoleId());
@@ -165,7 +176,10 @@ public class RoleServiceImpl implements RoleService {
 	}
 
 	@Override
-	public StandardResponse<Role> deleteRole(List<PrivilegeUdt> assignedPrevileges, String roleId) {
+	public StandardResponse<Role> deleteRole(String roleId, LoggedInUserWrapper loggedInUser) {
+
+		privilegeChecker.isAllowedToEditRole(loggedInUser.getPrivileges());
+
 		StandardResponse<Role> standardResponse = new StandardResponse<Role>();
 		Role role = roleRepository.findByRoleId(UUID.fromString(roleId));
 		if (role == null) {
@@ -197,7 +211,7 @@ public class RoleServiceImpl implements RoleService {
 	}
 
 	@Override
-	public StandardResponse<List<RoleUsers>> getAllRoleUsers(List<PrivilegeUdt> assignedPrivileges) {
+	public StandardResponse<List<RoleUsers>> getAllRoleUsers() {
 
 		List<RoleUsers> allRoleUsers = roleUsersRepository.findAll();
 		StandardResponse<List<RoleUsers>> standardResponse = new StandardResponse<List<RoleUsers>>();

@@ -54,21 +54,21 @@ public class UserController {
 	@RequestMapping(method = RequestMethod.PUT)
 	public StandardResponse<User> update(@RequestBody User user,
 			@RequestAttribute("loggedInUser") LoggedInUserWrapper loggedInUser) {
-		return userService.update(user);
+		return userService.update(user, loggedInUser);
 	}
 
 	@PutMapping(value = "grant/{roleId}/user/{userId}")
 	public StandardResponse<User> grantRole(@PathVariable("userId") String userId,
 			@PathVariable("roleId") String roleId, @RequestAttribute("loggedInUser") LoggedInUserWrapper loggedInUser) {
-		LOGGER.error(userId);
-		return userService.grantRole(userId, roleId);
+		LOGGER.info(userId);
+		return userService.grantRole(userId, roleId, loggedInUser);
 	}
 
 	@PutMapping(value = "revoke/{roleId}/user/{userId}")
 	public StandardResponse<User> revokeRole(@PathVariable("userId") String userId,
 			@PathVariable("roleId") String roleId, @RequestAttribute("loggedInUser") LoggedInUserWrapper loggedInUser) {
-		LOGGER.error(userId);
-		return userService.revokeRole(userId, roleId);
+		LOGGER.info(userId);
+		return userService.revokeRole(userId, roleId, loggedInUser);
 	}
 
 	@GetMapping(value = "{userId}")

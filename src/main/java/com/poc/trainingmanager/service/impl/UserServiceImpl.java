@@ -196,8 +196,11 @@ public class UserServiceImpl implements UserService {
 		rUdtSet.add(rUdt);
 		user.setRoles(rUdtSet);
 
-		DepartmentUdt dUdt = WrapperUtil.departmentToDepartmentUdt(
-				departmentRespository.findByDepartmentId(user.getDepartments().iterator().next().getDepartmentId()));
+		DepartmentUdt dUdt = null;
+
+		if (user.getDepartments() != null)
+			dUdt = WrapperUtil.departmentToDepartmentUdt(departmentRespository
+					.findByDepartmentId(user.getDepartments().iterator().next().getDepartmentId()));
 
 		if (dUdt != null) {
 			Set<DepartmentUdt> dUdtSet = new HashSet<DepartmentUdt>();
@@ -213,6 +216,7 @@ public class UserServiceImpl implements UserService {
 		RoleUsers roleUsers = roleUsersRepository.findByRoleId(user.getRoles().iterator().next().getRoleId());
 
 		// add this user to the set of users in the roleUsers mapping that role
+
 		Set<UserUdt> userList = new HashSet<UserUdt>();
 		if (roleUsers != null) {
 			userRepository.save(user); // insert user only if the role exists
@@ -227,8 +231,10 @@ public class UserServiceImpl implements UserService {
 			LOGGER.info("User {" + user.getEmailId() + "} successfully added");
 		}
 
-		DepartmentUsers departmentUsers = departmentUsersRepository
-				.findByDepartmentId(user.getDepartments().iterator().next().getDepartmentId());
+		DepartmentUsers departmentUsers = null;
+		if (user.getDepartments() != null)
+			departmentUsers = departmentUsersRepository
+					.findByDepartmentId(user.getDepartments().iterator().next().getDepartmentId());
 		if (departmentUsers != null) {
 			LOGGER.info("DEPARTMENT USERS IS NOT NULL");
 			Set<UserUdt> usersInDepartment = departmentUsers.getUserDepartmentsUdt();
@@ -245,21 +251,23 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public StandardResponse<User> update(User user) {
+	public StandardResponse<User> update(User userToBeUdpated, LoggedInUserWrapper loggedInUser) {
+
+		privilegeChecker.isAllowedToEditUser(userToBeUdpated, loggedInUser);
 		Date date = new Date();
 		RoleUdt role = new RoleUdt();
 		RoleUsers roleUsers = new RoleUsers();
 		StandardResponse<User> stdResponse = new StandardResponse<User>();
 
-		User oldUser = userRepository.findById(user.getId());
+		User oldUser = userRepository.findById(userToBeUdpated.getId());
 
 		if (oldUser == null)
 			throw new ResourceNotFoundException("User to be updated does not exist, please first register the user");
 
-		user.setUpdatedDtm(date);
+		userToBeUdpated.setUpdatedDtm(date);
 		User tempUser = new User();
 		BeanUtils.copyProperties(oldUser, tempUser);
-		User newUser = WrapperUtil.wrappedUserToUser(user, oldUser);
+		User newUser = WrapperUtil.wrappedUserToUser(userToBeUdpated, oldUser);
 		userRepository.save(newUser);
 		// these are the set of roles this user belongs to
 		Set<RoleUdt> roleUdtList = oldUser.getRoles();
@@ -280,14 +288,17 @@ public class UserServiceImpl implements UserService {
 			}
 			stdResponse.setStatus(Constants.SUCCESS);
 			stdResponse.setCode(200);
-			stdResponse.setElement(user);
+			stdResponse.setElement(userToBeUdpated);
 			stdResponse.setMessage("User updated successfully");
 		}
 		return stdResponse;
 	}
 
 	@Override
-	public StandardResponse<User> grantRole(String uId, String rId) {
+	public StandardResponse<User> grantRole(String uId, String rId, LoggedInUserWrapper loggedInUser) {
+
+		this.privilegeChecker.isAllowedToEditRole(loggedInUser.getPrivileges());
+
 		StandardResponse<User> stdResponse = new StandardResponse<User>();
 		UUID userId = UUID.fromString(uId);
 		UUID roleId = UUID.fromString(rId);
@@ -295,9 +306,12 @@ public class UserServiceImpl implements UserService {
 		Role role = new Role();
 		role = roleRepository.findByRoleId(roleId);
 		Date date = new Date();
-		Set<RoleUdt> roleUdtList = user.getRoles();
+		Set<RoleUdt> roleUdtList = new HashSet<RoleUdt>();
+		if (user.getRoles() != null)
+			roleUdtList = user.getRoles();
 
 		if (role != null) {
+
 			roleUdtList.add(WrapperUtil.roleToRoleUdt(role));
 			user.setRoles(roleUdtList);
 			user.setUpdatedDtm(date);
@@ -333,7 +347,10 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public StandardResponse<User> revokeRole(String uId, String rId) {
+	public StandardResponse<User> revokeRole(String uId, String rId, LoggedInUserWrapper loggedInUser) {
+
+		this.privilegeChecker.isAllowedToEditRole(loggedInUser.getPrivileges());
+
 		StandardResponse<User> stdResponse = new StandardResponse<User>();
 		UUID userId = UUID.fromString(uId);
 		UUID roleId = UUID.fromString(rId);
@@ -386,7 +403,7 @@ public class UserServiceImpl implements UserService {
 		UUID userUuid = UUID.fromString(userId);
 		User user = userRepository.findById(userUuid);
 
-		privilegeChecker.IsAllowedToDeleteUser(user.getDepartments(), loggedInUser.getPrivileges());
+		this.privilegeChecker.isAllowedToDeleteUser(user.getDepartments(), loggedInUser.getPrivileges());
 
 		if (user == null || !user.getIsActive()) {
 			throw new ResourceNotFoundException("Requested user does not exist");

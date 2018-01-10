@@ -8,8 +8,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.poc.trainingmanager.exceptions.AccessDeniedException;
+import com.poc.trainingmanager.model.User;
 import com.poc.trainingmanager.model.cassandraudt.DepartmentUdt;
 import com.poc.trainingmanager.model.cassandraudt.PrivilegeUdt;
+import com.poc.trainingmanager.model.wrapper.LoggedInUserWrapper;
 import com.poc.trainingmanager.repository.DepartmentRolesRepository;
 import com.poc.trainingmanager.repository.RoleUsersRepository;
 
@@ -22,7 +24,18 @@ public class PrivilegeChecker {
 	@Autowired
 	RoleUsersRepository roleUsersRepository;
 
-	public boolean IsAllowedToDeleteUser(Set<DepartmentUdt> userToBeDeletedDepartments, List<PrivilegeUdt> privileges) {
+	public boolean IsSuperAdmin(Set<PrivilegeUdt> privileges) {
+		for (PrivilegeUdt privilege : privileges) {
+			if (privilege.getDepartment_id() == null && privilege.getUpdationPrivilege() == 9)
+				return true;
+		}
+		return false;
+	}
+
+	public boolean isAllowedToDeleteUser(Set<DepartmentUdt> userToBeDeletedDepartments, Set<PrivilegeUdt> privileges) {
+
+		if (this.IsSuperAdmin(privileges))
+			return true;
 
 		for (DepartmentUdt department : userToBeDeletedDepartments) {
 			for (PrivilegeUdt privilege : privileges) {
@@ -37,8 +50,13 @@ public class PrivilegeChecker {
 		throw new AccessDeniedException("You dont have sufficient privileges to delete this user");
 	}
 
-	public boolean IsAllowedToEditUser(Set<DepartmentUdt> userToBeDeletedDepartments,
-			Set<PrivilegeUdt> loggedInUserPrivilege) {
+	public boolean isAllowedToEditUser(User userToBeDeleted, LoggedInUserWrapper loggedInUser) {
+
+		if (userToBeDeleted.getId().equals(loggedInUser.getUserId()))
+			return true;
+
+		Set<DepartmentUdt> userToBeDeletedDepartments = userToBeDeleted.getDepartments();
+		Set<PrivilegeUdt> loggedInUserPrivilege = loggedInUser.getPrivileges();
 
 		for (DepartmentUdt department : userToBeDeletedDepartments) {
 			for (PrivilegeUdt privilege : loggedInUserPrivilege) {
@@ -53,46 +71,48 @@ public class PrivilegeChecker {
 		throw new AccessDeniedException("You dont have sufficient privileges to delete this user");
 	}
 
-	public boolean IsAllowedToCreateRole(Set<PrivilegeUdt> loggedInUserPrivilege) {
+	public boolean isAllowedToCreateRole(Set<PrivilegeUdt> privileges) {
 
-		for (PrivilegeUdt privilege : loggedInUserPrivilege) {
+		for (PrivilegeUdt privilege : privileges) {
 			if (privilege.getDepartment_id() == null && privilege.getCreationPrivilege() == 1)
 				return true;
 		}
 		throw new AccessDeniedException("You dont have sufficient privileges to delete this user");
 	}
 
-	public boolean IsAllowedToDeleteRole(Set<PrivilegeUdt> loggedInUserPrivilege) {
+	public boolean isAllowedToDeleteRole(List<PrivilegeUdt> loggedInUserPrivilege) {
 
 		for (PrivilegeUdt privilege : loggedInUserPrivilege) {
-			if (privilege.getDepartment_id() == null && privilege.getDeletionPrivilege() == 1)
+			if (privilege.getDepartment_id() == null && privilege.getDeletionPrivilege() == 9)
 				return true;
 		}
 		throw new AccessDeniedException("You dont have sufficient privileges to delete this user");
 	}
 
-	public boolean IsAllowedToEditRole(Set<PrivilegeUdt> loggedInUserPrivilege) {
+	public boolean isAllowedToEditRole(Set<PrivilegeUdt> privileges) {
 
-		for (PrivilegeUdt privilege : loggedInUserPrivilege) {
-			if (privilege.getDepartment_id() == null && privilege.getUpdationPrivilege() == 1)
+		for (PrivilegeUdt privilege : privileges) {
+			if (privilege.getDepartment_id() == null && privilege.getUpdationPrivilege() == 9)
 				return true;
 		}
 		throw new AccessDeniedException("You dont have sufficient privileges to delete this user");
 	}
 
-	public boolean IsAllowedToCreateDepartment(Set<PrivilegeUdt> loggedInUserPrivilege) {
+	public boolean isAllowedToCreateDepartment(Set<PrivilegeUdt> privileges) {
 
-		for (PrivilegeUdt privilege : loggedInUserPrivilege) {
-			if (privilege.getDepartment_id() == null && privilege.getCreationPrivilege() == 1)
+		for (PrivilegeUdt privilege : privileges) {
+			if (privilege.getDepartment_id() == null && privilege.getCreationPrivilege() == 9)
 				return true;
 		}
-		throw new AccessDeniedException("You dont have sufficient privileges to delete this user");
+		throw new AccessDeniedException("You dont have sufficient privileges to create a department");
 	}
 
-	public boolean isAllowedToEditDepartment(Set<PrivilegeUdt> loggedInUserPrivilege, UUID departmentId) {
+	public boolean isAllowedToEditDepartment(Set<PrivilegeUdt> privileges, UUID departmentId) {
 
-		for (PrivilegeUdt privilege : loggedInUserPrivilege) {
-			if (privilege.getDepartment_id().equals(departmentId) && privilege.getUpdationPrivilege() == 1) {
+		for (PrivilegeUdt privilege : privileges) {
+			if (privilege.getDepartment_id() == null && privilege.getUpdationPrivilege() == 9)
+				return true;
+			if (privilege.getDepartment_id().equals(departmentId) && privilege.getUpdationPrivilege() == 9) {
 				return true;
 			}
 		}
@@ -103,10 +123,10 @@ public class PrivilegeChecker {
 	public boolean IsAllowedToDeleteDepartment(Set<PrivilegeUdt> loggedInUserPrivilege) {
 
 		for (PrivilegeUdt privilege : loggedInUserPrivilege) {
-			if (privilege.getDepartment_id() == null && privilege.getDeletionPrivilege() == 1)
+			if (privilege.getDepartment_id() == null && privilege.getDeletionPrivilege() == 9)
 				return true;
 		}
-		throw new AccessDeniedException("You dont have sufficient privileges to delete this user");
+		throw new AccessDeniedException("You dont have sufficient privileges to delete this department");
 	}
 
 }

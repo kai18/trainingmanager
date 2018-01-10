@@ -87,10 +87,6 @@ public class SearchEngine {
 		return null;
 	}
 
-	public List<User> searchByFirstNameAndLastName(String firstName, String lastName) {
-		return null;
-	}
-
 	public List<User> searchByFirstName(String firstName) {
 		if (firstName != null) {
 			List<User> userList = userRepository.findByFirstNameContainingIgnoreCase(firstName);

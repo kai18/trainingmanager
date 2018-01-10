@@ -12,6 +12,7 @@ import com.poc.trainingmanager.model.RoleUsers;
 import com.poc.trainingmanager.model.StandardResponse;
 import com.poc.trainingmanager.model.cassandraudt.PrivilegeUdt;
 import com.poc.trainingmanager.model.cassandraudt.RoleUdt;
+import com.poc.trainingmanager.model.wrapper.LoggedInUserWrapper;
 
 /**
  * <h1>Role Service</h1>
@@ -36,7 +37,7 @@ public interface RoleService {
 	 *            is a list of privileges associated to the User who invokes this
 	 *            operation.
 	 */
-	public StandardResponse<List<Role>> getAllRoles(List<PrivilegeUdt> assignedPrivileges);
+	public StandardResponse<List<Role>> getAllRoles();
 
 	/**
 	 * This method is used to fetch a specific existing Role with the given Role
@@ -48,18 +49,18 @@ public interface RoleService {
 	 * @param roleName
 	 *            the unique name given for a Role
 	 */
-	public StandardResponse<Role> getRoleByName(List<PrivilegeUdt> assignedPrivileges, String roleName);
+	public StandardResponse<Role> getRoleByName(String roleName);
 
 	// This method is used to insert a new Role into the Role table.
-	public StandardResponse<Role> addRole(List<PrivilegeUdt> assignedPrivileges, Role role);
+	public StandardResponse<Role> addRole(Role role, LoggedInUserWrapper loggedInUser);
 
 	// This method is used to update an existing Role in the Role table.
-	public StandardResponse<Role> updateRole(List<PrivilegeUdt> assignedPrivileges, Role role);
+	public StandardResponse<Role> updateRole(Role role, LoggedInUserWrapper loggedInUser);
 
 	// This method is used to delete an existing Role in the Role table.
-	public StandardResponse<Role> deleteRole(List<PrivilegeUdt> assignedPrivileges, String roleId);
+	public StandardResponse<Role> deleteRole(String roleId, LoggedInUserWrapper loggedInUser);
 
-	public StandardResponse<List<RoleUsers>> getAllRoleUsers(List<PrivilegeUdt> assignedPrivileges);
+	public StandardResponse<List<RoleUsers>> getAllRoleUsers();
 
 	public StandardResponse<List<DepartmentRoles>> getAllDepartmentRoles(List<PrivilegeUdt> assignedPrivileges);
 
