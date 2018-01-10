@@ -49,7 +49,14 @@ public class AuthenticationFilter extends GenericFilterBean {
 		LOGGER.info("Request detected: " + httpRequest.getMethod());
 		LOGGER.info("Requested URL: " + httpRequest.getRequestURL().toString());
 
-		if (httpRequest.getMethod().equals("GET") || httpRequest.getMethod().equals("POST")
+		LOGGER.info("Checking if allowed URL");
+
+		if (this.checkIfWhiteListedRequest(httpRequest.getRequestURL().toString(), httpRequest.getMethod())) {
+			LOGGER.info("Allowed url skipping JWT authentication");
+			filterChain.doFilter(request, response);
+		}
+
+		else if (httpRequest.getMethod().equals("GET") || httpRequest.getMethod().equals("POST")
 				|| httpRequest.getMethod().equals("PUT") || httpRequest.getMethod().equals("DELETE")) {
 
 			String jwtToken = httpRequest.getHeader("jwt-token");
@@ -64,6 +71,7 @@ public class AuthenticationFilter extends GenericFilterBean {
 				throw new AccessDeniedException("Invalid JWT Token");
 			}
 		}
+
 		filterChain.doFilter(request, response);
 
 	}
@@ -90,6 +98,16 @@ public class AuthenticationFilter extends GenericFilterBean {
 		} catch (Exception e) {
 		}
 		return null;
+	}
+
+	private boolean checkIfWhiteListedRequest(String url, String method) {
+
+		if ((url.matches("(.*)roles(.*)") && method.equals("GET"))
+				|| (url.toString().matches("(.*)departments(.*)") && method.equals("GET"))) {
+			return true;
+		} else
+			return false;
+
 	}
 
 }
