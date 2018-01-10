@@ -26,4 +26,6 @@ public interface UserService {
 	StandardResponse<UserSearchWrapper> getUserById(String id);
 
 	public StandardResponse deleteUser(String userId, LoggedInUserWrapper loggedInUser);
+
+	public StandardResponse getRolesByDepartment(String userId);
 }

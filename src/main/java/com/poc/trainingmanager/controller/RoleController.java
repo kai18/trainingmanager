@@ -1,11 +1,14 @@
 package com.poc.trainingmanager.controller;
 
 import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 
 import javax.websocket.server.PathParam;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -17,6 +20,7 @@ import com.poc.trainingmanager.model.Role;
 import com.poc.trainingmanager.model.RoleUsers;
 import com.poc.trainingmanager.model.StandardResponse;
 import com.poc.trainingmanager.model.cassandraudt.PrivilegeUdt;
+import com.poc.trainingmanager.model.cassandraudt.RoleUdt;
 import com.poc.trainingmanager.service.RoleService;
 
 @RestController
@@ -58,14 +62,20 @@ public class RoleController {
 	StandardResponse<Role> deleteRole(@RequestParam("roleId") String roleId) {
 		return roleService.deleteRole(assignedPrivileges, roleId);
 	}
-	
-	@RequestMapping(method = RequestMethod.GET, value="/roleUsers")
+
+	@RequestMapping(method = RequestMethod.GET, value = "/roleUsers")
 	StandardResponse<List<RoleUsers>> getAllRoleUsers() {
 		return roleService.getAllRoleUsers(assignedPrivileges);
 	}
-	
-	@RequestMapping(method = RequestMethod.GET, value="/departmentRoles")
+
+	@RequestMapping(method = RequestMethod.GET, value = "/departmentRoles")
 	StandardResponse<List<DepartmentRoles>> getAllDepartmentRoles() {
 		return roleService.getAllDepartmentRoles(assignedPrivileges);
+	}
+
+	@RequestMapping(method = RequestMethod.GET, value = "/department/roles/{departmentId}")
+	public StandardResponse<Set<RoleUdt>> getDepartmentRoles(@PathVariable String departmentId) {
+		return roleService.getDepartmentRoles(UUID.fromString(departmentId));
+
 	}
 }

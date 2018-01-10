@@ -1,6 +1,7 @@
 package com.poc.trainingmanager.service.impl;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import org.slf4j.Logger;
@@ -9,11 +10,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.CrossOrigin;
 
+import com.poc.trainingmanager.exceptions.ResourceNotFoundException;
 import com.poc.trainingmanager.model.DepartmentRoles;
 import com.poc.trainingmanager.model.Role;
 import com.poc.trainingmanager.model.RoleUsers;
 import com.poc.trainingmanager.model.StandardResponse;
 import com.poc.trainingmanager.model.cassandraudt.PrivilegeUdt;
+import com.poc.trainingmanager.model.cassandraudt.RoleUdt;
 import com.poc.trainingmanager.repository.DepartmentRolesRepository;
 import com.poc.trainingmanager.repository.RoleRepository;
 import com.poc.trainingmanager.repository.RoleUsersRepository;
@@ -149,7 +152,7 @@ public class RoleServiceImpl implements RoleService {
 			roleUpdateHelper.updateDepartmentRoles(departmentId, oldRole, updatedRole);
 			logger.info("Role in DepartmentRoles successfully updated");
 		}
-		
+
 		// update the role in user who had this role
 		roleUpdateHelper.updateRoleUsers(oldRole, updatedRole);
 		logger.info("Role in RoleUsers successfully updated");
@@ -195,7 +198,7 @@ public class RoleServiceImpl implements RoleService {
 
 	@Override
 	public StandardResponse<List<RoleUsers>> getAllRoleUsers(List<PrivilegeUdt> assignedPrivileges) {
-		
+
 		List<RoleUsers> allRoleUsers = roleUsersRepository.findAll();
 		StandardResponse<List<RoleUsers>> standardResponse = new StandardResponse<List<RoleUsers>>();
 		standardResponse.setCode(200);
@@ -214,5 +217,21 @@ public class RoleServiceImpl implements RoleService {
 		standardResponse.setElement(allDepartmentRoles);
 		standardResponse.setMessage("DepartmentRoles fetched successfully");
 		return standardResponse;
+	}
+
+	@Override
+	public StandardResponse<Set<RoleUdt>> getDepartmentRoles(UUID departmentId) {
+		Set<RoleUdt> departments = departmentRolesRepository.findByDepartmentId(departmentId).getRoles();
+		if (departments == null) {
+			throw new ResourceNotFoundException("No roles associated with this department");
+		} else {
+			StandardResponse<Set<RoleUdt>> departmentResponse = new StandardResponse();
+			departmentResponse.setCode(200);
+			departmentResponse.setElement(departments);
+			departmentResponse.setMessage("successfuly fetched all departments");
+			departmentResponse.setStatus("Success");
+			return departmentResponse;
+		}
+
 	}
 }

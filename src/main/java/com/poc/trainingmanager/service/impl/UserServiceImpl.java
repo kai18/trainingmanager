@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import com.poc.trainingmanager.constants.Constants;
 import com.poc.trainingmanager.exceptions.ResourceNotFoundException;
 import com.poc.trainingmanager.model.Department;
+import com.poc.trainingmanager.model.DepartmentRoles;
 import com.poc.trainingmanager.model.DepartmentUsers;
 import com.poc.trainingmanager.model.Role;
 import com.poc.trainingmanager.model.RoleUsers;
@@ -318,6 +319,7 @@ public class UserServiceImpl implements UserService {
 			userUdtList.add(WrapperUtil.userToUserUdt(user));
 			roleUsers.setUserRolesUdt(userUdtList);
 			roleUsersRepository.save(roleUsers);
+
 			stdResponse.setCode(200);
 			stdResponse.setStatus("success");
 			stdResponse.setMessage("Role granted");
@@ -384,7 +386,7 @@ public class UserServiceImpl implements UserService {
 		UUID userUuid = UUID.fromString(userId);
 		User user = userRepository.findById(userUuid);
 
-		privilegeChecker.checkIAllowedToDelete(loggedInUser.getDepartments(), user.getDepartments());
+		privilegeChecker.IsAllowedToDeleteUser(user.getDepartments(), loggedInUser.getPrivileges());
 
 		if (user == null || !user.getIsActive()) {
 			throw new ResourceNotFoundException("Requested user does not exist");
@@ -418,4 +420,35 @@ public class UserServiceImpl implements UserService {
 		return deleteResponse;
 
 	}
+
+	@Override
+	public StandardResponse<Set<RoleUdt>> getRolesByDepartment(String userId) {
+		StandardResponse<Set<RoleUdt>> stdResponse = new StandardResponse<Set<RoleUdt>>();
+		User user = userRepository.findById(UUID.fromString(userId));
+		Set<RoleUdt> availableRoles = new HashSet<RoleUdt>();
+		DepartmentRoles departmentRoles = new DepartmentRoles();
+		if (user != null) {
+			Set<DepartmentUdt> deptList = user.getDepartments();
+			if (deptList != null) {
+				for (DepartmentUdt dept : deptList) {
+					departmentRoles = departmentRolesRepository.findByDepartmentId(dept.getDepartmentId());
+					if (departmentRoles.getRoles() != null)
+						availableRoles.addAll(departmentRoles.getRoles());
+				}
+				if (user.getRoles() != null)
+					availableRoles.removeAll(user.getRoles());
+			}
+			stdResponse.setCode(200);
+			stdResponse.setStatus("success");
+			stdResponse.setMessage("Role Revoked");
+			stdResponse.setElement(availableRoles);
+			return stdResponse;
+		}
+
+		stdResponse.setCode(400);
+		stdResponse.setStatus("failed");
+		stdResponse.setMessage("User cant be ull");
+		return stdResponse;
+	}
+
 }

@@ -2,7 +2,6 @@ package com.poc.trainingmanager.filter;
 
 import java.io.IOException;
 import java.util.Map;
-import java.util.UUID;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -48,6 +47,7 @@ public class AuthenticationFilter extends GenericFilterBean {
 		HttpServletRequest httpRequest = (HttpServletRequest) request;
 
 		LOGGER.info("Request detected: " + httpRequest.getMethod());
+		LOGGER.info("Requested URL: " + httpRequest.getRequestURL().toString());
 
 		if (httpRequest.getMethod().equals("GET") || httpRequest.getMethod().equals("POST")
 				|| httpRequest.getMethod().equals("PUT") || httpRequest.getMethod().equals("DELETE")) {
@@ -57,8 +57,7 @@ public class AuthenticationFilter extends GenericFilterBean {
 			Map<String, Object> loggedInUserDetails = this.isValidJwtToken(jwtToken);
 			if (loggedInUserDetails != null) {
 				LoggedInUserWrapper user = new LoggedInUserWrapper();
-				user.setDepartments(userRepository.findById(UUID.fromString((String) loggedInUserDetails.get("id")))
-						.getDepartments());
+				user.setDepartments(user.getDepartments());
 				request.setAttribute("loggedInUser", user);
 				LOGGER.info("Authentication Successful");
 			} else {

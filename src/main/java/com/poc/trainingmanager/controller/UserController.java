@@ -86,4 +86,9 @@ public class UserController {
 		return userService.deleteUser(userId, loggedInUser);
 	}
 
+	@GetMapping(value = "department/departmentRoles/{userId}")
+	public StandardResponse getAvailableRoles(@PathVariable("userId") String userId) {
+		return userService.getRolesByDepartment(userId);
+	}
+
 }
