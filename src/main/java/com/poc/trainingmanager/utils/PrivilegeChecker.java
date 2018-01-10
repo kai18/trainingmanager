@@ -2,6 +2,7 @@ package com.poc.trainingmanager.utils;
 
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -74,6 +75,35 @@ public class PrivilegeChecker {
 
 		for (PrivilegeUdt privilege : loggedInUserPrivilege) {
 			if (privilege.getDepartment_id() == null && privilege.getUpdationPrivilege() == 1)
+				return true;
+		}
+		throw new AccessDeniedException("You dont have sufficient privileges to delete this user");
+	}
+
+	public boolean IsAllowedToCreateDepartment(Set<PrivilegeUdt> loggedInUserPrivilege) {
+
+		for (PrivilegeUdt privilege : loggedInUserPrivilege) {
+			if (privilege.getDepartment_id() == null && privilege.getCreationPrivilege() == 1)
+				return true;
+		}
+		throw new AccessDeniedException("You dont have sufficient privileges to delete this user");
+	}
+
+	public boolean isAllowedToEditDepartment(Set<PrivilegeUdt> loggedInUserPrivilege, UUID departmentId) {
+
+		for (PrivilegeUdt privilege : loggedInUserPrivilege) {
+			if (privilege.getDepartment_id().equals(departmentId) && privilege.getUpdationPrivilege() == 1) {
+				return true;
+			}
+		}
+
+		throw new AccessDeniedException("Youd dont have sufficient privileges to edit this department");
+	}
+
+	public boolean IsAllowedToDeleteDepartment(Set<PrivilegeUdt> loggedInUserPrivilege) {
+
+		for (PrivilegeUdt privilege : loggedInUserPrivilege) {
+			if (privilege.getDepartment_id() == null && privilege.getDeletionPrivilege() == 1)
 				return true;
 		}
 		throw new AccessDeniedException("You dont have sufficient privileges to delete this user");
