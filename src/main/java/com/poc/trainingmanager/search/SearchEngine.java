@@ -81,7 +81,7 @@ public class SearchEngine {
 			if (user != null)
 				return user;
 			else {
-				LOGGER.error("Null email value passed");
+				LOGGER.warn("Null email value passed");
 			}
 		}
 		return null;
@@ -94,7 +94,7 @@ public class SearchEngine {
 		}
 
 		else {
-			LOGGER.error("Null firstName passed");
+			LOGGER.warn("Null firstName passed");
 			return null;
 		}
 	}

@@ -10,6 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.CrossOrigin;
 
+import com.poc.trainingmanager.constants.Constants;
+import com.poc.trainingmanager.exceptions.DuplicateDataException;
+import com.poc.trainingmanager.exceptions.InvalidRequestDataException;
 import com.poc.trainingmanager.exceptions.ResourceNotFoundException;
 import com.poc.trainingmanager.model.DepartmentRoles;
 import com.poc.trainingmanager.model.Role;
@@ -63,15 +66,11 @@ public class RoleServiceImpl implements RoleService {
 		StandardResponse<List<Role>> standardResponse = new StandardResponse<List<Role>>();
 		List<Role> allRoles = roleRepository.findAll();
 		if (allRoles == null) {
-			logger.warn("No role found");
-			standardResponse.setCode(404);
-			standardResponse.setStatus("Success");
-			standardResponse.setMessage("No role found");
-			return standardResponse;
+			throw new ResourceNotFoundException("No roles exist");
 		}
 		logger.info("All roles fetched successfully");
 		standardResponse.setCode(200);
-		standardResponse.setStatus("Success");
+		standardResponse.setStatus(Constants.SUCCESS);
 		standardResponse.setMessage("All roles fetched");
 		standardResponse.setElement(allRoles);
 		return standardResponse;
@@ -82,15 +81,12 @@ public class RoleServiceImpl implements RoleService {
 		StandardResponse<Role> standardResponse = new StandardResponse<Role>();
 		Role role = roleRepository.findByRoleName(roleName);
 		if (role == null) {
-			logger.warn("No role found with role name {" + roleName + "}");
-			standardResponse.setCode(404);
-			standardResponse.setStatus("Success");
-			standardResponse.setMessage("No role found with Role name -" + roleName);
-			return standardResponse;
+			throw new ResourceNotFoundException("Specified role " + roleName + " not found");
 		}
 		logger.info("Role {" + role + "} fetched with role name {" + roleName + "}");
 		standardResponse.setCode(200);
 		standardResponse.setMessage("All roles fetched");
+		standardResponse.setStatus(Constants.SUCCESS);
 		standardResponse.setElement(role);
 		return standardResponse;
 	}
@@ -103,18 +99,10 @@ public class RoleServiceImpl implements RoleService {
 		StandardResponse<Role> standardResponse = new StandardResponse<Role>();
 
 		if (role == null) {
-			logger.error("Inserted role was null, hence failed to Add role");
-			standardResponse.setCode(422);
-			standardResponse.setStatus("Failed");
-			standardResponse.setMessage("Role cant by null, failed to add this role");
-			return standardResponse;
+			throw new InvalidRequestDataException("Invalid role passed in the request, check if all fields are okay");
 		}
 		if (roleRepository.findByRoleName(role.getRoleName()) != null) {
-			logger.error("Role {" + role + "} already exists, duplicate role cannot be inserted");
-			standardResponse.setCode(409);
-			standardResponse.setStatus("Failed");
-			standardResponse.setMessage("Role already exists, failed to add this role");
-			return standardResponse;
+			throw new DuplicateDataException("Duplicate role, already exists");
 		}
 
 		// insert into Role table
@@ -138,7 +126,7 @@ public class RoleServiceImpl implements RoleService {
 		}
 
 		standardResponse.setCode(201);
-		standardResponse.setStatus("Success");
+		standardResponse.setStatus(Constants.SUCCESS);
 		standardResponse.setMessage("Role inserted successfully");
 		standardResponse.setElement(roleInserted);
 		return standardResponse;
@@ -169,7 +157,7 @@ public class RoleServiceImpl implements RoleService {
 		logger.info("Role in RoleUsers successfully updated");
 
 		standardResponse.setCode(200);
-		standardResponse.setStatus("Success");
+		standardResponse.setStatus(Constants.SUCCESS);
 		standardResponse.setMessage("Role updated successfully");
 		standardResponse.setElement(updatedRole);
 		return standardResponse;
@@ -183,11 +171,7 @@ public class RoleServiceImpl implements RoleService {
 		StandardResponse<Role> standardResponse = new StandardResponse<Role>();
 		Role role = roleRepository.findByRoleId(UUID.fromString(roleId));
 		if (role == null) {
-			logger.error("Role delete failed, Role is null");
-			standardResponse.setCode(404);
-			standardResponse.setStatus("Failed");
-			standardResponse.setMessage("No such role found to delete");
-			return standardResponse;
+			throw new ResourceNotFoundException("Role with id " + roleId + " does not exists");
 		}
 
 		// delete from Role table
@@ -205,7 +189,7 @@ public class RoleServiceImpl implements RoleService {
 		logger.info("Role removed from RoleUsers and each User");
 
 		standardResponse.setCode(202);
-		standardResponse.setStatus("Success");
+		standardResponse.setStatus(Constants.SUCCESS);
 		standardResponse.setMessage("Role deleted successfully");
 		return standardResponse;
 	}
@@ -216,7 +200,7 @@ public class RoleServiceImpl implements RoleService {
 		List<RoleUsers> allRoleUsers = roleUsersRepository.findAll();
 		StandardResponse<List<RoleUsers>> standardResponse = new StandardResponse<List<RoleUsers>>();
 		standardResponse.setCode(200);
-		standardResponse.setStatus("Success");
+		standardResponse.setStatus(Constants.SUCCESS);
 		standardResponse.setElement(allRoleUsers);
 		standardResponse.setMessage("RoleUsers fetched successfully");
 		return standardResponse;
@@ -227,7 +211,7 @@ public class RoleServiceImpl implements RoleService {
 		StandardResponse<List<DepartmentRoles>> standardResponse = new StandardResponse<List<DepartmentRoles>>();
 		List<DepartmentRoles> allDepartmentRoles = departmentRolesRepository.findAll();
 		standardResponse.setCode(200);
-		standardResponse.setStatus("Success");
+		standardResponse.setStatus(Constants.SUCCESS);
 		standardResponse.setElement(allDepartmentRoles);
 		standardResponse.setMessage("DepartmentRoles fetched successfully");
 		return standardResponse;
@@ -239,11 +223,11 @@ public class RoleServiceImpl implements RoleService {
 		if (departments == null) {
 			throw new ResourceNotFoundException("No roles associated with this department");
 		} else {
-			StandardResponse<Set<RoleUdt>> departmentResponse = new StandardResponse();
+			StandardResponse<Set<RoleUdt>> departmentResponse = new StandardResponse<Set<RoleUdt>>();
 			departmentResponse.setCode(200);
 			departmentResponse.setElement(departments);
 			departmentResponse.setMessage("successfuly fetched all departments");
-			departmentResponse.setStatus("Success");
+			departmentResponse.setStatus(Constants.SUCCESS);
 			return departmentResponse;
 		}
 

@@ -1,7 +1,6 @@
 package com.poc.trainingmanager.search;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -10,6 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Multimap;
 import com.google.common.collect.MultimapBuilder;
+import com.google.common.collect.Ordering;
 import com.poc.trainingmanager.model.User;
 import com.poc.trainingmanager.model.cassandraudt.DepartmentUdt;
 import com.poc.trainingmanager.model.cassandraudt.RoleUdt;
@@ -21,18 +21,12 @@ public class RankingEngine {
 	private static int getRank(String result, String toBeSearched) {
 		int rank = 0;
 
-		LOGGER.error("result is " + result + " tobesearched is " + toBeSearched);
-
 		if (result.equalsIgnoreCase(toBeSearched))
 			rank += 2;
 
 		else if (result.toLowerCase().matches("(.*)" + toBeSearched + "(.*)")) {
-			LOGGER.error("Here");
 			rank += 1;
 		}
-
-		LOGGER.error("Rank is " + rank);
-
 		return rank;
 	}
 
@@ -65,7 +59,8 @@ public class RankingEngine {
 	static List<User> rankResults(List<User> resultList, String email, String firstName, String lastName,
 			List<DepartmentUdt> departments, List<RoleUdt> roles) {
 
-		Multimap<Integer, User> resultMap = MultimapBuilder.treeKeys().linkedListValues().build();
+		Multimap<Integer, User> resultMap = MultimapBuilder.treeKeys(Ordering.natural().reverse()).linkedListValues()
+				.build();
 
 		for (User user : resultList) {
 			if (!user.getIsActive())
@@ -101,16 +96,12 @@ public class RankingEngine {
 
 		List<User> sortedResultList = new ArrayList<User>();
 
-		System.out.println(resultMap);
-
 		for (User finalUser : resultMap.values()) {
 			sortedResultList.add(finalUser);
 		}
 
-		Collections.reverse(sortedResultList);
-		System.out.println(sortedResultList);
+		LOGGER.info("Returning " + sortedResultList.size() + " results");
 		return sortedResultList;
-
 	}
 
 }

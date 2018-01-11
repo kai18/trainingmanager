@@ -130,8 +130,6 @@ public class UserServiceImpl implements UserService {
 				roleList.add(roleRepository.findByRoleName(roleName));
 			}
 
-			System.out.println(roleList.size());
-
 			roleUdtList = WrapperUtil.roleToRoleUdt(roleList);
 		}
 
@@ -335,13 +333,13 @@ public class UserServiceImpl implements UserService {
 			roleUsersRepository.save(roleUsers);
 
 			stdResponse.setCode(200);
-			stdResponse.setStatus("success");
+			stdResponse.setStatus(Constants.SUCCESS);
 			stdResponse.setMessage("Role granted");
 			stdResponse.setElement(user);
 			return stdResponse;
 		}
 		stdResponse.setCode(400);
-		stdResponse.setStatus("failed");
+		stdResponse.setStatus(Constants.ERROR);
 		stdResponse.setMessage("Role not granted");
 		return stdResponse;
 	}
@@ -372,7 +370,7 @@ public class UserServiceImpl implements UserService {
 		user.setUpdatedDtm(date);
 		userRepository.save(user);
 		stdResponse.setCode(200);
-		stdResponse.setStatus("success");
+		stdResponse.setStatus(Constants.SUCCESS);
 		stdResponse.setMessage("Role Revoked");
 		stdResponse.setElement(user);
 		return stdResponse;
@@ -388,17 +386,18 @@ public class UserServiceImpl implements UserService {
 		StandardResponse<UserSearchWrapper> searchResponse = new StandardResponse<UserSearchWrapper>();
 		searchResponse.setElement(wrappedResult);
 		searchResponse.setCode(200);
-		searchResponse.setStatus("success");
+		searchResponse.setStatus(Constants.SUCCESS);
 		searchResponse.setMessage("User fetched");
 		return searchResponse;
 	}
 
 	/**
-	 * 
-	 *
+	 * Deletion has to be carried on multiple tables. User entries are deleted from
+	 * department_users table, role_users table and finally isActive is set to false
+	 * in the users table.
 	 */
 	@Override
-	public StandardResponse deleteUser(String userId, LoggedInUserWrapper loggedInUser) {
+	public StandardResponse<Object> deleteUser(String userId, LoggedInUserWrapper loggedInUser) {
 
 		UUID userUuid = UUID.fromString(userId);
 		User user = userRepository.findById(userUuid);
@@ -429,9 +428,10 @@ public class UserServiceImpl implements UserService {
 
 		deleteHelper.deactivateUser(user);// setting user's isActive field to false
 
-		StandardResponse<?> deleteResponse = new StandardResponse();
+		StandardResponse<Object> deleteResponse = new StandardResponse<Object>();
 		deleteResponse.setCode(200);
 		deleteResponse.setElement(null);
+		deleteResponse.setStatus(Constants.SUCCESS);
 		deleteResponse.setMessage("User successfully deleted");
 
 		return deleteResponse;
@@ -442,6 +442,7 @@ public class UserServiceImpl implements UserService {
 	public StandardResponse<Set<RoleUdt>> getRolesByDepartment(String userId) {
 		StandardResponse<Set<RoleUdt>> stdResponse = new StandardResponse<Set<RoleUdt>>();
 		User user = userRepository.findById(UUID.fromString(userId));
+
 		Set<RoleUdt> availableRoles = new HashSet<RoleUdt>();
 		DepartmentRoles departmentRoles = new DepartmentRoles();
 		if (user != null) {
@@ -456,15 +457,15 @@ public class UserServiceImpl implements UserService {
 					availableRoles.removeAll(user.getRoles());
 			}
 			stdResponse.setCode(200);
-			stdResponse.setStatus("success");
-			stdResponse.setMessage("Role Revoked");
+			stdResponse.setStatus(Constants.SUCCESS);
+			stdResponse.setMessage("Roles Fetched succesfuly");
 			stdResponse.setElement(availableRoles);
 			return stdResponse;
 		}
 
 		stdResponse.setCode(400);
-		stdResponse.setStatus("failed");
-		stdResponse.setMessage("User cant be ull");
+		stdResponse.setStatus(Constants.ERROR);
+		stdResponse.setMessage("User cant be null");
 		return stdResponse;
 	}
 

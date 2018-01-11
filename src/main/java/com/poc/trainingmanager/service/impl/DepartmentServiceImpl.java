@@ -12,6 +12,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.poc.trainingmanager.constants.Constants;
+import com.poc.trainingmanager.exceptions.DuplicateDataException;
+import com.poc.trainingmanager.exceptions.InvalidRequestDataException;
+import com.poc.trainingmanager.exceptions.ResourceNotFoundException;
 import com.poc.trainingmanager.model.Department;
 import com.poc.trainingmanager.model.DepartmentRoles;
 import com.poc.trainingmanager.model.DepartmentUsers;
@@ -69,15 +73,11 @@ public class DepartmentServiceImpl implements DepartmentService {
 		StandardResponse<List<Department>> standardResponse = new StandardResponse<List<Department>>();
 		List<Department> allDepartment = departmentRepository.findAll();
 		if (allDepartment == null) {
-			logger.warn("No department found");
-			standardResponse.setCode(404);
-			standardResponse.setStatus("Success");
-			standardResponse.setMessage("No department found");
-			return standardResponse;
+			throw new ResourceNotFoundException("No departments found");
 		}
 		logger.info("All departments fetched successfully");
 		standardResponse.setCode(200);
-		standardResponse.setStatus("Success");
+		standardResponse.setStatus(Constants.SUCCESS);
 		standardResponse.setMessage("All department fetched");
 		standardResponse.setElement(allDepartment);
 		return standardResponse;
@@ -101,18 +101,10 @@ public class DepartmentServiceImpl implements DepartmentService {
 
 		Date date = new Date();
 		if (department == null) {
-			logger.error("Inserted department was null, hence failed to Add department");
-			standardResponse.setCode(422);
-			standardResponse.setStatus("Failed");
-			standardResponse.setMessage("Department can't be null, failed to add this department");
-			return standardResponse;
+			throw new InvalidRequestDataException("Invalid department object provided");
 		}
 		if (departmentRepository.findByDepartmentName(department.getDepartmentName()) != null) {
-			logger.error("Department {" + department + "} already exists, duplicate department cannot be inserted");
-			standardResponse.setCode(409);
-			standardResponse.setStatus("Failed");
-			standardResponse.setMessage("Department already exists, failed to add this department");
-			return standardResponse;
+			throw new DuplicateDataException("Department already exists");
 		}
 		department.setDepartmentId(UUID.randomUUID());
 		department.setDepartmentCreatedDtm(date);
@@ -163,18 +155,24 @@ public class DepartmentServiceImpl implements DepartmentService {
 		Date date = new Date();
 		Department oldDepartment = new Department();
 		oldDepartment = departmentRepository.findByDepartmentId(department.getDepartmentId());
+
+		if (oldDepartment == null)
+			throw new ResourceNotFoundException("Department to be updated does not exist");
+
 		DepartmentUdt oldDepartmentUdt = WrapperUtil.departmentToDepartmentUdt(oldDepartment);
 		Department newDepartment = new Department();
 		newDepartment = oldDepartment;
 		newDepartment.setDepartmentUpdatedDtm(date);
 		newDepartment.setDepartmentDescription(department.getDepartmentDescription());
 		newDepartment.setDepartmentName(department.getDepartmentName());
+
 		Department updatedDepartment = departmentRepository.save(newDepartment);
 		logger.info("Department {" + department + "} successfully updated in department table");
 		User user = new User();
 		Set<UserUdt> userList = new HashSet<UserUdt>();
 		DepartmentUsers departmentUsers = new DepartmentUsers();
 		departmentUsers = departmentUsersRepository.findByDepartmentId(department.getDepartmentId());
+
 		if (departmentUsers != null) {
 			userList = departmentUsers.getUserDepartmentsUdt();
 			if (userList != null) {
@@ -200,15 +198,11 @@ public class DepartmentServiceImpl implements DepartmentService {
 		}
 		if (CommonUtils.isStringNull(updatedDepartment.getDepartmentName())
 				|| CommonUtils.isStringNull(updatedDepartment.getDepartmentDescription())) {
-			logger.error("Department {" + department + "} updation failed");
-			standardResponse.setCode(409);
-			standardResponse.setMessage("Failed");
-			standardResponse.setMessage("Department name and description cannot be empty");
-			return standardResponse;
+			throw new InvalidRequestDataException("Department name or description cannot be empty");
 		}
 		logger.info("Department {" + department + "} successfully updated");
 		standardResponse.setCode(200);
-		standardResponse.setStatus("Success");
+		standardResponse.setStatus(Constants.SUCCESS);
 		standardResponse.setMessage("Department updated successfully");
 		standardResponse.setElement(updatedDepartment);
 		return standardResponse;
@@ -224,12 +218,12 @@ public class DepartmentServiceImpl implements DepartmentService {
 	 * trainingmanager.model.Department)
 	 */
 	@Override
-	public StandardResponse deleteDepartment(String deptId, LoggedInUserWrapper loggedInUser) {
+	public StandardResponse<Object> deleteDepartment(String deptId, LoggedInUserWrapper loggedInUser) {
 
 		this.privilegeChecker.IsAllowedToDeleteDepartment(loggedInUser.getPrivileges());
 
 		UUID departmentId = UUID.fromString(deptId);
-		StandardResponse standardResponse = new StandardResponse<Object>();
+		StandardResponse<Object> standardResponse = new StandardResponse<Object>();
 		DepartmentRoles departmentRoles = new DepartmentRoles();
 		departmentRoles = departmentRolesRepository.findByDepartmentId(departmentId);
 		departmentRolesRepository.delete(departmentRoles);
@@ -238,7 +232,7 @@ public class DepartmentServiceImpl implements DepartmentService {
 		departmentUsersRepository.delete(departmentUsers);
 		departmentRepository.delete(departmentRepository.findByDepartmentId(departmentId));
 		standardResponse.setCode(200);
-		standardResponse.setStatus("Success");
+		standardResponse.setStatus(Constants.SUCCESS);
 		standardResponse.setMessage("Department deleted successfully");
 		logger.info("Department with ID {" + departmentId + "} successfully deleted");
 		return standardResponse;

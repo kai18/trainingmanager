@@ -24,3 +24,4 @@ nbdist/
 .nb-gradle/
 /sj.sql
 /npm-debug.log
+/.toDelete

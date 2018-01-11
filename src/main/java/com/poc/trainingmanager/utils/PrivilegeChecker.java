@@ -74,7 +74,7 @@ public class PrivilegeChecker {
 	public boolean isAllowedToCreateRole(Set<PrivilegeUdt> privileges) {
 
 		for (PrivilegeUdt privilege : privileges) {
-			if (privilege.getDepartment_id() == null && privilege.getCreationPrivilege() == 1)
+			if (privilege.getDepartment_id() == null && privilege.getCreationPrivilege() == 9)
 				return true;
 		}
 		throw new AccessDeniedException("You dont have sufficient privileges to delete this user");

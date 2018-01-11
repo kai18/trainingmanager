@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.poc.trainingmanager.constants.Constants;
 import com.poc.trainingmanager.model.StandardResponse;
 import com.poc.trainingmanager.model.User;
 import com.poc.trainingmanager.model.wrapper.LoggedInUserWrapper;
@@ -34,12 +35,13 @@ public class UserController {
 	@CrossOrigin()
 	@GetMapping("search")
 	public StandardResponse<List<UserSearchWrapper>> search(
-			@RequestParam(value = "firstName", required = false) String firstName,
-			@RequestParam(value = "lastName", required = false) String lastName,
-			@RequestParam(value = "email", required = false) String email,
-			@RequestParam(value = "departments", required = false) String departments,
-			@RequestParam(value = "roles", required = false) String roles) {
+			@RequestParam(value = Constants.FIRST_NAME, required = false) String firstName,
+			@RequestParam(value = Constants.LAST_NAME, required = false) String lastName,
+			@RequestParam(value = Constants.EMAIL_ID, required = false) String email,
+			@RequestParam(value = Constants.DEPARTMENTS, required = false) String departments,
+			@RequestParam(value = Constants.ROLES, required = false) String roles) {
 		LOGGER.info("Searching using given parameters");
+
 		return userService.search(firstName, lastName, email, departments, roles);
 
 	}

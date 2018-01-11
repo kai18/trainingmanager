@@ -20,7 +20,7 @@ public class ResourceExceptionHandler {
 	public StandardResponse<Object> handleResourceNotFoundException(RuntimeException exception) {
 
 		StandardResponse<Object> errorResponse = new StandardResponse<Object>();
-		errorResponse.setElement(exception);
+		errorResponse.setElement(exception.getCause());
 		errorResponse.setMessage(exception.getMessage());
 		return errorResponse;
 	}
@@ -31,7 +31,7 @@ public class ResourceExceptionHandler {
 	public StandardResponse<Object> handleAccessDeniedException(RuntimeException exception) {
 
 		StandardResponse<Object> errorResponse = new StandardResponse<Object>();
-		errorResponse.setElement(exception);
+		errorResponse.setElement(exception.getCause());
 		errorResponse.setMessage(exception.getMessage());
 		return errorResponse;
 	}
@@ -42,7 +42,7 @@ public class ResourceExceptionHandler {
 	public StandardResponse<Object> handleDuplicateDataException(RuntimeException exception) {
 
 		StandardResponse<Object> errorResponse = new StandardResponse<Object>();
-		errorResponse.setElement(exception);
+		errorResponse.setElement(exception.getCause());
 		errorResponse.setMessage(exception.getMessage());
 		return errorResponse;
 	}
