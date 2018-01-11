@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.CrossOrigin;
 
 import com.poc.trainingmanager.constants.Constants;
+import com.poc.trainingmanager.exceptions.DuplicateDataException;
 import com.poc.trainingmanager.exceptions.ResourceNotFoundException;
 import com.poc.trainingmanager.model.Department;
 import com.poc.trainingmanager.model.DepartmentRoles;
@@ -40,6 +41,8 @@ import com.poc.trainingmanager.repository.UserRepository;
 import com.poc.trainingmanager.search.SearchEngine;
 import com.poc.trainingmanager.service.UserService;
 import com.poc.trainingmanager.service.helper.UserDeleteHelper;
+import com.poc.trainingmanager.service.helper.UserInsertHelper;
+import com.poc.trainingmanager.utils.FieldValidator;
 import com.poc.trainingmanager.utils.PasswordUtil;
 import com.poc.trainingmanager.utils.PrivilegeChecker;
 
@@ -77,6 +80,9 @@ public class UserServiceImpl implements UserService {
 
 	@Autowired
 	UserDeleteHelper deleteHelper;
+	
+	@Autowired
+	UserInsertHelper insertHelper;
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(UserServiceImpl.class);
 
@@ -157,6 +163,7 @@ public class UserServiceImpl implements UserService {
 
 	/**
 	 * <p>
+	 * @author Spoorthi.A
 	 * Insert method is used to insert a new user who is trying to register into the
 	 * database. For the insert operation the user should not be null. Also, the
 	 * user should not already exist in the table. The unique constraint is set for
@@ -175,25 +182,25 @@ public class UserServiceImpl implements UserService {
 			standardResponse.setMessage("User cant be null, failed to add this user");
 			return standardResponse;
 		}
-		if (userRepository.findByEmailId(user.getEmailId()) != null) {
-			LOGGER.error("User {" + user.getEmailId() + "} already exists, duplicate user cannot be inserted");
-			standardResponse.setCode(409);
-			standardResponse.setStatus("Failed");
-			standardResponse.setMessage("user already exists, failed to add this user");
-			return standardResponse;
-		}
+		if (userRepository.findByEmailId(user.getEmailId()) != null) 
+			throw new DuplicateDataException("User with this email Id already exists. Duplicate data found");
+		
+		FieldValidator.validateForUserInsert(user);
+		
 		user.setId(UUID.randomUUID());
 		user.setPassword(PasswordUtil.getPasswordHash(user.getPassword()));
 		user.setCreatedDtm(date);
 		user.setUpdatedDtm(date);
-		user.setIsActive(true);
+		//user.setIsActive(true);
 
+		//setting user's role from role table
 		RoleUdt rUdt = WrapperUtil
 				.roleToRoleUdt(roleRepository.findByRoleId(user.getRoles().iterator().next().getRoleId()));
 		Set<RoleUdt> rUdtSet = new LinkedHashSet<RoleUdt>();
 		rUdtSet.add(rUdt);
 		user.setRoles(rUdtSet);
 
+		//setting user's department from department table
 		DepartmentUdt dUdt = null;
 
 		if (user.getDepartments() != null)
@@ -206,45 +213,15 @@ public class UserServiceImpl implements UserService {
 			user.setDepartments(dUdtSet);
 		}
 
-		/*
-		 * setting the current user's userRolesUdt that is to be added to the set in
-		 * RoleUsers fetch an entry from roleUsers table with the role id obtained from
-		 * the user
-		 */
-		RoleUsers roleUsers = roleUsersRepository.findByRoleId(user.getRoles().iterator().next().getRoleId());
-
-		// add this user to the set of users in the roleUsers mapping that role
-
-		Set<UserUdt> userList = new HashSet<UserUdt>();
-		if (roleUsers != null) {
-			userRepository.save(user); // insert user only if the role exists
-			userList.add(WrapperUtil.userToUserUdt(user));
-			// set the updated set of users belonging to that role
-			roleUsers.setUserRolesUdt(userList);
-			roleUsersRepository.save(roleUsers);
-			standardResponse.setStatus(Constants.SUCCESS);
-			standardResponse.setCode(200);
-			standardResponse.setElement(user);
-			standardResponse.setMessage("User added successfully");
-			LOGGER.info("User {" + user.getEmailId() + "} successfully added");
-		}
-
-		DepartmentUsers departmentUsers = null;
-		if (user.getDepartments() != null)
-			departmentUsers = departmentUsersRepository
-					.findByDepartmentId(user.getDepartments().iterator().next().getDepartmentId());
-		if (departmentUsers != null) {
-			LOGGER.info("DEPARTMENT USERS IS NOT NULL");
-			Set<UserUdt> usersInDepartment = departmentUsers.getUserDepartmentsUdt();
-			if (usersInDepartment == null) {
-				usersInDepartment = new HashSet<UserUdt>();
-			}
-
-			usersInDepartment.add(WrapperUtil.userToUserUdt(user));
-			departmentUsers.setUserDepartmentsUdt(usersInDepartment);
-			departmentUsersRepository.save(departmentUsers);
-		}
-
+		insertHelper.insertUser(user); 
+		insertHelper.insertIntoRoleUsers(user);
+		insertHelper.insertIntoDepartmentUsers(user);
+		
+		standardResponse.setStatus(Constants.SUCCESS);
+		standardResponse.setCode(200);
+		standardResponse.setElement(user);
+		standardResponse.setMessage("User added successfully");
+		LOGGER.info("User {" + user.getEmailId() + "} successfully added");
 		return standardResponse;
 	}
 
