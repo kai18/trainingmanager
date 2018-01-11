@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 import com.poc.trainingmanager.exceptions.AccessDeniedException;
+import com.poc.trainingmanager.exceptions.BadRequestException;
 import com.poc.trainingmanager.exceptions.DuplicateDataException;
 import com.poc.trainingmanager.exceptions.ResourceNotFoundException;
 import com.poc.trainingmanager.model.StandardResponse;
@@ -40,6 +41,17 @@ public class ResourceExceptionHandler {
 	@ResponseStatus(value = HttpStatus.CONFLICT)
 	@ResponseBody
 	public StandardResponse<Object> handleDuplicateDataException(RuntimeException exception) {
+
+		StandardResponse<Object> errorResponse = new StandardResponse<Object>();
+		errorResponse.setElement(exception);
+		errorResponse.setMessage(exception.getMessage());
+		return errorResponse;
+	}
+	
+	@ExceptionHandler(value = { BadRequestException.class })
+	@ResponseStatus(value = HttpStatus.BAD_REQUEST)
+	@ResponseBody
+	public StandardResponse<Object> handleBadRequestException(RuntimeException exception) {
 
 		StandardResponse<Object> errorResponse = new StandardResponse<Object>();
 		errorResponse.setElement(exception);
