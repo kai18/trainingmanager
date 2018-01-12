@@ -1,6 +1,5 @@
 package com.poc.trainingmanager.utils;
 
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -24,9 +23,9 @@ public class PrivilegeChecker {
 	@Autowired
 	RoleUsersRepository roleUsersRepository;
 
-	public boolean IsSuperAdmin(Set<PrivilegeUdt> privileges) {
+	public boolean isSuperAdmin(Set<PrivilegeUdt> privileges) {
 		for (PrivilegeUdt privilege : privileges) {
-			if (privilege.getDepartment_id() == null && privilege.getUpdationPrivilege() == 9)
+			if (privilege.getDepartment_id() == null && privilege.getUpdationPrivilege() == 1)
 				return true;
 		}
 		return false;
@@ -34,7 +33,7 @@ public class PrivilegeChecker {
 
 	public boolean isAllowedToDeleteUser(Set<DepartmentUdt> userToBeDeletedDepartments, Set<PrivilegeUdt> privileges) {
 
-		if (this.IsSuperAdmin(privileges))
+		if (this.isSuperAdmin(privileges))
 			return true;
 
 		for (DepartmentUdt department : userToBeDeletedDepartments) {
@@ -55,6 +54,9 @@ public class PrivilegeChecker {
 		if (userToBeDeleted.getId().equals(loggedInUser.getUserId()))
 			return true;
 
+		if (this.isSuperAdmin(loggedInUser.getPrivileges()))
+			return true;
+
 		Set<DepartmentUdt> userToBeDeletedDepartments = userToBeDeleted.getDepartments();
 		Set<PrivilegeUdt> loggedInUserPrivilege = loggedInUser.getPrivileges();
 
@@ -71,45 +73,40 @@ public class PrivilegeChecker {
 		throw new AccessDeniedException("You dont have sufficient privileges to delete this user");
 	}
 
-	public boolean isAllowedToCreateRole(Set<PrivilegeUdt> privileges) {
+	public boolean isAllowedToCreateRole(Set<PrivilegeUdt> loggedInUserPrivileges) {
 
-		for (PrivilegeUdt privilege : privileges) {
-			if (privilege.getDepartment_id() == null && privilege.getCreationPrivilege() == 9)
-				return true;
-		}
-		throw new AccessDeniedException("You dont have sufficient privileges to delete this user");
+		if (this.isSuperAdmin(loggedInUserPrivileges))
+			return true;
+		throw new AccessDeniedException("You are not an admin");
 	}
 
-	public boolean isAllowedToDeleteRole(List<PrivilegeUdt> loggedInUserPrivilege) {
+	public boolean isAllowedToDeleteRole(Set<PrivilegeUdt> loggedInUserPrivileges) {
 
-		for (PrivilegeUdt privilege : loggedInUserPrivilege) {
-			if (privilege.getDepartment_id() == null && privilege.getDeletionPrivilege() == 9)
-				return true;
-		}
-		throw new AccessDeniedException("You dont have sufficient privileges to delete this user");
+		if (this.isSuperAdmin(loggedInUserPrivileges))
+			return true;
+		throw new AccessDeniedException("You are not an admin");
 	}
 
-	public boolean isAllowedToEditRole(Set<PrivilegeUdt> privileges) {
+	public boolean isAllowedToEditRole(Set<PrivilegeUdt> loggedInUserPrivileges) {
 
-		for (PrivilegeUdt privilege : privileges) {
-			if (privilege.getDepartment_id() == null && privilege.getUpdationPrivilege() == 9)
-				return true;
-		}
-		throw new AccessDeniedException("You dont have sufficient privileges to delete this user");
+		if (this.isSuperAdmin(loggedInUserPrivileges))
+			return true;
+		throw new AccessDeniedException("You are not an admin");
 	}
 
-	public boolean isAllowedToCreateDepartment(Set<PrivilegeUdt> privileges) {
+	public boolean isAllowedToCreateDepartment(Set<PrivilegeUdt> loggedInUserprivileges) {
 
-		for (PrivilegeUdt privilege : privileges) {
-			if (privilege.getDepartment_id() == null && privilege.getCreationPrivilege() == 9)
-				return true;
-		}
+		if (this.isSuperAdmin(loggedInUserprivileges))
+			return true;
 		throw new AccessDeniedException("You dont have sufficient privileges to create a department");
 	}
 
-	public boolean isAllowedToEditDepartment(Set<PrivilegeUdt> privileges, UUID departmentId) {
+	public boolean isAllowedToEditDepartment(Set<PrivilegeUdt> loggedInUserPrivileges, UUID departmentId) {
 
-		for (PrivilegeUdt privilege : privileges) {
+		if (this.isSuperAdmin(loggedInUserPrivileges))
+			return true;
+
+		for (PrivilegeUdt privilege : loggedInUserPrivileges) {
 			if (privilege.getDepartment_id() == null && privilege.getUpdationPrivilege() == 9)
 				return true;
 			if (privilege.getDepartment_id().equals(departmentId) && privilege.getUpdationPrivilege() == 9) {
@@ -120,12 +117,10 @@ public class PrivilegeChecker {
 		throw new AccessDeniedException("Youd dont have sufficient privileges to edit this department");
 	}
 
-	public boolean IsAllowedToDeleteDepartment(Set<PrivilegeUdt> loggedInUserPrivilege) {
+	public boolean IsAllowedToDeleteDepartment(Set<PrivilegeUdt> loggedInUserPrivileges) {
 
-		for (PrivilegeUdt privilege : loggedInUserPrivilege) {
-			if (privilege.getDepartment_id() == null && privilege.getDeletionPrivilege() == 9)
-				return true;
-		}
+		if (this.isSuperAdmin(loggedInUserPrivileges))
+			return true;
 		throw new AccessDeniedException("You dont have sufficient privileges to delete this department");
 	}
 

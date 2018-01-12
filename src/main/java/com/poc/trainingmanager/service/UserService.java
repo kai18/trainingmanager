@@ -28,4 +28,9 @@ public interface UserService {
 	public StandardResponse deleteUser(String userId, LoggedInUserWrapper loggedInUser);
 
 	public StandardResponse getRolesByDepartment(String userId);
+
+	public StandardResponse<Object> addUserToDepartment(String userId, String departmentId,
+			LoggedInUserWrapper loggedInUser);
+
+	StandardResponse<Object> removeUserFromDepartment(String userId, String departmentId, LoggedInUserWrapper loggedInUser);
 }

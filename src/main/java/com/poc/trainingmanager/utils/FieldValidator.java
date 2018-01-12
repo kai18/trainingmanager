@@ -5,7 +5,6 @@ import java.util.regex.Pattern;
 
 import com.poc.trainingmanager.exceptions.BadRequestException;
 import com.poc.trainingmanager.model.User;
-import com.poc.trainingmanager.utils.CommonUtils;
 
 public class FieldValidator {
 
@@ -23,38 +22,32 @@ public class FieldValidator {
 		}
 		return false;
 	}
-	
+
 	public static void validateForUserInsert(User user) {
 		if (!CommonUtils.isNull((user))) {
 			if (CommonUtils.isStringNull(user.getEmailId())) {
 				throw new BadRequestException("User insert Failed. Email ID cannot be null.");
 			} else if (CommonUtils.isStringNull(user.getPhoneNumber())) {
 				throw new BadRequestException("User insert Failed. Phone number cannot be null.");
-			}
-			else if (CommonUtils.isStringNull(user.getFirstName())) {
+			} else if (CommonUtils.isStringNull(user.getFirstName())) {
 				throw new BadRequestException("User insert Failed. First name cannot be null.");
-			}
-			else if (CommonUtils.isStringNull(user.getLastName())) {
+			} else if (CommonUtils.isStringNull(user.getLastName())) {
 				throw new BadRequestException("User insert Failed. Last name cannot be null.");
-			}
-			else if (CommonUtils.isStringNull(user.getGender())) {
+			} else if (CommonUtils.isStringNull(user.getGender())) {
 				throw new BadRequestException("User insert Failed. Gender cannot be null.");
-			}
-			else if (CommonUtils.isStringNull(user.getPassword())) {
+			} else if (CommonUtils.isStringNull(user.getPassword())) {
 				throw new BadRequestException("User insert Failed. Password cannot be null.");
-			}
-			else if (CommonUtils.isNull(user.getIsActive())) {
+			} else if (CommonUtils.isNull(user.getIsActive())) {
 				throw new BadRequestException("User insert Failed. Is Active cannot be null.");
-			}
-			else if (CommonUtils.isNull(user.getAddress())) {
+			} else if (CommonUtils.isNull(user.getAddress())) {
 				throw new BadRequestException("User insert Failed. Address cannot be null.");
-			}
-			else if (CommonUtils.isNull(user.getRoles())) {
+			} else if (CommonUtils.isNull(user.getRoles())) {
 				throw new BadRequestException("User insert Failed. Role cannot be null.");
 			}
-			else if (CommonUtils.isNull(user.getDepartments())) {
-				throw new BadRequestException("User insert Failed. Department cannot be null.");
-			}
+			// else if (CommonUtils.isNull(user.getDepartments())) {
+			// throw new BadRequestException("User insert Failed. Department cannot be
+			// null.");
+			// }
 		} else {
 			throw new BadRequestException("User insert Failed. User cannot be null.");
 		}

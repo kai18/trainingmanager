@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.CrossOrigin;
 
 import com.poc.trainingmanager.constants.Constants;
+import com.poc.trainingmanager.exceptions.AccessDeniedException;
 import com.poc.trainingmanager.exceptions.DuplicateDataException;
 import com.poc.trainingmanager.exceptions.ResourceNotFoundException;
 import com.poc.trainingmanager.model.Department;
@@ -42,6 +43,7 @@ import com.poc.trainingmanager.search.SearchEngine;
 import com.poc.trainingmanager.service.UserService;
 import com.poc.trainingmanager.service.helper.UserDeleteHelper;
 import com.poc.trainingmanager.service.helper.UserInsertHelper;
+import com.poc.trainingmanager.service.helper.UserUpdateHelper;
 import com.poc.trainingmanager.utils.FieldValidator;
 import com.poc.trainingmanager.utils.PasswordUtil;
 import com.poc.trainingmanager.utils.PrivilegeChecker;
@@ -80,9 +82,12 @@ public class UserServiceImpl implements UserService {
 
 	@Autowired
 	UserDeleteHelper deleteHelper;
-	
+
 	@Autowired
 	UserInsertHelper insertHelper;
+
+	@Autowired
+	UserUpdateHelper userUpdateHelper;
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(UserServiceImpl.class);
 
@@ -163,13 +168,14 @@ public class UserServiceImpl implements UserService {
 
 	/**
 	 * <p>
-	 * @author Spoorthi.A
-	 * Insert method is used to insert a new user who is trying to register into the
-	 * database. For the insert operation the user should not be null. Also, the
-	 * user should not already exist in the table. The unique constraint is set for
-	 * Email Id. User ID is randomly generated and the password is hashed before
-	 * storing into the database.
-	 * </p>
+	 * 
+	 * @author Spoorthi.A Insert method is used to insert a new user who is trying
+	 *         to register into the database. For the insert operation the user
+	 *         should not be null. Also, the user should not already exist in the
+	 *         table. The unique constraint is set for Email Id. User ID is randomly
+	 *         generated and the password is hashed before storing into the
+	 *         database.
+	 *         </p>
 	 */
 	@Override
 	public StandardResponse<User> insert(User user) {
@@ -182,25 +188,25 @@ public class UserServiceImpl implements UserService {
 			standardResponse.setMessage("User cant be null, failed to add this user");
 			return standardResponse;
 		}
-		if (userRepository.findByEmailId(user.getEmailId()) != null) 
+		if (userRepository.findByEmailId(user.getEmailId()) != null)
 			throw new DuplicateDataException("User with this email Id already exists. Duplicate data found");
-		
+
 		FieldValidator.validateForUserInsert(user);
-		
+
 		user.setId(UUID.randomUUID());
 		user.setPassword(PasswordUtil.getPasswordHash(user.getPassword()));
 		user.setCreatedDtm(date);
 		user.setUpdatedDtm(date);
-		//user.setIsActive(true);
+		user.setIsActive(true);
 
-		//setting user's role from role table
+		// setting user's role from role table
 		RoleUdt rUdt = WrapperUtil
 				.roleToRoleUdt(roleRepository.findByRoleId(user.getRoles().iterator().next().getRoleId()));
 		Set<RoleUdt> rUdtSet = new LinkedHashSet<RoleUdt>();
 		rUdtSet.add(rUdt);
 		user.setRoles(rUdtSet);
 
-		//setting user's department from department table
+		// setting user's department from department table
 		DepartmentUdt dUdt = null;
 
 		if (user.getDepartments() != null)
@@ -213,10 +219,10 @@ public class UserServiceImpl implements UserService {
 			user.setDepartments(dUdtSet);
 		}
 
-		insertHelper.insertUser(user); 
+		insertHelper.insertUser(user);
 		insertHelper.insertIntoRoleUsers(user);
 		insertHelper.insertIntoDepartmentUsers(user);
-		
+
 		standardResponse.setStatus(Constants.SUCCESS);
 		standardResponse.setCode(200);
 		standardResponse.setElement(user);
@@ -226,46 +232,25 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public StandardResponse<User> update(User userToBeUdpated, LoggedInUserWrapper loggedInUser) {
-
-		privilegeChecker.isAllowedToEditUser(userToBeUdpated, loggedInUser);
-		Date date = new Date();
-		RoleUdt role = new RoleUdt();
-		RoleUsers roleUsers = new RoleUsers();
+	public StandardResponse<User> update(User userToBeUpdated, LoggedInUserWrapper loggedInUserWrapper) {
 		StandardResponse<User> stdResponse = new StandardResponse<User>();
 
-		User oldUser = userRepository.findById(userToBeUdpated.getId());
+		User oldUser = userRepository.findById(userToBeUpdated.getId());
 
 		if (oldUser == null)
 			throw new ResourceNotFoundException("User to be updated does not exist, please first register the user");
 
-		userToBeUdpated.setUpdatedDtm(date);
-		User tempUser = new User();
-		BeanUtils.copyProperties(oldUser, tempUser);
-		User newUser = WrapperUtil.wrappedUserToUser(userToBeUdpated, oldUser);
-		userRepository.save(newUser);
-		// these are the set of roles this user belongs to
-		Set<RoleUdt> roleUdtList = oldUser.getRoles();
+		User updatedUser = userUpdateHelper.updateUserInUser(oldUser, userToBeUpdated);
 
-		Set<UserUdt> userUdtList = new HashSet<UserUdt>();
-		if (roleUdtList != null) {
-			// for each role search for the user and replace with updated user
-			for (int i = 0; i < roleUdtList.size(); i++) {
-				role = roleUdtList.iterator().next();
-				roleUsers = roleUsersRepository.findByRoleId(role.getRoleId());
-				userUdtList = roleUsers.getUserUdt();
-				if (userUdtList != null) {
-					userUdtList.remove(WrapperUtil.userToUserUdt(tempUser));
-					userUdtList.add(WrapperUtil.userToUserUdt(newUser));
-				}
-				roleUsers.setUserRolesUdt(userUdtList);
-				roleUsersRepository.save(roleUsers);
-			}
-			stdResponse.setStatus(Constants.SUCCESS);
-			stdResponse.setCode(200);
-			stdResponse.setElement(userToBeUdpated);
-			stdResponse.setMessage("User updated successfully");
-		}
+		userUpdateHelper.updateUserInDepartmentUsers(oldUser, updatedUser);
+
+		userUpdateHelper.updateUserInRoleUsers(oldUser, updatedUser);
+
+		stdResponse.setStatus(Constants.SUCCESS);
+		stdResponse.setCode(200);
+		stdResponse.setElement(updatedUser);
+		stdResponse.setMessage("User updated successfully");
+
 		return stdResponse;
 	}
 
@@ -444,6 +429,100 @@ public class UserServiceImpl implements UserService {
 		stdResponse.setStatus(Constants.ERROR);
 		stdResponse.setMessage("User cant be null");
 		return stdResponse;
+	}
+
+	@Override
+	public StandardResponse<Object> addUserToDepartment(String userId, String departmentId,
+			LoggedInUserWrapper loggedInUser) {
+
+		if (!this.privilegeChecker.isSuperAdmin(loggedInUser.getPrivileges())) {
+			throw new AccessDeniedException("You are not an administrator");
+		}
+
+		User user = userRepository.findById(UUID.fromString(userId));
+		if (user == null)
+			throw new ResourceNotFoundException("User with id " + userId + "does not exist");
+
+		Department department = departmentRespository.findByDepartmentId(UUID.fromString(departmentId));
+		if (department == null)
+			throw new ResourceNotFoundException("Department with id " + departmentId + "does not exist");
+
+		DepartmentUsers departmentUsers = departmentUsersRepository.findByDepartmentId(UUID.fromString(departmentId));
+		if (departmentUsers == null)
+			throw new ResourceNotFoundException("Department with id " + departmentId + "does not exist");
+
+		Set<DepartmentUdt> departments = user.getDepartments();
+		if (departments == null)
+			departments = new HashSet<DepartmentUdt>();
+
+		if (departments.contains(WrapperUtil.departmentToDepartmentUdt(department))) {
+			throw new DuplicateDataException("Department Already allocated to user");
+		}
+		departments.add(WrapperUtil.departmentToDepartmentUdt(department));
+		user.setDepartments(departments);
+
+		Set<UserUdt> users = departmentUsers.getUserDepartmentsUdt();
+		if (users == null)
+			users = new HashSet<UserUdt>();
+		users.add(WrapperUtil.userToUserUdt(user));
+		departmentUsers.setUserDepartmentsUdt(users);
+
+		userRepository.save(user);
+		departmentUsersRepository.save(departmentUsers);
+
+		StandardResponse<Object> response = new StandardResponse<Object>();
+		response.setCode(200);
+		response.setMessage("Department successfully alloted");
+		response.setStatus(Constants.SUCCESS);
+		return response;
+	}
+
+	@Override
+	public StandardResponse<Object> removeUserFromDepartment(String userId, String departmentId,
+			LoggedInUserWrapper loggedInUser) {
+
+		if (!this.privilegeChecker.isSuperAdmin(loggedInUser.getPrivileges())) {
+			throw new AccessDeniedException("You are not an administrator");
+		}
+
+		User user = userRepository.findById(UUID.fromString(userId));
+		if (user == null)
+			throw new ResourceNotFoundException("User with id " + userId + "does not exist");
+
+		Department department = departmentRespository.findByDepartmentId(UUID.fromString(departmentId));
+		if (department == null)
+			throw new ResourceNotFoundException("Department with id " + departmentId + "does not exist");
+
+		DepartmentUsers departmentUsers = departmentUsersRepository.findByDepartmentId(UUID.fromString(departmentId));
+		if (departmentUsers == null)
+			throw new ResourceNotFoundException("Department with id " + departmentId + "does not exist");
+
+		Set<DepartmentUdt> departments = user.getDepartments();
+		if (departments == null) {
+			departments = new HashSet<DepartmentUdt>();
+			throw new ResourceNotFoundException("Specified department does not exist for the specified user");
+		}
+		departments.remove(WrapperUtil.departmentToDepartmentUdt(department));
+		user.setDepartments(departments);
+
+		Set<UserUdt> users = departmentUsers.getUserDepartmentsUdt();
+		if (users == null) {
+			users = new HashSet<UserUdt>();
+			throw new ResourceNotFoundException("Specified department does not exist for the specified user");
+
+		}
+
+		users.remove(WrapperUtil.userToUserUdt(user));
+		departmentUsers.setUserDepartmentsUdt(users);
+
+		userRepository.save(user);
+		departmentUsersRepository.save(departmentUsers);
+
+		StandardResponse<Object> response = new StandardResponse<Object>();
+		response.setCode(200);
+		response.setMessage("Department successfully removed");
+		response.setStatus(Constants.SUCCESS);
+		return response;
 	}
 
 }

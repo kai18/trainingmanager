@@ -93,4 +93,16 @@ public class UserController {
 		return userService.getRolesByDepartment(userId);
 	}
 
+	@PutMapping(value = "department/{departmentId}/user/{userId}")
+	public StandardResponse<Object> allotDepartmentToUser(@PathVariable String departmentId,
+			@PathVariable String userId, @RequestAttribute("loggedInUser") LoggedInUserWrapper loggedInUser) {
+		return userService.addUserToDepartment(userId, departmentId, loggedInUser);
+	}
+
+	@PutMapping(value = "user/{userId}/department/{departmentId}")
+	public StandardResponse<Object> removeDepartmentFromUser(@PathVariable String departmentId,
+			@PathVariable String userId, @RequestAttribute("loggedInUser") LoggedInUserWrapper loggedInUser) {
+		return userService.removeUserFromDepartment(userId, departmentId, loggedInUser);
+	}
+
 }
