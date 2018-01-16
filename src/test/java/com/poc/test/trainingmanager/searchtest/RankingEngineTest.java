@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import com.poc.trainingmanager.model.User;
@@ -16,6 +17,11 @@ import com.poc.trainingmanager.model.cassandraudt.RoleUdt;
 import com.poc.trainingmanager.search.RankingEngine;
 
 public class RankingEngineTest {
+
+	List<RoleUdt> roles = new ArrayList<RoleUdt>();
+	List<DepartmentUdt> departments = new ArrayList<DepartmentUdt>();
+
+	@Before
 
 	@Test
 	public void testGetRankForStrings() {
@@ -121,7 +127,7 @@ public class RankingEngineTest {
 		expectedRankList.add(rahul);
 		expectedRankList.add(ajay);
 
-		List<User> actualRankList = RankingEngine.rankResults(resultList, "nitin", "ks", "yad", toBeRanked, roles);
+		List<User> actualRankList = RankingEngine.rankResults(resultList, "kau", "ks", "yad", toBeRanked, roles);
 		assertThat(expectedRankList).isEqualTo(actualRankList);
 
 	}
