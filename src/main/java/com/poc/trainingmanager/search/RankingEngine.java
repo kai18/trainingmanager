@@ -16,9 +16,9 @@ import com.poc.trainingmanager.model.cassandraudt.RoleUdt;
 
 public class RankingEngine {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(SearchEngine.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(RankingEngine.class);
 
-	private static int getRank(String result, String toBeSearched) {
+	public static int getRank(String result, String toBeSearched) {
 		int rank = 0;
 
 		if (result.equalsIgnoreCase(toBeSearched))
@@ -30,7 +30,7 @@ public class RankingEngine {
 		return rank;
 	}
 
-	private static int getDepartmentRank(List<DepartmentUdt> toBeRanked, List<DepartmentUdt> criteria) {
+	public static int getDepartmentRank(List<DepartmentUdt> toBeRanked, List<DepartmentUdt> criteria) {
 		int rank = 0;
 		if (toBeRanked != null && criteria != null) {
 			for (DepartmentUdt departmentUdt : toBeRanked) {
@@ -56,13 +56,16 @@ public class RankingEngine {
 		return rank;
 	}
 
-	static List<User> rankResults(List<User> resultList, String email, String firstName, String lastName,
+	public static List<User> rankResults(List<User> resultList, String email, String firstName, String lastName,
 			List<DepartmentUdt> departments, List<RoleUdt> roles) {
 
 		Multimap<Integer, User> resultMap = MultimapBuilder.treeKeys(Ordering.natural().reverse()).linkedListValues()
-				.build();
+				.build();// A multimap that stores user sorted according to keys(rank scored) by storing
+							// them in a red
+							// black tree(by specifying treeKeys())
 
 		for (User user : resultList) {
+
 			if (!user.getIsActive())
 				continue;
 			int rank = 0;
@@ -89,7 +92,7 @@ public class RankingEngine {
 				}
 			}
 
-			LOGGER.error("Rank for user: " + user.getFirstName() + " is " + rank);
+			LOGGER.info("Rank for user: " + user.getFirstName() + " is " + rank);
 
 			resultMap.put(rank, user);
 		}

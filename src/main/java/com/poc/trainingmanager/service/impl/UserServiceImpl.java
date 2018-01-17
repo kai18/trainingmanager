@@ -92,7 +92,7 @@ public class UserServiceImpl implements UserService {
 	private static final Logger LOGGER = LoggerFactory.getLogger(UserServiceImpl.class);
 
 	/**
-	 * 
+	 * <h3>User Search</h3>
 	 * 
 	 * @param firstName
 	 *            String: Receives the user's first name as search criteria
@@ -149,13 +149,12 @@ public class UserServiceImpl implements UserService {
 				roleUdtList);
 		long end = System.currentTimeMillis();
 
-		Double timeTakenToSearch = (double) ((end - start) / 1000);// time elapsed between calling the search engine adn
+		Double timeTakenToSearch = (double) ((end - start) / 1000);// time elapsed between calling the search engine and
 																	// receiving the result
 
 		Set<User> distinctUsers = new LinkedHashSet<User>(unwrappedResults);// Remove duplicate results by converting to
-																			// a hash
-																			// set that does not allow duplicates and
-																			// also preserves the ordering
+																			// a hash set that does not allow duplicates
+																			// and also preserves the ordering
 		List<User> distinctUserList = new ArrayList<User>(distinctUsers);
 		List<UserSearchWrapper> wrappedResult = WrapperUtil.wrapUserToUserSearchWrapper(distinctUserList);
 

@@ -122,14 +122,13 @@ public class RankingEngineTest {
 		resultList.add(ajay);
 
 		List<User> expectedRankList = new ArrayList<User>();
-		expectedRankList.add(nitin);
 		expectedRankList.add(kshitij);
+		expectedRankList.add(nitin);
 		expectedRankList.add(rahul);
 		expectedRankList.add(ajay);
 
 		List<User> actualRankList = RankingEngine.rankResults(resultList, "kau", "ks", "yad", toBeRanked, roles);
 		assertThat(expectedRankList).isEqualTo(actualRankList);
-
 	}
 
 }

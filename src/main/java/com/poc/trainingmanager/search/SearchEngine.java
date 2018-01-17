@@ -105,7 +105,7 @@ public class SearchEngine {
 			if (userList != null && !userList.isEmpty())
 				return userList;
 			else {
-				LOGGER.error("Null lastName passed");
+				LOGGER.warn("Null lastName passed");
 			}
 		}
 		return null;
@@ -142,7 +142,7 @@ public class SearchEngine {
 				}
 			}
 		}
-		LOGGER.error("Role Result" + userList);
+		LOGGER.info("Role Result" + userList);
 		return userList;
 	}
 
@@ -152,7 +152,7 @@ public class SearchEngine {
 			if (userList != null && !userList.isEmpty())
 				return userList;
 			else {
-				LOGGER.error("Null email value passed");
+				LOGGER.warn("Null email value passed");
 			}
 		}
 		return null;
@@ -161,7 +161,6 @@ public class SearchEngine {
 	private void addToResult(List<User> userList, List<User> resultList) {
 		if (userList != null && !userList.isEmpty())
 			resultList.addAll(userList);
-
 	}
 
 }

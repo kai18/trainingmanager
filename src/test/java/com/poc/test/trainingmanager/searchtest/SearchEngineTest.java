@@ -1,5 +1,6 @@
 package com.poc.test.trainingmanager.searchtest;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -7,7 +8,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
+import java.util.UUID;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -20,9 +21,13 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import com.poc.trainingmanager.model.DepartmentUsers;
+import com.poc.trainingmanager.model.RoleUsers;
 import com.poc.trainingmanager.model.User;
 import com.poc.trainingmanager.model.cassandraudt.DepartmentUdt;
 import com.poc.trainingmanager.model.cassandraudt.RoleUdt;
+import com.poc.trainingmanager.model.cassandraudt.UserUdt;
+import com.poc.trainingmanager.model.wrapper.WrapperUtil;
 import com.poc.trainingmanager.repository.DepartmentUsersRepository;
 import com.poc.trainingmanager.repository.RoleUsersRepository;
 import com.poc.trainingmanager.repository.UserRepository;
@@ -46,17 +51,18 @@ public class SearchEngineTest {
 	@InjectMocks
 	SearchEngine searchEngine;
 
-	Set<RoleUdt> dbRoles;
-	Set<DepartmentUdt> dbDepartments;
+	List<RoleUdt> dbRoles;
+	List<DepartmentUdt> dbDepartments;
 	List<User> dbUsers;
+	List<User> expectedResult;
 
 	@Before
 	public void setUp() {
 		System.out.println("Setting up SearchEngine Test");
 		MockitoAnnotations.initMocks(this);
 
-		dbRoles = new HashSet<RoleUdt>();
-		dbDepartments = new HashSet<DepartmentUdt>();
+		dbRoles = new ArrayList<RoleUdt>();
+		dbDepartments = new ArrayList<DepartmentUdt>();
 		dbUsers = new ArrayList<User>();
 
 		DepartmentUdt angularDepartment = mock(DepartmentUdt.class);
@@ -105,6 +111,15 @@ public class SearchEngineTest {
 		kshitij.setEmailId("nitin@ajay.com");
 
 		dbUsers.addAll(Arrays.asList(rahul, nitin, ajay, kshitij));
+
+		expectedResult = new ArrayList<User>();
+		expectedResult.add(rahul);
+		expectedResult.add(nitin);
+		expectedResult.add(ajay);
+		expectedResult.add(nitin);
+		expectedResult.add(nitin);
+		expectedResult.add(rahul);
+		expectedResult.add(rahul);
 	}
 
 	@Test
@@ -120,5 +135,38 @@ public class SearchEngineTest {
 
 	@Test
 	public void searchByAllParameters() {
+		String email = "j";
+		String firstName = "kshitij";
+		String lastName = "singh";
+		String roleId = "af33f034-a76c-4b6a-9e05-49e37d1a2e6e";
+		String departmentId = "10bd8c60-7497-45e5-83e5-8ac0383d6e30";
+
+		RoleUsers testRoleUser = new RoleUsers();
+
+		testRoleUser.setRoleId(UUID.fromString(roleId));
+		testRoleUser.setUserRolesUdt(new HashSet<UserUdt>(Arrays.asList(WrapperUtil.userToUserUdt(dbUsers.get(0)))));
+
+		DepartmentUsers testDepartmentUser = new DepartmentUsers();
+
+		testDepartmentUser.setDepartmentId(UUID.fromString(departmentId));
+		testDepartmentUser
+				.setUserDepartmentsUdt(new HashSet<UserUdt>(Arrays.asList(WrapperUtil.userToUserUdt(dbUsers.get(1)))));
+
+		when(userRepository.findByEmailIdContainingIgnoreCase(email)).thenReturn(Arrays.asList(dbUsers.get(0)));
+
+		when(userRepository.findByFirstNameContainingIgnoreCase(firstName)).thenReturn(Arrays.asList(dbUsers.get(1)));
+
+		when(userRepository.findByLastNameContainingIgnoreCase(lastName)).thenReturn(Arrays.asList(dbUsers.get(2)));
+
+		when(roleUsersRepository.findByRoleId(null)).thenReturn(testRoleUser);
+
+		when(departmentUsersRepository.findByDepartmentId(null)).thenReturn(testDepartmentUser);
+
+		if (dbRoles.get(0) == null || dbRoles.isEmpty())
+			System.out.println("Null");
+
+		assertThat(expectedResult).isEqualTo((this.searchEngine.searchByAllParameters(email, firstName, lastName,
+				Arrays.asList(dbDepartments.get(0), dbDepartments.get(1)),
+				Arrays.asList(dbRoles.get(0), dbRoles.get(1)))));
 	}
 }
