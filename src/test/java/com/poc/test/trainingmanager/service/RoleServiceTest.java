@@ -12,18 +12,21 @@ import java.util.UUID;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import com.poc.test.trainingmanager.config.RoleData;
 import com.poc.trainingmanager.controller.RoleController;
 import com.poc.trainingmanager.model.Role;
 import com.poc.trainingmanager.model.StandardResponse;
@@ -40,6 +43,7 @@ import com.poc.trainingmanager.service.impl.RoleServiceImpl;
 import com.poc.trainingmanager.utils.PrivilegeChecker;
 
 @RunWith(SpringJUnit4ClassRunner.class)
+@SpringBootTest(classes = { RoleServiceImpl.class })
 public class RoleServiceTest {
 
 	@Mock
@@ -71,12 +75,14 @@ public class RoleServiceTest {
 
 	private MockMvc mockMvc;
 
-	@Before
-	public void setUp() throws Exception {
+	@BeforeClass
+	public static void setUp() throws Exception {
 
-		mockMvc = MockMvcBuilders.standaloneSetup(roleService).build();
+		RoleData.setStandardResponseWithRole();
+		RoleData.setStandardResponseWithRoleList();
+		RoleData.setJsonStringRole();
 	}
-
+	
 	@Test
 	public void getAllRoleTest() throws Exception {
 
