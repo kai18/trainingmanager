@@ -1,4 +1,4 @@
-package com.poc.test.trainingmanager.config;
+package com.poc.test.trainingmanager.testdata;
 
 import java.util.ArrayList;
 import java.util.Arrays;
