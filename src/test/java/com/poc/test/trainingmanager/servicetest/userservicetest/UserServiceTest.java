@@ -31,7 +31,8 @@ public class UserServiceTest {
 	}
 
 	@Test
-	public void demoTest() {
+	public void userSearchTest() {
+
 	}
 
 }
