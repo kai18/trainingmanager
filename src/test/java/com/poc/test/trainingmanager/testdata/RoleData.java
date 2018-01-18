@@ -35,7 +35,7 @@ public class RoleData {
 			new PrivilegeUdt(1, 1, 1, 1, UUID.fromString("07b1e4b0-df0c-11e7-8dac-bb71b9eabcd5")),
 			new Date(Long.parseLong("1513062841979")), new Date(Long.parseLong("1513062841979")));
 
-	public static Role mockRole2 = new Role(UUID.fromString("ab3aaeb0-df10-11e7-8dac-bb71b9eabcd5"), "Faculty", "User",
+	public static Role mockRole2 = new Role(UUID.fromString("ab3aaeb0-df10-11e7-8dac-bb71b9eabcd5"), "Faculty", "Department",
 			"Normal user with only view privilege", new PrivilegeUdt(0, 0, 0, 1, null),
 			new Date(Long.parseLong("1513062841979")), new Date(Long.parseLong("1513062841979")));
 
