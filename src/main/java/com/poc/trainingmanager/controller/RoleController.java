@@ -68,7 +68,7 @@ public class RoleController {
 		return roleService.deleteRole(roleId, loggedInUser);
 	}
 
-	@RequestMapping(method = RequestMethod.GET, value = "/roleUsers")
+	/*@RequestMapping(method = RequestMethod.GET, value = "/roleUsers")
 	StandardResponse<List<RoleUsers>> getAllRoleUsers() {
 		return roleService.getAllRoleUsers();
 	}
@@ -77,6 +77,7 @@ public class RoleController {
 	StandardResponse<List<DepartmentRoles>> getAllDepartmentRoles() {
 		return roleService.getAllDepartmentRoles(assignedPrivileges);
 	}
+	 */
 
 	@RequestMapping(method = RequestMethod.GET, value = "/department/roles/{departmentId}")
 	public StandardResponse<Set<RoleUdt>> getDepartmentRoles(@PathVariable String departmentId) {

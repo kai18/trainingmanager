@@ -101,7 +101,7 @@ public class RoleServiceImpl implements RoleService {
 		if (role == null) {
 			throw new InvalidRequestDataException("Invalid role passed in the request, check if all fields are okay");
 		}
-		if (roleRepository.findByRoleName(role.getRoleName()) != null) {
+		if (roleRepository.findByRoleName(role.getRoleName()).getRoleName() == role.getRoleName()) {
 			throw new DuplicateDataException("Duplicate role, already exists");
 		}
 
@@ -166,7 +166,7 @@ public class RoleServiceImpl implements RoleService {
 	@Override
 	public StandardResponse<Role> deleteRole(String roleId, LoggedInUserWrapper loggedInUser) {
 
-		privilegeChecker.isAllowedToEditRole(loggedInUser.getPrivileges());
+		privilegeChecker.isAllowedToDeleteRole(loggedInUser.getPrivileges());
 
 		StandardResponse<Role> standardResponse = new StandardResponse<Role>();
 		Role role = roleRepository.findByRoleId(UUID.fromString(roleId));
@@ -194,7 +194,7 @@ public class RoleServiceImpl implements RoleService {
 		return standardResponse;
 	}
 
-	@Override
+	/*@Override
 	public StandardResponse<List<RoleUsers>> getAllRoleUsers() {
 
 		List<RoleUsers> allRoleUsers = roleUsersRepository.findAll();
@@ -216,7 +216,8 @@ public class RoleServiceImpl implements RoleService {
 		standardResponse.setMessage("DepartmentRoles fetched successfully");
 		return standardResponse;
 	}
-
+*/
+	
 	@Override
 	public StandardResponse<Set<RoleUdt>> getDepartmentRoles(UUID departmentId) {
 		Set<RoleUdt> departments = departmentRolesRepository.findByDepartmentId(departmentId).getRoles();

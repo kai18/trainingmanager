@@ -60,10 +60,10 @@ public interface RoleService {
 	// This method is used to delete an existing Role in the Role table.
 	public StandardResponse<Role> deleteRole(String roleId, LoggedInUserWrapper loggedInUser);
 
-	public StandardResponse<List<RoleUsers>> getAllRoleUsers();
-
-	public StandardResponse<List<DepartmentRoles>> getAllDepartmentRoles(List<PrivilegeUdt> assignedPrivileges);
-
+//	public StandardResponse<List<RoleUsers>> getAllRoleUsers();
+//
+//	public StandardResponse<List<DepartmentRoles>> getAllDepartmentRoles(List<PrivilegeUdt> assignedPrivileges);
+//
 	public StandardResponse<Set<RoleUdt>> getDepartmentRoles(UUID departmentId);
 
 }
