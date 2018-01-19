@@ -26,7 +26,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import com.poc.test.trainingmanager.config.RoleData;
+import com.poc.test.trainingmanager.testdata.RoleData;
 import com.poc.trainingmanager.controller.RoleController;
 import com.poc.trainingmanager.model.Role;
 import com.poc.trainingmanager.model.StandardResponse;
