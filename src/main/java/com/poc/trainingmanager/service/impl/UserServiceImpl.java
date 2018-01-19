@@ -125,7 +125,6 @@ public class UserServiceImpl implements UserService {
 			departmentNameList = Arrays.asList(departments.split(","));
 			for (String departmentName : departmentNameList) {
 				departmentList.add(departmentRespository.findByDepartmentName(departmentName));
-
 			}
 
 			departmentUdtList = WrapperUtil.departmentToDepartmentUdt(departmentList);
@@ -161,6 +160,8 @@ public class UserServiceImpl implements UserService {
 		StandardResponse<List<UserSearchWrapper>> searchResponse = new StandardResponse<List<UserSearchWrapper>>();
 		searchResponse.setElement(wrappedResult);
 		searchResponse.setMessage(wrappedResult.size() + " results found in " + timeTakenToSearch + " seconds");
+		searchResponse.setCode(200);
+		searchResponse.setStatus(Constants.SUCCESS);
 
 		return searchResponse;
 	}

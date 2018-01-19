@@ -18,7 +18,7 @@ public class SearchData {
 	public static List<User> dbUsers;
 	public static List<User> expectedResult;
 
-	public void setUp() {
+	public static void setUp() {
 		dbRoles = new ArrayList<RoleUdt>();
 		dbDepartments = new ArrayList<DepartmentUdt>();
 		dbUsers = new ArrayList<User>();

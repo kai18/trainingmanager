@@ -1,10 +1,7 @@
 package com.poc.trainingmanager.service.impl;
 
 import java.util.Date;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 import org.slf4j.Logger;
@@ -12,24 +9,19 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.poc.trainingmanager.constants.Constants;
 import com.poc.trainingmanager.exceptions.DuplicateDataException;
-import com.poc.trainingmanager.exceptions.InvalidRequestDataException;
 import com.poc.trainingmanager.exceptions.ResourceNotFoundException;
 import com.poc.trainingmanager.model.Department;
-import com.poc.trainingmanager.model.DepartmentRoles;
-import com.poc.trainingmanager.model.DepartmentUsers;
 import com.poc.trainingmanager.model.StandardResponse;
-import com.poc.trainingmanager.model.User;
-import com.poc.trainingmanager.model.cassandraudt.DepartmentUdt;
-import com.poc.trainingmanager.model.cassandraudt.UserUdt;
 import com.poc.trainingmanager.model.wrapper.LoggedInUserWrapper;
-import com.poc.trainingmanager.model.wrapper.WrapperUtil;
 import com.poc.trainingmanager.repository.DepartmentRepository;
 import com.poc.trainingmanager.repository.DepartmentRolesRepository;
 import com.poc.trainingmanager.repository.DepartmentUsersRepository;
 import com.poc.trainingmanager.repository.UserRepository;
 import com.poc.trainingmanager.service.DepartmentService;
+import com.poc.trainingmanager.service.helper.DepartmentDeleteHelper;
+import com.poc.trainingmanager.service.helper.DepartmentInsertHelper;
+import com.poc.trainingmanager.service.helper.DepartmentUpdateHelper;
 import com.poc.trainingmanager.utils.CommonUtils;
 import com.poc.trainingmanager.utils.PrivilegeChecker;
 
@@ -48,6 +40,18 @@ import com.poc.trainingmanager.utils.PrivilegeChecker;
 public class DepartmentServiceImpl implements DepartmentService {
 
 	private static final Logger logger = LoggerFactory.getLogger(DepartmentServiceImpl.class);
+
+	@Autowired
+	PrivilegeChecker privilegeChecker;
+	@Autowired
+	DepartmentInsertHelper departmentInsertHelper;
+
+	@Autowired
+	DepartmentUpdateHelper departmentUpdateHelper;
+
+	@Autowired
+	DepartmentDeleteHelper departmentDeleteHelper;
+
 	@Autowired
 	DepartmentRepository departmentRepository;
 
@@ -60,9 +64,6 @@ public class DepartmentServiceImpl implements DepartmentService {
 	@Autowired
 	DepartmentUsersRepository departmentUsersRepository;
 
-	@Autowired
-	PrivilegeChecker privilegeChecker;
-
 	/*
 	 * method to get all the departments of the department table.
 	 * 
@@ -72,12 +73,11 @@ public class DepartmentServiceImpl implements DepartmentService {
 	public StandardResponse<List<Department>> getAllDepartments() {
 		StandardResponse<List<Department>> standardResponse = new StandardResponse<List<Department>>();
 		List<Department> allDepartment = departmentRepository.findAll();
-		if (allDepartment == null) {
-			throw new ResourceNotFoundException("No departments found");
-		}
+		if (allDepartment == null)
+			throw new ResourceNotFoundException("Department with ID not found.");
 		logger.info("All departments fetched successfully");
 		standardResponse.setCode(200);
-		standardResponse.setStatus(Constants.SUCCESS);
+		standardResponse.setStatus("Success");
 		standardResponse.setMessage("All department fetched");
 		standardResponse.setElement(allDepartment);
 		return standardResponse;
@@ -99,40 +99,39 @@ public class DepartmentServiceImpl implements DepartmentService {
 
 		privilegeChecker.isAllowedToCreateDepartment(loggedInUser.getPrivileges());
 
-		Date date = new Date();
 		if (department == null) {
-			throw new InvalidRequestDataException("Invalid department object provided");
-		}
-		if (departmentRepository.findByDepartmentName(department.getDepartmentName()) != null) {
-			throw new DuplicateDataException("Department already exists");
-		}
-		department.setDepartmentId(UUID.randomUUID());
-		department.setDepartmentCreatedDtm(date);
-		department.setDepartmentUpdatedDtm(date);
-		Department addedDepartment = departmentRepository.save(department);
-		if (CommonUtils.isNull(addedDepartment)) {
-			standardResponse.setMessage("Department cannot be empty.");
+			logger.error("Inserted department was null, hence failed to Add department");
+			standardResponse.setCode(422);
+			standardResponse.setStatus("Failed");
+			standardResponse.setMessage("Department can't be null, failed to add this department");
 			return standardResponse;
 		}
-		DepartmentRoles departmentRoles = new DepartmentRoles();
-		departmentRoles.setDepartmentId(department.getDepartmentId());
-		departmentRoles.setRoles(null);
-		DepartmentRoles departmentRole = departmentRolesRepository.save(departmentRoles);
-		DepartmentUsers departmentUsers = new DepartmentUsers();
-		departmentUsers.setDepartmentId(department.getDepartmentId());
-		departmentUsers.setUserDepartmentsUdt(null);
-		DepartmentUsers departmentUser = departmentUsersRepository.save(departmentUsers);
-		if (departmentRole == null || departmentUser == null) {
+		if (departmentRepository.findByDepartmentName(department.getDepartmentName()) != null)
+			throw new DuplicateDataException("Department addition failed as it already exists.");
+
+		// insert into Department table
+		Department departmentInserted = departmentInsertHelper.insertIntoDepartment(department);
+		logger.info("Department {" + department + "} successfully added");
+
+		// insert into Department_Users table
+		departmentInsertHelper.insertIntoDepartmentUsers(departmentInserted);
+		logger.info("Department {" + department + "} successfully added to Department_Users");
+
+		// insert into Department_Roles
+		departmentInsertHelper.insertIntoDepartmentRoles(departmentInserted);
+		logger.info("Department {" + department + "} successfully added to Department_Roles");
+
+		if (departmentInserted == null) {
 			logger.error("Department {" + department + "} insertion failed");
 			standardResponse.setMessage("Department not inserted");
 			return standardResponse;
 		}
 		logger.info("Department {" + department + "} successfully added");
-		logger.info("DepartmentRoles {" + departmentRole + "} successfully updated with the new department");
+		logger.info("DepartmentRoles {" + department + "} successfully updated with the new department");
 		standardResponse.setCode(200);
 		standardResponse.setStatus("Success");
 		standardResponse.setMessage("Department inserted successfully");
-		standardResponse.setElement(addedDepartment);
+		standardResponse.setElement(departmentInserted);
 		return standardResponse;
 	}
 
@@ -148,61 +147,41 @@ public class DepartmentServiceImpl implements DepartmentService {
 	 */
 	@Override
 	public StandardResponse<Department> updateDepartment(Department department, LoggedInUserWrapper loggedInUser) {
+		StandardResponse<Department> standardResponse = new StandardResponse<Department>();
 
 		privilegeChecker.isAllowedToEditDepartment(loggedInUser.getPrivileges(), department.getDepartmentId());
 
-		StandardResponse<Department> standardResponse = new StandardResponse<Department>();
 		Date date = new Date();
-		Department oldDepartment = new Department();
+
+		// fetch the old department from department table
+		Department oldDepartment = departmentRepository.findByDepartmentId(department.getDepartmentId());
+		// update the department in department table
+		Department updatedDepartment = departmentUpdateHelper.updateDepartment(oldDepartment, department);
+
 		oldDepartment = departmentRepository.findByDepartmentId(department.getDepartmentId());
 
 		if (oldDepartment == null)
-			throw new ResourceNotFoundException("Department to be updated does not exist");
+			throw new ResourceNotFoundException("The department to be updated does not exist.");
 
-		DepartmentUdt oldDepartmentUdt = WrapperUtil.departmentToDepartmentUdt(oldDepartment);
-		Department newDepartment = new Department();
-		newDepartment = oldDepartment;
-		newDepartment.setDepartmentUpdatedDtm(date);
-		newDepartment.setDepartmentDescription(department.getDepartmentDescription());
-		newDepartment.setDepartmentName(department.getDepartmentName());
-
-		Department updatedDepartment = departmentRepository.save(newDepartment);
 		logger.info("Department {" + department + "} successfully updated in department table");
-		User user = new User();
-		Set<UserUdt> userList = new HashSet<UserUdt>();
-		DepartmentUsers departmentUsers = new DepartmentUsers();
-		departmentUsers = departmentUsersRepository.findByDepartmentId(department.getDepartmentId());
 
-		if (departmentUsers != null) {
-			userList = departmentUsers.getUserDepartmentsUdt();
-			if (userList != null) {
+		// update the Department in department_users table
+		departmentUpdateHelper.updateDepartmentUsers(oldDepartment, updatedDepartment);
+		logger.info("Department in DepartmentUsers successfully updated");
 
-				Set<UserUdt> newUserUdts = new HashSet<UserUdt>();
-				for (Iterator<UserUdt> userUdtIterator = userList.iterator(); userUdtIterator.hasNext();) {
-					UserUdt userUdt = userUdtIterator.next();
-					user = userRepository.findById(userUdt.getId());
-					Set<DepartmentUdt> departmentList = new HashSet<DepartmentUdt>();
-					departmentList = userUdt.getDepartments();
-					departmentList.remove(oldDepartmentUdt);
-					departmentList.add(WrapperUtil.departmentToDepartmentUdt(newDepartment));
-					userUdt.setDepartments(departmentList);
-					user.setDepartments(departmentList);
-					userRepository.save(user);
-					newUserUdts.add(userUdt);
-					logger.info("Department {" + department + "} successfully updated in user table");
-				}
-				departmentUsers.setUserDepartmentsUdt(newUserUdts);
-				departmentUsersRepository.save(departmentUsers);
-				logger.info("Department {" + department + "} successfully updated in departmentUser table");
-			}
-		}
+		logger.info("Department {" + department + "} successfully updated in user table");
+
 		if (CommonUtils.isStringNull(updatedDepartment.getDepartmentName())
 				|| CommonUtils.isStringNull(updatedDepartment.getDepartmentDescription())) {
-			throw new InvalidRequestDataException("Department name or description cannot be empty");
+			logger.error("Department {" + department + "} updation failed");
+			standardResponse.setCode(409);
+			standardResponse.setMessage("Failed");
+			standardResponse.setMessage("Department name and description cannot be empty");
+			return standardResponse;
 		}
 		logger.info("Department {" + department + "} successfully updated");
 		standardResponse.setCode(200);
-		standardResponse.setStatus(Constants.SUCCESS);
+		standardResponse.setStatus("Success");
 		standardResponse.setMessage("Department updated successfully");
 		standardResponse.setElement(updatedDepartment);
 		return standardResponse;
@@ -218,23 +197,26 @@ public class DepartmentServiceImpl implements DepartmentService {
 	 * trainingmanager.model.Department)
 	 */
 	@Override
-	public StandardResponse<Object> deleteDepartment(String deptId, LoggedInUserWrapper loggedInUser) {
+	public StandardResponse deleteDepartment(String deptId, LoggedInUserWrapper loggedInUser) {
 
 		this.privilegeChecker.IsAllowedToDeleteDepartment(loggedInUser.getPrivileges());
 
+		// delete from Department table
+		departmentDeleteHelper.deleteFromDepartment(deptId);
+
+		// delete from department_users table
+		departmentDeleteHelper.deleteFromDepartmentUsers(deptId);
+
+		// delete from department_roles table
+		departmentDeleteHelper.deleteFromDepartmentRoles(deptId);
+
 		UUID departmentId = UUID.fromString(deptId);
-		StandardResponse<Object> standardResponse = new StandardResponse<Object>();
-		DepartmentRoles departmentRoles = new DepartmentRoles();
-		departmentRoles = departmentRolesRepository.findByDepartmentId(departmentId);
-		departmentRolesRepository.delete(departmentRoles);
-		DepartmentUsers departmentUsers = new DepartmentUsers();
-		departmentUsers = departmentUsersRepository.findByDepartmentId(departmentId);
-		departmentUsersRepository.delete(departmentUsers);
-		departmentRepository.delete(departmentRepository.findByDepartmentId(departmentId));
+		StandardResponse standardResponse = new StandardResponse<Object>();
 		standardResponse.setCode(200);
-		standardResponse.setStatus(Constants.SUCCESS);
+		standardResponse.setStatus("Success");
 		standardResponse.setMessage("Department deleted successfully");
 		logger.info("Department with ID {" + departmentId + "} successfully deleted");
 		return standardResponse;
 	}
+
 }
