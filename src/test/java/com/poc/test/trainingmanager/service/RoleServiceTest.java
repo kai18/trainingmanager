@@ -1,79 +1,65 @@
 package com.poc.test.trainingmanager.service;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
 
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
-import org.hamcrest.Matchers;
-import org.junit.Assert;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.MediaType;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.ComponentScan;
 
+import com.poc.test.trainingmanager.testdata.DepartmentRolesData;
 import com.poc.test.trainingmanager.testdata.RoleData;
-import com.poc.trainingmanager.controller.RoleController;
+import com.poc.test.trainingmanager.testdata.RoleUsersData;
+import com.poc.trainingmanager.model.DepartmentRoles;
 import com.poc.trainingmanager.model.Role;
+import com.poc.trainingmanager.model.RoleUsers;
 import com.poc.trainingmanager.model.StandardResponse;
 import com.poc.trainingmanager.model.cassandraudt.PrivilegeUdt;
+import com.poc.trainingmanager.model.cassandraudt.RoleUdt;
+import com.poc.trainingmanager.model.wrapper.LoggedInUserWrapper;
 import com.poc.trainingmanager.repository.DepartmentRolesRepository;
 import com.poc.trainingmanager.repository.RoleRepository;
 import com.poc.trainingmanager.repository.RoleUsersRepository;
 import com.poc.trainingmanager.repository.UserRepository;
-import com.poc.trainingmanager.service.RoleService;
 import com.poc.trainingmanager.service.helper.RoleDeleteHelper;
 import com.poc.trainingmanager.service.helper.RoleInsertHelper;
 import com.poc.trainingmanager.service.helper.RoleUpdateHelper;
 import com.poc.trainingmanager.service.impl.RoleServiceImpl;
 import com.poc.trainingmanager.utils.PrivilegeChecker;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@RunWith(MockitoJUnitRunner.class)
 @SpringBootTest(classes = { RoleServiceImpl.class })
+@ComponentScan
 public class RoleServiceTest {
 
-	@Mock
-	RoleInsertHelper roleInsertHelper;
+	private static RoleInsertHelper roleInsertHelper;
 
-	@Mock
-	RoleDeleteHelper roleDeleteHelper;
+	private static RoleDeleteHelper roleDeleteHelper;
 
-	@Mock
-	RoleUpdateHelper roleUpdateHelper;
+	private static RoleUpdateHelper roleUpdateHelper;
 
-	@Mock
-	private RoleRepository roleRepository;
+	private static RoleRepository roleRepository;
+	
+	private static PrivilegeChecker privilegeChecker;
 
-	@Mock
-	private DepartmentRolesRepository departmentRolesRepository;
-
-	@Mock
-	private UserRepository userRepository;
-
-	@Mock
-	private RoleUsersRepository roleUsersRepository;
-
-	@Mock
-	private PrivilegeChecker privilegeChecker;
+	private static RoleUsersRepository roleUsersRepository;
+	
+	private static DepartmentRolesRepository departmentRolesRepository;
 
 	@InjectMocks
 	private RoleServiceImpl roleService;
 
-	private MockMvc mockMvc;
 
 	@BeforeClass
 	public static void setUp() throws Exception {
@@ -81,25 +67,103 @@ public class RoleServiceTest {
 		RoleData.setStandardResponseWithRole();
 		RoleData.setStandardResponseWithRoleList();
 		RoleData.setJsonStringRole();
+		RoleUsersData.setRoleUsers();
+		
+		roleRepository = mock(RoleRepository.class);
+		privilegeChecker = mock(PrivilegeChecker.class);
+		roleInsertHelper = mock(RoleInsertHelper.class);
+		roleUpdateHelper = mock(RoleUpdateHelper.class);
+		roleDeleteHelper = mock(RoleDeleteHelper.class);
+		roleUsersRepository = mock(RoleUsersRepository.class);
+		departmentRolesRepository = mock(DepartmentRolesRepository.class);
+		
+		Mockito.when(roleRepository.findAll()).thenReturn(RoleData.roleList);
+		Mockito.when(roleRepository.findByRoleId(Mockito.any(UUID.class))).thenReturn(RoleData.mockRole);
+		Mockito.when(roleRepository.findByRoleName(RoleData.mockRole.getRoleName())).thenReturn(RoleData.mockRole1);
+		Mockito.when(privilegeChecker.isAllowedToCreateRole(Mockito.anySetOf(PrivilegeUdt.class))).thenReturn(Boolean.TRUE);
+		Mockito.when(roleInsertHelper.insertIntoRole(Mockito.any(Role.class))).thenReturn(RoleData.mockRole2);
+		//Mockito.when(roleInsertHelper.insertIntoRole(null)).thenReturn(RoleData.mockRole);
+		Mockito.when(roleRepository.save(Mockito.any(Role.class))).thenReturn(RoleData.mockRole);
+		Mockito.when(privilegeChecker.isAllowedToEditRole(Mockito.anySetOf(PrivilegeUdt.class))).thenReturn(Boolean.TRUE);
+		Mockito.when(roleUpdateHelper.updateRole(Mockito.any(Role.class), Mockito.any(Role.class))).thenReturn(RoleData.mockRole1);
+		Mockito.when(privilegeChecker.isAllowedToDeleteRole(Mockito.anySetOf(PrivilegeUdt.class))).thenReturn(Boolean.TRUE);
+		Mockito.doNothing().when(roleRepository).delete(Mockito.isA(Role.class));
+		Mockito.doNothing().when(roleDeleteHelper).deleteFromRole(Mockito.isA(Role.class));
+		Mockito.doNothing().when(roleDeleteHelper).deleteFromDepartmentRoles(Mockito.isA(UUID.class),Mockito.isA(Role.class));
+		Mockito.doNothing().when(roleDeleteHelper).deleteFromRoleUsers(Mockito.isA(Role.class));
+		Mockito.when(roleUsersRepository.save(Mockito.any(RoleUsers.class))).thenReturn(RoleUsersData.roleUsers);
+		Mockito.when(departmentRolesRepository.findByDepartmentId(Mockito.any(UUID.class))).thenReturn(DepartmentRolesData.mockDepartmentRoles);
 	}
 	
 	@Test
 	public void getAllRoleTest() throws Exception {
 
-		StandardResponse<List<Role>> standardResponseMock = new StandardResponse<List<Role>>();
-
-		Role mockRole = new Role(UUID.fromString("de6d54a0-df0f-11e7-8dac-bb71b9eabcd5"), "Sys admin", "System",
-				"Manages all roles", new PrivilegeUdt(1, 1, 1, 1, null), new Date(), new Date());
-		List<Role> roleList = new ArrayList<Role>();
-		roleList.add(mockRole);
-		standardResponseMock.setCode(201);
-		standardResponseMock.setStatus("success");
-		standardResponseMock.setElement(roleList);
-
-		Mockito.when(roleRepository.findAll()).thenReturn(roleList);
-
-		Assert.assertEquals(roleService.getAllRoles().getElement().size(), standardResponseMock.getElement().size());
-		Assert.assertEquals(roleService.getAllRoles().getStatus(), "success");
+		StandardResponse<List<Role>> standardResponse = roleService.getAllRoles();
+		System.out.println(standardResponse);
+		assertNotNull(standardResponse);
+		assertEquals(3, standardResponse.getElement().size());
+		assertEquals("success", standardResponse.getStatus());
+		
+		Mockito.verify(roleRepository).findAll();
 	}
+	
+	@Test
+	public void getAllRoleNameTest() throws Exception {
 
+		StandardResponse<Role> standardResponse = roleService.getRoleByName(RoleData.mockRole.getRoleName());
+		System.out.println(standardResponse);
+		assertNotNull(standardResponse);
+		assertNotNull(standardResponse.getElement());
+		assertEquals("success", standardResponse.getStatus());
+		
+		Mockito.verify(roleRepository).findByRoleName(RoleData.mockRole.getRoleName());
+	}
+	
+	@Test
+	public void getDepartmentRolesTest() throws Exception {
+
+		StandardResponse<Set<RoleUdt>> standardResponse = roleService.getDepartmentRoles(RoleData.mockRole.getRoleId());
+		System.out.println(standardResponse);
+		assertNotNull(standardResponse);
+		assertNotNull(standardResponse.getElement());
+		assertEquals("success", standardResponse.getStatus());
+		
+		Mockito.verify(roleRepository).findByRoleName(RoleData.mockRole.getRoleName());
+	}
+	
+	@Test
+	public void insertRoleTest() throws Exception{
+		StandardResponse<Role> standardResponse = roleService.addRole(RoleData.mockRole, new LoggedInUserWrapper());
+		System.out.println(standardResponse);
+		assertNotNull(standardResponse);
+		assertEquals("success", standardResponse.getStatus());
+	}
+	
+	@Test
+	public void roleInsertHelperTest() throws Exception{
+		roleInsertHelper.insertIntoRoleUsers(RoleData.mockRole);
+		Mockito.verify(roleInsertHelper).insertIntoRole(RoleData.mockRole);
+		
+//		roleInsertHelper.insertIntoRoleUsers(RoleData.mockRole);
+//		Mockito.verify(roleInsertHelper).insertIntoRoleUsers(RoleData.mockRole);
+//		
+//		roleInsertHelper.insertIntoRoleUsers(RoleData.mockRole);
+//		Mockito.verify(roleInsertHelper).insertIntoRole(RoleData.mockRole);
+	}
+	
+	@Test
+	public void updateRoleTest() throws Exception{
+		StandardResponse<Role> standardResponse = roleService.updateRole(RoleData.mockRole1, new LoggedInUserWrapper());
+		System.out.println(standardResponse);
+		assertNotNull(standardResponse);
+		assertEquals("success", standardResponse.getStatus());
+	}
+	
+	@Test
+	public void deleteRoleTest() throws Exception{
+		StandardResponse<Role> standardResponse = roleService.deleteRole(RoleData.mockRole1.getRoleId().toString(), new LoggedInUserWrapper());
+		System.out.println(standardResponse);
+		assertNotNull(standardResponse);
+		assertEquals("success", standardResponse.getStatus());
+	}
 }
