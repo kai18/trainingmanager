@@ -135,7 +135,7 @@ public class UserGrantRoleTest {
 
 		userserviceimpl.grantRole(roleId, departmentId, new LoggedInUserWrapper());
 
-		assertThat(users.get(0)).isEqualTo(users.get(1));
+		assertThat(users.get(0).getRoles().size()).isEqualTo(users.get(1).getRoles().size());
 	}
 
 }
