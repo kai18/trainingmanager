@@ -28,10 +28,7 @@ public interface UserRepository extends CassandraRepository<User> {
 	public List<User> findByFirstNameContainingIgnoreCaseAndLastNameContainingIgnoreCase(String firstName,
 			String lastName);
 
-<<<<<<< HEAD
 	public List<User> findByDepartments(Department department);
-}
-=======
+
 	public List<User> findByRoles(RoleUdt roleUdt);
 }
->>>>>>> refs/remotes/origin/testing

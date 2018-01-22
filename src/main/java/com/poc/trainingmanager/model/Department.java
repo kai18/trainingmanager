@@ -18,6 +18,10 @@ public class Department {
 	@Column("DEPARTMENT_NAME")
 	private String departmentName;
 
+	public Department() {
+		super();
+	}
+
 	@Column("DEPARTMENT_DESCRIPTION")
 	private String departmentDescription;
 

@@ -31,19 +31,16 @@ public class RoleController {
 		return roleService.getAllRoles(assignedPrivileges);
 	}
 	
-	//not fetching
 	@RequestMapping(method=RequestMethod.GET, value="/name")
 	StandardResponse<Role> getRoleByName(@PathParam("roleName") String roleName) {
 		return roleService.getRoleByName(assignedPrivileges, roleName);
 	}
 	
-	//not posting
 	@RequestMapping(method=RequestMethod.POST)
 	StandardResponse<Role> addRole(@RequestBody Role role) {
 		return roleService.addRole(assignedPrivileges, role);
 	}
 	
-	//updating, but making privilege field null
 	@RequestMapping(method=RequestMethod.PUT)
 	StandardResponse<Role> updateRole(@RequestBody Role role) {
 		return roleService.updateRole(assignedPrivileges, role);
